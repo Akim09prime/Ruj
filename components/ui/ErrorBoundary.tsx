@@ -9,6 +9,10 @@ interface State {
   hasError: boolean;
 }
 
+/**
+ * ErrorBoundary component to catch rendering errors in the component tree.
+ * Fixed the generic definition to include Props and State so that 'this.props' is recognized.
+ */
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false
@@ -25,22 +29,25 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center p-6 text-center">
-          <div className="max-w-md">
-            <h1 className="font-serif text-4xl mb-4 text-accent">Ceva nu a mers bine.</h1>
-            <p className="text-muted mb-8">A apărut o eroare neprevăzută. Vă rugăm să reîncărcați pagina.</p>
+        <div className="min-h-screen flex items-center justify-center p-6 text-center bg-background">
+          <div className="max-w-md p-10 bg-surface border border-border shadow-2xl">
+            <h1 className="font-serif text-4xl mb-4 text-accent">Eroare Sistem</h1>
+            <p className="text-muted mb-8 text-sm uppercase tracking-widest font-bold">A apărut o problemă la procesarea datelor locale.</p>
             <button 
-              onClick={() => window.location.reload()}
-              className="px-8 py-3 bg-accent text-white uppercase tracking-widest font-bold text-xs"
+              onClick={() => {
+                localStorage.clear();
+                window.location.reload();
+              }}
+              className="px-8 py-3 bg-accent text-white uppercase tracking-widest font-bold text-[10px] hover:opacity-90"
             >
-              Reîncarcă Pagina
+              Resetare & Reîncărcare
             </button>
           </div>
         </div>
       );
     }
 
-    // Fix: Access children from props
+    // Correctly accessing children from this.props
     return this.props.children;
   }
 }

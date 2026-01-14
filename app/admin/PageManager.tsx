@@ -1,28 +1,27 @@
 
 import React, { useEffect, useState } from 'react';
 import { dbService } from '../../services/db';
-import { Page, SectionBlock, I18nString } from '../../types';
+import { Page, SectionBlock } from '../../types';
 
 export const PageManager: React.FC = () => {
   const [pages, setPages] = useState<Page[]>([]);
   const [editing, setEditing] = useState<Partial<Page> | null>(null);
-  const [editingSection, setEditingSection] = useState<{index: number, block: SectionBlock} | null>(null);
 
-  useEffect(() => {
-    dbService.getPages().then(setPages);
-  }, []);
+  const load = () => dbService.getPages().then(setPages);
+  useEffect(() => { load(); }, []);
 
   const handleSavePage = async () => {
-    if (!editing?.slug) return;
+    if (!editing?.slug) { alert('Slug-ul este obligatoriu!'); return; }
     const fullPage = {
       ...editing,
       id: editing.id || Math.random().toString(36).substr(2, 9),
       updatedAt: new Date().toISOString(),
-      sections: editing.sections || []
+      sections: editing.sections || [],
+      order: editing.order || 0
     } as Page;
     await dbService.upsertPage(fullPage);
     setEditing(null);
-    dbService.getPages().then(setPages);
+    load();
   };
 
   const addSection = (type: any) => {
@@ -39,16 +38,10 @@ export const PageManager: React.FC = () => {
     setEditing({ ...editing, sections: [...(editing?.sections || []), newSection] });
   };
 
-  const updateSectionContent = (index: number, content: any) => {
-    const newSections = [...(editing?.sections || [])];
-    newSections[index].content = content;
-    setEditing({ ...editing, sections: newSections });
-  };
-
   return (
-    <div className="p-8">
+    <div className="p-8 animate-fade-in">
       <div className="flex justify-between items-center mb-10">
-        <h1 className="font-serif text-3xl">Pagini Dinamice (CMS)</h1>
+        <h1 className="font-serif text-3xl text-foreground">Pagini Dinamice (CMS)</h1>
         <button 
           onClick={() => setEditing({ 
             slug: '', 
@@ -58,117 +51,108 @@ export const PageManager: React.FC = () => {
             template: 'standard',
             seo: { title: { ro: '', en: '' }, description: { ro: '', en: '' } }
           })}
-          className="bg-accent text-white px-6 py-2 text-xs font-bold uppercase tracking-widest shadow-lg shadow-accent/20"
+          className="bg-accent text-white px-6 py-2 text-[10px] font-bold uppercase tracking-[0.2em] shadow-lg shadow-accent/20"
         >
-          Creează Pagină Nouă
+          Pagină Nouă
         </button>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pages.map(p => (
-          <div key={p.id} className="bg-surface p-6 border border-border flex justify-between items-center hover:border-accent transition-colors shadow-sm">
-            <div>
-              <div className="flex items-center space-x-3 mb-1">
-                <h3 className="font-bold text-lg">/p/{p.slug}</h3>
-                {!p.isPublished && <span className="bg-red-500/10 text-red-500 text-[8px] px-2 py-0.5 rounded font-bold uppercase">Draft</span>}
+          <div key={p.id} className="bg-surface border border-border p-6 shadow-sm hover:border-accent transition-all group">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="font-serif text-xl mb-1">/p/{p.slug}</h3>
+                <span className={`text-[8px] px-2 py-0.5 rounded font-bold uppercase ${p.isPublished ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'}`}>
+                  {p.isPublished ? 'Publicat' : 'Draft'}
+                </span>
               </div>
-              <p className="text-[10px] text-muted uppercase tracking-widest">
-                Template: {p.template} • {p.sections.length} Secțiuni • Actualizat {new Date(p.updatedAt).toLocaleDateString()}
-              </p>
+              <span className="text-[10px] text-muted font-mono">ID: {p.id.substr(0, 4)}</span>
             </div>
-            <div className="flex space-x-3">
-              <button onClick={() => setEditing(p)} className="text-[10px] font-bold uppercase tracking-widest border border-border px-4 py-2 hover:bg-surface-2">Editează</button>
-              <button onClick={() => dbService.deletePage(p.id).then(() => dbService.getPages().then(setPages))} className="text-[10px] font-bold uppercase tracking-widest text-red-500 border border-red-500/10 px-4 py-2 hover:bg-red-500/5">Șterge</button>
+            <p className="text-xs text-muted mb-6 line-clamp-2">{p.hero.title.ro}</p>
+            <div className="flex justify-between border-t border-border pt-4">
+               <button onClick={() => setEditing(p)} className="text-[10px] font-bold uppercase text-accent hover:underline">Editează</button>
+               <button onClick={async () => { if(confirm('Ștergi pagina?')) { await dbService.deletePage(p.id); load(); } }} className="text-[10px] font-bold uppercase text-red-500/50 hover:text-red-500">Elimină</button>
             </div>
           </div>
         ))}
-        {pages.length === 0 && <div className="text-center py-20 border-2 border-dashed border-border text-muted">Nicio pagină creată încă.</div>}
       </div>
 
       {editing && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-6">
-          <div className="bg-background w-full max-w-5xl p-10 border border-border shadow-2xl max-h-[92vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-10 pb-6 border-b border-border">
-              <h2 className="font-serif text-3xl">Editor Pagină: <span className="text-accent">/p/{editing.slug || '...'}</span></h2>
-              <button onClick={() => setEditing(null)} className="text-3xl font-light hover:text-accent transition-colors">×</button>
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-background w-full max-w-6xl p-10 border border-border shadow-2xl max-h-[95vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-10 pb-4 border-b border-border">
+              <h2 className="font-serif text-3xl">Configurare Pagină: <span className="text-accent">/p/{editing.slug || '...'}</span></h2>
+              <button onClick={() => setEditing(null)} className="text-3xl font-light">×</button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-              <div className="lg:col-span-1 space-y-8">
-                <div className="space-y-4">
-                  <h3 className="text-xs uppercase font-bold tracking-[0.2em] text-accent">Setări de bază</h3>
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-muted">URL Slug</label>
-                    <input className="w-full bg-surface border border-border p-3 text-sm outline-none focus:border-accent" value={editing.slug} onChange={e => setEditing({...editing, slug: e.target.value})} placeholder="ex: reduceri-bucatarii" />
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+              <div className="lg:col-span-4 space-y-8">
+                <section className="space-y-4">
+                  <h4 className="text-[10px] uppercase font-bold tracking-widest text-accent">Setări URL & SEO</h4>
+                  <input className="w-full bg-surface border border-border p-3 text-sm" placeholder="URL Slug (ex: servicii-cnc)" value={editing.slug} onChange={e => setEditing({...editing, slug: e.target.value})} />
+                  <input className="w-full bg-surface border border-border p-3 text-sm" placeholder="Meta Titlu RO" value={editing.seo?.title.ro} onChange={e => setEditing({...editing, seo: {...editing.seo!, title: {...editing.seo!.title, ro: e.target.value}}})} />
+                  <textarea className="w-full bg-surface border border-border p-3 text-sm h-20" placeholder="Meta Descriere RO" value={editing.seo?.description.ro} onChange={e => setEditing({...editing, seo: {...editing.seo!, description: {...editing.seo!.description, ro: e.target.value}}})} />
+                </section>
+                
+                <section className="space-y-4">
+                  <h4 className="text-[10px] uppercase font-bold tracking-widest text-accent">Hero Branding</h4>
+                  <input className="w-full bg-surface border border-border p-3 text-sm" placeholder="Imagine Hero URL" value={editing.hero?.darkImageUrl} onChange={e => setEditing({...editing, hero: {...editing.hero!, darkImageUrl: e.target.value}})} />
+                  <input className="w-full bg-surface border border-border p-3 text-sm" placeholder="Titlu Hero RO" value={editing.hero?.title.ro} onChange={e => setEditing({...editing, hero: {...editing.hero!, title: {...editing.hero!.title, ro: e.target.value}}})} />
+                  <div className="flex items-center space-x-4 p-3 bg-surface border border-border">
+                    <input type="checkbox" checked={editing.isPublished} id="pub" onChange={e => setEditing({...editing, isPublished: e.target.checked})} />
+                    <label htmlFor="pub" className="text-[10px] uppercase font-bold cursor-pointer">Publicat pe site</label>
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] uppercase font-bold text-muted">Vizibilitate</label>
-                    <div className="flex items-center space-x-3 p-3 bg-surface border border-border">
-                      <input type="checkbox" id="pub-page" checked={editing.isPublished} onChange={e => setEditing({...editing, isPublished: e.target.checked})} />
-                      <label htmlFor="pub-page" className="text-xs font-bold uppercase cursor-pointer">Publicat</label>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-xs uppercase font-bold tracking-[0.2em] text-accent">Hero Section</h3>
-                  <input placeholder="Imagine Hero URL" className="w-full bg-surface border border-border p-3 text-sm" value={editing.hero?.darkImageUrl} onChange={e => setEditing({...editing, hero: {...editing.hero!, darkImageUrl: e.target.value}})} />
-                  <input placeholder="Titlu RO" className="w-full bg-surface border border-border p-3 text-sm" value={editing.hero?.title.ro} onChange={e => setEditing({...editing, hero: {...editing.hero!, title: {...editing.hero!.title, ro: e.target.value}}})} />
-                  <textarea placeholder="Subtitlu RO" className="w-full bg-surface border border-border p-3 text-sm h-20" value={editing.hero?.subtitle.ro} onChange={e => setEditing({...editing, hero: {...editing.hero!, subtitle: {...editing.hero!.subtitle, ro: e.target.value}}})} />
-                </div>
+                </section>
               </div>
 
-              <div className="lg:col-span-2 space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xs uppercase font-bold tracking-[0.2em] text-accent">Secțiuni Conținut ({editing.sections?.length || 0})</h3>
+              <div className="lg:col-span-8 space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h4 className="text-[10px] uppercase font-bold tracking-widest text-accent">Arhitectură Secțiuni ({editing.sections?.length || 0})</h4>
                   <div className="flex space-x-2">
-                    <button onClick={() => addSection('text')} className="text-[9px] bg-accent text-white px-3 py-1.5 uppercase font-bold">+ Text</button>
-                    <button onClick={() => addSection('imageText')} className="text-[9px] bg-accent text-white px-3 py-1.5 uppercase font-bold">+ Img+Text</button>
-                    <button onClick={() => addSection('cta')} className="text-[9px] bg-accent text-white px-3 py-1.5 uppercase font-bold">+ CTA</button>
+                    <button onClick={() => addSection('text')} className="bg-surface-2 border border-border px-3 py-1 text-[9px] font-bold uppercase hover:bg-border">+ Text</button>
+                    <button onClick={() => addSection('imageText')} className="bg-surface-2 border border-border px-3 py-1 text-[9px] font-bold uppercase hover:bg-border">+ Media</button>
+                    <button onClick={() => addSection('cta')} className="bg-surface-2 border border-border px-3 py-1 text-[9px] font-bold uppercase hover:bg-border">+ Buton CTA</button>
                   </div>
                 </div>
 
-                <div className="space-y-4 min-h-[400px] border-2 border-dashed border-border p-4 bg-surface-2/50">
+                <div className="space-y-4 max-h-[500px] overflow-y-auto p-4 border border-border bg-surface-2/30 rounded">
                   {editing.sections?.map((s, idx) => (
-                    <div key={s.id} className="bg-surface border border-border p-5 flex flex-col space-y-4 shadow-sm group">
-                      <div className="flex justify-between items-center border-b border-border/50 pb-3">
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-accent">#{idx + 1} — {s.type.toUpperCase()}</span>
-                        <button onClick={() => setEditing({...editing, sections: editing.sections?.filter(sec => sec.id !== s.id)})} className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold uppercase">Șterge</button>
-                      </div>
-                      
-                      {/* Editori Inline simplificați */}
-                      {s.type === 'text' && (
-                        <textarea 
-                          placeholder="Introduceți textul aici..."
-                          className="w-full bg-surface-2 border border-border p-3 text-sm min-h-[100px]"
-                          value={s.content.text.ro}
-                          onChange={e => updateSectionContent(idx, { text: { ro: e.target.value, en: s.content.text.en } })}
-                        />
-                      )}
-                      
-                      {s.type === 'cta' && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <input placeholder="Titlu Buton" className="bg-surface-2 border border-border p-2 text-xs" value={s.content.buttonLabel.ro} onChange={e => updateSectionContent(idx, {...s.content, buttonLabel: {ro: e.target.value, en: s.content.buttonLabel.en}})} />
-                          <input placeholder="Link (ex: /contact)" className="bg-surface-2 border border-border p-2 text-xs" value={s.content.link} onChange={e => updateSectionContent(idx, {...s.content, link: e.target.value})} />
-                        </div>
-                      )}
-
-                      {s.type === 'imageText' && (
-                        <div className="space-y-2">
-                          <input placeholder="URL Imagine" className="w-full bg-surface-2 border border-border p-2 text-xs" value={s.content.imageUrl} onChange={e => updateSectionContent(idx, {...s.content, imageUrl: e.target.value})} />
-                          <input placeholder="Titlu Secțiune" className="w-full bg-surface-2 border border-border p-2 text-xs" value={s.content.title.ro} onChange={e => updateSectionContent(idx, {...s.content, title: {ro: e.target.value, en: s.content.title.en}})} />
-                        </div>
-                      )}
+                    <div key={s.id} className="bg-surface border border-border p-4 shadow-sm relative">
+                       <div className="flex justify-between mb-2">
+                         <span className="text-[9px] font-bold uppercase text-accent">Secțiunea {idx + 1} — {s.type}</span>
+                         <button onClick={() => setEditing({...editing, sections: editing.sections?.filter(sec => sec.id !== s.id)})} className="text-red-500 text-[10px]">Elimină</button>
+                       </div>
+                       {s.type === 'text' && (
+                         <textarea className="w-full bg-surface-2 border border-border p-2 text-sm" value={s.content.text.ro} onChange={e => {
+                           const updated = [...(editing.sections || [])];
+                           updated[idx].content.text.ro = e.target.value;
+                           setEditing({...editing, sections: updated});
+                         }} />
+                       )}
+                       {s.type === 'cta' && (
+                         <div className="grid grid-cols-2 gap-4">
+                            <input className="bg-surface-2 border border-border p-2 text-xs" placeholder="Text Buton" value={s.content.buttonLabel.ro} onChange={e => {
+                               const updated = [...(editing.sections || [])];
+                               updated[idx].content.buttonLabel.ro = e.target.value;
+                               setEditing({...editing, sections: updated});
+                            }} />
+                            <input className="bg-surface-2 border border-border p-2 text-xs" placeholder="Link (ex: /contact)" value={s.content.link} onChange={e => {
+                               const updated = [...(editing.sections || [])];
+                               updated[idx].content.link = e.target.value;
+                               setEditing({...editing, sections: updated});
+                            }} />
+                         </div>
+                       )}
                     </div>
                   ))}
-                  {editing.sections?.length === 0 && <div className="text-center py-20 text-muted/40 text-[10px] uppercase font-bold">Nicio secțiune adăugată. Folosește butoanele de mai sus.</div>}
                 </div>
               </div>
             </div>
 
-            <div className="flex justify-end space-x-4 pt-10 mt-10 border-t border-border">
-              <button onClick={() => setEditing(null)} className="px-8 py-3 text-[10px] uppercase font-bold tracking-widest border border-border">Anulează</button>
-              <button onClick={handleSavePage} className="bg-accent text-white px-12 py-3 text-[10px] uppercase font-bold tracking-widest shadow-xl shadow-accent/20">Salvează Pagina Completă</button>
+            <div className="flex justify-end space-x-4 pt-10 border-t border-border mt-10">
+              <button onClick={() => setEditing(null)} className="px-10 py-3 text-[10px] font-bold uppercase tracking-widest border border-border">Închide</button>
+              <button onClick={handleSavePage} className="bg-accent text-white px-16 py-3 text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-accent/20">Salvează Pagina</button>
             </div>
           </div>
         </div>

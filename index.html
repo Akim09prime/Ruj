@@ -10,6 +10,20 @@
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+      window.onerror = function(msg, url, line) {
+        console.error("Critical error:", msg, "at", url, ":", line);
+        if (msg.indexOf('useRef') > -1 || msg.indexOf('Failed to load') > -1) {
+          const root = document.getElementById('root');
+          if (root) {
+            root.innerHTML = '<div style="height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:sans-serif; background:#F5F0E8; color:#1A1A1A; text-align:center; padding:20px;">' +
+              '<h1 style="font-family:serif; font-size:32px; color:#B8923B;">Eroare de Încărcare</h1>' +
+              '<p style="max-width:400px; margin:20px 0; opacity:0.8; line-height:1.5;">Browserul nu a putut inițializa modulele React. Aceasta este o eroare de stocare temporară a platformei.</p>' +
+              '<button onclick="localStorage.clear(); sessionStorage.clear(); location.reload();" style="padding:12px 24px; background:#B8923B; color:white; border:none; cursor:pointer; font-weight:bold; border-radius:4px;">ÎNCEARCĂ DIN NOU</button>' +
+              '</div>';
+          }
+        }
+      };
+      
       tailwind.config = {
         darkMode: 'class',
         theme: {
@@ -28,75 +42,56 @@
               serif: ['Cormorant Garamond', 'serif'],
               sans: ['Inter', 'sans-serif'],
             },
+            animation: {
+              'slow-zoom': 'slowZoom 20s ease-in-out infinite alternate',
+              'fade-in': 'fadeIn 1s ease-out forwards',
+              'slide-up': 'slideUp 0.8s ease-out forwards',
+              'slide-up-delayed': 'slideUp 0.8s ease-out 0.3s forwards',
+            },
+            keyframes: {
+              slowZoom: {
+                '0%': { transform: 'scale(1.05)' },
+                '100%': { transform: 'scale(1.15)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { opacity: '0', transform: 'translateY(30px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
           }
         }
       }
     </script>
     <style>
-      :root {
-        --background: #F5F0E8;
-        --surface: #FFFFFF;
-        --surface-2: #FAF6EF;
-        --foreground: #1A1A1A;
-        --muted: rgba(26, 26, 26, 0.68);
-        --border: rgba(20, 20, 20, 0.10);
-        --accent: #B8923B;
-        --accent-2: #D6C08B;
-      }
-
-      .dark {
-        --background: #0B0D10;
-        --surface: #121722;
-        --surface-2: #161C28;
-        --foreground: #F2F2EF;
-        --muted: rgba(242, 242, 239, 0.72);
-        --border: rgba(255, 255, 255, 0.08);
-        --accent: #C9A24A;
-        --accent-2: #E3D4A6;
-      }
-
-      body {
-        background-color: var(--background);
-        color: var(--foreground);
-        transition: background-color 0.3s ease, color 0.3s ease;
-        margin: 0;
-        -webkit-font-smoothing: antialiased;
-      }
-
-      /* Noise Overlay */
-      body::before {
-        content: "";
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        opacity: 0.03;
-        z-index: 9999;
-        pointer-events: none;
-        background-image: url('https://grainy-gradients.vercel.app/noise.svg');
-      }
-
-      /* Custom scrollbar */
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: var(--surface); }
-      ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+      :root { --background: #F5F0E8; --surface: #FFFFFF; --surface-2: #FAF6EF; --foreground: #1A1A1A; --muted: rgba(26, 26, 26, 0.68); --border: rgba(20, 20, 20, 0.10); --accent: #B8923B; --accent-2: #D6C08B; }
+      .dark { --background: #0B0D10; --surface: #121722; --surface-2: #161C28; --foreground: #F2F2EF; --muted: rgba(242, 242, 239, 0.72); --border: rgba(255, 255, 255, 0.08); --accent: #C9A24A; --accent-2: #E3D4A6; }
+      body { background-color: var(--background); color: var(--foreground); margin: 0; -webkit-font-smoothing: antialiased; }
+      .animate-slide-up { opacity: 0; }
+      .animate-slide-up-delayed { opacity: 0; }
     </style>
-  <script type="importmap">
+    
+    <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@^19.2.3",
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "react-router-dom": "https://esm.sh/react-router-dom@6.28.0?external=react,react-dom",
+    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.35.0"
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
-</head>
+  </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module">
+      import "./index.tsx";
+    </script>
   </body>
 </html>

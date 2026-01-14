@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { dbService } from '../../services/db';
 import { useI18n } from '../../lib/i18n';
 import { Media, Settings } from '../../types';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 export const Gallery: React.FC = () => {
   const { t, lang } = useI18n();
@@ -25,21 +26,23 @@ export const Gallery: React.FC = () => {
   const filtered = filterRoom === 'All' ? media : media.filter(m => m.room === filterRoom);
 
   return (
-    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto">
-      <div className="mb-16 text-center">
-        <h1 className="font-serif text-5xl md:text-7xl mb-6">Galeria Best-of</h1>
-        <div className="flex flex-wrap justify-center gap-4 mt-12">
+    <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto min-h-screen animate-fade-in">
+      <div className="mb-20 text-center">
+        <span className="text-accent uppercase tracking-[0.4em] text-[10px] font-bold block mb-4">Masterpieces Gallery</span>
+        <h1 className="font-serif text-5xl md:text-8xl mb-12">Arhiva de Detalii</h1>
+        
+        <div className="flex flex-wrap justify-center gap-3 mt-12 max-w-4xl mx-auto">
           <button 
             onClick={() => setFilterRoom('All')}
-            className={`px-6 py-2 text-xs uppercase font-bold tracking-widest transition-all ${filterRoom === 'All' ? 'bg-accent text-white' : 'border border-border hover:bg-surface-2'}`}
+            className={`px-8 py-3 text-[10px] uppercase font-bold tracking-widest transition-all border ${filterRoom === 'All' ? 'bg-accent text-white border-accent' : 'border-border hover:bg-surface-2'}`}
           >
-            Toate
+            {lang === 'ro' ? 'Toate' : 'All'}
           </button>
           {settings?.rooms.map(room => (
             <button 
               key={room}
               onClick={() => setFilterRoom(room)}
-              className={`px-6 py-2 text-xs uppercase font-bold tracking-widest transition-all ${filterRoom === room ? 'bg-accent text-white' : 'border border-border hover:bg-surface-2'}`}
+              className={`px-8 py-3 text-[10px] uppercase font-bold tracking-widest transition-all border ${filterRoom === room ? 'bg-accent text-white border-accent' : 'border-border hover:bg-surface-2'}`}
             >
               {room}
             </button>
@@ -47,17 +50,38 @@ export const Gallery: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filtered.map(item => (
-          <div key={item.id} className="group relative aspect-square overflow-hidden bg-surface-2">
-            <img src={item.url} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 grayscale group-hover:grayscale-0" alt="" />
-            <div className="absolute bottom-0 left-0 w-full p-6 translate-y-full group-hover:translate-y-0 transition-transform bg-gradient-to-t from-black/80 to-transparent">
-              <span className="text-accent text-[10px] font-bold uppercase tracking-widest">{item.room}</span>
-              <h3 className="text-white font-serif text-xl">{item.caption ? t(item.caption) : 'Custom Piece'}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        {loading ? (
+          [1,2,3,4,5,6].map(i => <Skeleton key={i} className="aspect-square" />)
+        ) : (
+          filtered.map(item => (
+            <div key={item.id} className="group relative aspect-square overflow-hidden bg-surface-2 border border-border shadow-sm">
+              <img 
+                src={item.url} 
+                className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-110 grayscale-[0.3] group-hover:grayscale-0" 
+                alt="" 
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10">
+                <span className="text-accent text-[9px] font-bold uppercase tracking-[0.3em] mb-3">{item.room} — {item.pieceTypes[0] || 'Custom'}</span>
+                <h3 className="text-white font-serif text-2xl mb-4 leading-tight">{item.caption ? t(item.caption) : 'Execuție CARVELLO'}</h3>
+                <div className="flex space-x-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <span key={i} className={`text-[10px] ${i < item.stars ? 'text-accent' : 'text-white/20'}`}>★</span>
+                  ))}
+                </div>
+                <div className="w-0 group-hover:w-full h-[1px] bg-accent transition-all duration-700"></div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
+
+      {!loading && filtered.length === 0 && (
+        <div className="py-40 text-center">
+          <p className="font-serif text-2xl text-muted italic">Nicio imagine în această categorie momentan.</p>
+        </div>
+      )}
     </div>
   );
 };

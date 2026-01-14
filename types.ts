@@ -1,6 +1,6 @@
 
 export type Lang = 'ro' | 'en';
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'obsidian' | 'champagne' | 'marble' | 'navy' | 'emerald' | 'desert' | 'industrial' | 'nordic' | 'rose';
 
 export interface I18nString {
   ro: string;
@@ -23,13 +23,13 @@ export interface Settings {
     socials: { platform: string; url: string }[];
     legal: I18nString;
   };
-  themeDefault: Theme;
+  activeTheme: Theme;
   featuredStarsThreshold: number;
   brand: {
     logoDarkUrl: string;
     logoLightUrl: string;
   };
-  adminPassword: string; // Simplified for this local demo
+  adminPassword: string;
 }
 
 export interface NavItem {
@@ -97,7 +97,7 @@ export type SectionType = 'text' | 'imageText' | 'cards' | 'steps' | 'cta' | 'ga
 export interface SectionBlock {
   id: string;
   type: SectionType;
-  content: any; // Dynamic based on type
+  content: any;
   order: number;
 }
 

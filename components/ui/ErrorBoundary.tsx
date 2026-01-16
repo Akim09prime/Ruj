@@ -11,12 +11,14 @@ interface State {
 
 /**
  * ErrorBoundary component to catch rendering errors in the component tree.
- * Fixed the generic definition to include Props and State so that 'this.props' is recognized.
  */
+// Fixed: Explicitly extended React.Component with <Props, State> generics to ensure this.state and this.props are recognized
 export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false
-  };
+  constructor(props: Props) {
+    super(props);
+    // Initializing state
+    this.state = { hasError: false };
+  }
 
   public static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
@@ -27,6 +29,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public render() {
+    // Fixed: Properly accessing this.state on class component
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center p-6 text-center bg-background">
@@ -47,7 +50,7 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Correctly accessing children from this.props
+    // Fixed: Properly accessing this.props on class component
     return this.props.children;
   }
 }

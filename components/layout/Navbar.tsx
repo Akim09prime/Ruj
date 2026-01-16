@@ -15,13 +15,17 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  const navItems = settings?.nav.filter(item => item.visible).sort((a, b) => a.order - b.order) || [];
+  // Filtrăm navigația: Ascundem 'Home' (id: '1' sau href: '/') dacă suntem pe pagina principală
+  const navItems = (settings?.nav.filter(item => {
+    if (!item.visible) return false;
+    // Dacă suntem pe pagina de start '/', ascundem butonul care duce la '/'
+    if (location.pathname === '/' && item.href === '/') return false;
+    return true;
+  }).sort((a, b) => a.order - b.order) || []);
 
-  // Verificăm dacă tema curentă este de tip "întunecat"
-  const isDark = ['dark', 'obsidian', 'navy'].includes(theme);
+  const isDark = ['dark', 'obsidian', 'navy', 'emerald', 'industrial'].includes(theme);
 
   const toggleTheme = () => {
-    // Dacă e dark, trecem pe o variantă light (Marble), dacă e light trecem pe Obsidian (Luxury Dark)
     const newTheme: Theme = isDark ? 'marble' : 'obsidian';
     setTheme(newTheme);
   };
@@ -29,30 +33,33 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo dinamic bazat pe setările din Admin */}
-        <Link to="/" className="flex items-center space-x-2">
-          {settings?.brand ? (
-            <img 
-              src={isDark ? settings.brand.logoDarkUrl : settings.brand.logoLightUrl} 
-              alt="CARVELLO" 
-              className="h-8 md:h-10 w-auto object-contain"
-            />
+        {/* Logo dinamic cu stilizare auriu premium */}
+        <Link to="/" className="flex items-center space-x-3 group">
+          {settings?.brand?.logoDarkUrl ? (
+            <div className="relative">
+              <img 
+                src={isDark ? settings.brand.logoDarkUrl : settings.brand.logoLightUrl} 
+                alt="CARVELLO" 
+                className="h-7 md:h-9 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+              />
+            </div>
           ) : (
-            <span className="font-serif text-2xl tracking-widest font-bold text-accent">CARVELLO</span>
+            <span className="font-serif text-2xl tracking-[0.2em] font-bold text-accent">CARVELLO</span>
           )}
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-10">
           {navItems.map(item => (
             <Link
               key={item.id}
               to={item.href}
-              className={`text-[10px] uppercase tracking-[0.2em] font-bold hover:text-accent transition-colors ${
-                location.pathname === item.href ? 'text-accent' : 'text-foreground'
+              className={`text-[10px] uppercase tracking-[0.25em] font-bold hover:text-accent transition-all duration-300 relative group ${
+                location.pathname === item.href ? 'text-accent' : 'text-foreground/70'
               }`}
             >
               {t(item.label)}
+              <span className={`absolute -bottom-1 left-0 w-0 h-[1px] bg-accent transition-all duration-300 group-hover:w-full ${location.pathname === item.href ? 'w-full' : ''}`}></span>
             </Link>
           ))}
         </div>
@@ -80,7 +87,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
 
           <Link
             to="/cerere-oferta"
-            className="hidden sm:block px-6 py-2 bg-accent text-white text-[9px] uppercase tracking-[0.2em] font-bold hover:bg-foreground transition-all transform hover:-translate-y-0.5"
+            className="hidden sm:block px-6 py-2 bg-accent text-white text-[9px] uppercase tracking-[0.2em] font-bold hover:bg-foreground transition-all transform hover:-translate-y-0.5 shadow-lg shadow-accent/20"
           >
             {lang === 'ro' ? 'Cere Ofertă' : 'Get Quote'}
           </Link>
@@ -98,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
 
       {/* Mobile Menu */}
       {isMobileOpen && (
-        <div className="md:hidden bg-background border-b border-border animate-slide-down">
+        <div className="md:hidden bg-background border-b border-border animate-fade-in">
           <div className="px-6 py-8 flex flex-col space-y-6">
             {navItems.map(item => (
               <Link

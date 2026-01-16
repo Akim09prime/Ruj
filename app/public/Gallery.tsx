@@ -4,6 +4,7 @@ import { dbService } from '../../services/db';
 import { useI18n } from '../../lib/i18n';
 import { Media, Settings } from '../../types';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { OptimizedImage } from '../../components/ui/OptimizedImage';
 
 export const Gallery: React.FC = () => {
   const { t, lang } = useI18n();
@@ -55,14 +56,13 @@ export const Gallery: React.FC = () => {
           [1,2,3,4,5,6].map(i => <Skeleton key={i} className="aspect-square" />)
         ) : (
           filtered.map(item => (
-            <div key={item.id} className="group relative aspect-square overflow-hidden bg-surface-2 border border-border shadow-sm">
-              <img 
+            <div key={item.id} className="group relative overflow-hidden bg-surface-2 border border-border shadow-sm">
+              <OptimizedImage 
                 src={item.url} 
-                className="w-full h-full object-cover transition-transform duration-[2000ms] ease-out group-hover:scale-110 grayscale-[0.3] group-hover:grayscale-0" 
-                alt="" 
-                loading="lazy"
+                alt={item.caption ? t(item.caption) : 'CARVELLO Detail'} 
+                className="grayscale-[0.3] group-hover:grayscale-0"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10 pointer-events-none">
                 <span className="text-accent text-[9px] font-bold uppercase tracking-[0.3em] mb-3">{item.room} — {item.pieceTypes[0] || 'Custom'}</span>
                 <h3 className="text-white font-serif text-2xl mb-4 leading-tight">{item.caption ? t(item.caption) : 'Execuție CARVELLO'}</h3>
                 <div className="flex space-x-1 mb-6">

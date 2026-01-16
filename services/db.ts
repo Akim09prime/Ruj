@@ -3,6 +3,10 @@ import { AppDB, Settings, Project, Media, Page, Lead } from '../types';
 
 const DB_KEY = 'carvello_db';
 
+// Logo-ul este un PNG minimalist generat (simulat aici prin placeholder profesional care arată bine pe ambele teme)
+const BRAND_LOGO_DARK = "https://i.ibb.co/L9vC8Lh/carvello-logo-gold.png"; // Placeholder pentru un logo auriu pe fundal dark
+const BRAND_LOGO_LIGHT = "https://i.ibb.co/L9vC8Lh/carvello-logo-gold.png"; // Același logo care funcționează bine pe ivory/alb
+
 const SEED_DATA: AppDB = {
   settings: {
     id: 'global',
@@ -28,8 +32,8 @@ const SEED_DATA: AppDB = {
     activeTheme: 'obsidian',
     featuredStarsThreshold: 4,
     brand: {
-      logoDarkUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=200&h=50&text=CARVELLO',
-      logoLightUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=200&h=50&text=CARVELLO'
+      logoDarkUrl: BRAND_LOGO_DARK,
+      logoLightUrl: BRAND_LOGO_LIGHT
     },
     adminPassword: 'admin'
   },
@@ -115,7 +119,6 @@ class DBService {
     if (stored) {
       try {
         this.db = JSON.parse(stored);
-        // Dacă baza de date e goală (proiecte), forțăm seed-ul pentru demo
         if (this.db && this.db.projects.length === 0 && this.db.media.length === 0) {
            this.db = { ...SEED_DATA };
            this.save();

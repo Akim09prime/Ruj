@@ -15,84 +15,93 @@ export const LeadForm: React.FC = () => {
     e.preventDefault();
     if (formData.company) return; // Honeypot triggered
     
+    // START LOADING
     setStatus('loading');
     setErrorMessage('');
 
-    const now = new Date().toISOString();
-
-    // 1. Create Lead Object
-    const newLead: Lead = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      city: formData.city,
-      projectType: formData.projectType,
-      message: formData.message,
-      createdAt: now,
-      status: 'new'
-    };
-    
-    // 2. ALWAYS Save locally first (Reliability)
-    try {
-      await dbService.addLead(newLead);
-      console.log('Lead saved locally to IndexedDB/LocalStorage');
-    } catch (localError) {
-      console.error('Failed to save locally:', localError);
-    }
-
-    // 3. Send to Serverless API (Resend) with Timeout
+    const start = Date.now();
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+    const timer = setTimeout(() => controller.abort(), 8000); // 8s timeout
 
     try {
-      const response = await fetch('/api/lead-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          city: formData.city,
-          message: formData.message,
-          company: formData.company, // Honeypot
-          createdAt: now
-        }),
-        signal: controller.signal
+      // 1. Validate fields
+      if (!formData.name || !formData.message || (!formData.email && !formData.phone)) {
+        throw new Error(lang === 'ro' ? 'Vă rugăm completați toate câmpurile necesare.' : 'Please fill in all required fields.');
+      }
+
+      const now = new Date().toISOString();
+      const payload = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        city: formData.city,
+        message: formData.message,
+        company: formData.company,
+        createdAt: now
+      };
+
+      // 2. ALWAYS Save locally first (await)
+      const newLead: Lead = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        city: formData.city,
+        projectType: formData.projectType,
+        message: formData.message,
+        createdAt: now,
+        status: 'new'
+      };
+
+      try {
+        await dbService.addLead(newLead);
+        console.log('Lead saved locally');
+      } catch (dbErr) {
+        console.error('Local save failed (non-critical):', dbErr);
+      }
+
+      // 3. Call email API
+      const res = await fetch("/api/lead-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
-
-      let data;
-      try {
-        data = await response.json();
-      } catch (parseError) {
-        throw new Error('Invalid JSON response from server');
+      // IMPORTANT: Read as text always to prevent JSON parse errors crashing the app
+      const raw = await res.text(); 
+      let data: any = null;
+      try { 
+        data = JSON.parse(raw); 
+      } catch (e) {
+        console.warn('Server response was not JSON:', raw);
       }
 
-      if (response.ok && data.ok) {
-        setStatus('success');
-      } else {
-        // Explicitly throw the error returned by the server so it can be displayed
-        throw new Error(data.error || 'Server returned error');
+      if (!res.ok) {
+        // Extract error message safely
+        const serverError = (data && (data.error || data.message)) || raw || `Email failed (${res.status})`;
+        throw new Error(serverError);
       }
-    } catch (error: any) {
-      clearTimeout(timeoutId);
-      console.error('Submission error:', error);
-      
+
+      // Success UI
+      setStatus('success');
+
+    } catch (err: any) {
+      console.error("Submit error:", err);
       setStatus('error');
-      
-      const isTimeout = error.name === 'AbortError';
-      let msg = error.message;
 
-      // Handle common network errors with localized messages, keep others (server errors) as is
-      if (isTimeout) {
-         msg = lang === 'ro' ? 'Conexiunea a expirat.' : 'Connection timed out.';
-      } else if (msg === 'Failed to fetch') {
-         msg = lang === 'ro' ? 'Eroare de conexiune.' : 'Network connection error.';
-      }
+      const isTimeout = err?.name === "AbortError";
+      const msg = isTimeout
+        ? (lang === 'ro' ? "Email API timeout (8s). Conexiune lentă." : "Email API timeout (8s). Slow connection.")
+        : String(err?.message || err || 'Unknown error');
       
       setErrorMessage(msg);
+
+    } finally {
+      clearTimeout(timer);
+      console.log("Lead submit finished in ms:", Date.now() - start);
+      // Ensure we are definitely not loading anymore
+      setStatus(prev => prev === 'loading' ? 'error' : prev);
     }
   };
 
@@ -186,16 +195,9 @@ export const LeadForm: React.FC = () => {
           />
         </div>
         
-        {errorMessage && (
+        {errorMessage && status === 'error' && (
            <div className="md:col-span-2 text-red-500 text-xs font-bold uppercase tracking-widest text-center animate-pulse bg-red-500/10 p-4 border border-red-500/20">
              {errorMessage}
-             <button 
-                type="button"
-                onClick={() => setStatus('idle')}
-                className="block mx-auto mt-2 underline opacity-70 hover:opacity-100"
-             >
-               {lang === 'ro' ? 'Încearcă din nou' : 'Try Again'}
-             </button>
            </div>
         )}
 

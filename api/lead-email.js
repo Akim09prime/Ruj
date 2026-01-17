@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   if (!RESEND_API_KEY || !LEADS_TO_EMAIL || !LEADS_FROM_EMAIL) {
     console.error('Missing Resend env vars');
-    return res.status(500).json({ ok: false, error: 'Server configuration error' });
+    return res.status(500).json({ ok: false, error: 'Server config error: Missing Resend Env Vars' });
   }
 
   try {
@@ -54,13 +54,19 @@ export default async function handler(req, res) {
     });
 
     if (!emailResponse.ok) {
-      const errorData = await emailResponse.json();
-      throw new Error(errorData.message || 'Resend API rejected request');
+      let errorMsg = 'Resend API error';
+      try {
+        const errorData = await emailResponse.json();
+        errorMsg = errorData.message || errorData.name || JSON.stringify(errorData);
+      } catch (e) {
+        errorMsg = await emailResponse.text();
+      }
+      throw new Error(errorMsg);
     }
 
     return res.status(200).json({ ok: true });
   } catch (error) {
     console.error('Email API Error:', error);
-    return res.status(500).json({ ok: false, error: 'Failed to send email' });
+    return res.status(500).json({ ok: false, error: error.message || 'Failed to send email' });
   }
 }

@@ -33,16 +33,12 @@ export const LeadForm: React.FC = () => {
       status: 'new'
     };
     
-    let localSaveSuccess = false;
-
     // 2. ALWAYS Save locally first (Reliability)
     try {
       await dbService.addLead(newLead);
-      localSaveSuccess = true;
       console.log('Lead saved locally to IndexedDB/LocalStorage');
     } catch (localError) {
       console.error('Failed to save locally:', localError);
-      // We continue to try sending the email even if local save fails
     }
 
     // 3. Send to Serverless API (Resend) with Timeout
@@ -71,37 +67,32 @@ export const LeadForm: React.FC = () => {
       try {
         data = await response.json();
       } catch (parseError) {
-        data = { ok: false, error: 'Invalid JSON response from server' };
+        throw new Error('Invalid JSON response from server');
       }
 
       if (response.ok && data.ok) {
         setStatus('success');
       } else {
-        console.warn('Email API submission failed:', data.error);
-        
-        // If local save worked, we still tell the user "Success" to avoid panic, 
-        // as the admin can see the lead in the dashboard.
-        if (localSaveSuccess) {
-          setStatus('success');
-        } else {
-          throw new Error(data.error || 'Server error');
-        }
+        // Explicitly throw the error returned by the server so it can be displayed
+        throw new Error(data.error || 'Server returned error');
       }
     } catch (error: any) {
       clearTimeout(timeoutId);
-      console.error('Network/Submission error:', error);
+      console.error('Submission error:', error);
       
-      if (localSaveSuccess) {
-        setStatus('success');
-      } else {
-        setStatus('error');
-        const isTimeout = error.name === 'AbortError';
-        setErrorMessage(
-          lang === 'ro' 
-            ? (isTimeout ? 'Conexiunea a expirat. Vă rugăm încercați telefonic.' : 'Eroare de conexiune. Vă rugăm încercați telefonic.')
-            : (isTimeout ? 'Connection timed out. Please contact us by phone.' : 'Connection error. Please contact us by phone.')
-        );
+      setStatus('error');
+      
+      const isTimeout = error.name === 'AbortError';
+      let msg = error.message;
+
+      // Handle common network errors with localized messages, keep others (server errors) as is
+      if (isTimeout) {
+         msg = lang === 'ro' ? 'Conexiunea a expirat.' : 'Connection timed out.';
+      } else if (msg === 'Failed to fetch') {
+         msg = lang === 'ro' ? 'Eroare de conexiune.' : 'Network connection error.';
       }
+      
+      setErrorMessage(msg);
     }
   };
 
@@ -196,14 +187,14 @@ export const LeadForm: React.FC = () => {
         </div>
         
         {errorMessage && (
-           <div className="md:col-span-2 text-red-500 text-xs font-bold uppercase tracking-widest text-center animate-pulse">
+           <div className="md:col-span-2 text-red-500 text-xs font-bold uppercase tracking-widest text-center animate-pulse bg-red-500/10 p-4 border border-red-500/20">
              {errorMessage}
              <button 
                 type="button"
                 onClick={() => setStatus('idle')}
-                className="block mx-auto mt-2 underline"
+                className="block mx-auto mt-2 underline opacity-70 hover:opacity-100"
              >
-               Reîncearcă
+               {lang === 'ro' ? 'Încearcă din nou' : 'Try Again'}
              </button>
            </div>
         )}

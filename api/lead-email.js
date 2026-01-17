@@ -68,7 +68,7 @@ export default async function handler(req, res) {
 
     // 5. PREPARE EMAILS
     
-    // Email A: Notification to Admin
+    // Email A: Notification to Admin (Internal)
     const adminEmailPayload = {
       from: `RUJ Lead System <${emailFrom}>`,
       to: [emailTo],
@@ -103,30 +103,29 @@ export default async function handler(req, res) {
       text: `Lead Nou:\nNume: ${name}\nEmail: ${email}\nTel: ${phone}\nMesaj: ${message}`
     };
 
-    // Email B: Confirmation to Client (Only if email provided)
+    // Email B: Confirmation to Client (Customer Auto-reply)
     let clientEmailPayload = null;
     if (email) {
       clientEmailPayload = {
-        from: `RUJ / CARVELLO <${emailFrom}>`,
+        from: `CARVELLO <${emailFrom}>`,
         to: [email],
-        reply_to: emailTo, // Client replies to Admin
-        subject: "Am primit cererea ta — RUJ",
+        reply_to: emailTo, 
+        subject: "Cererea ta a fost primită — CARVELLO",
         html: `
-          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px;">
-            <div style="max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #333;">Salut ${name},</h2>
-              <p style="color: #555; line-height: 1.6;">
-                Am primit solicitarea ta de ofertă. Îți mulțumim pentru interesul acordat serviciilor RUJ / CARVELLO.
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px 20px; background-color: #f4f4f4;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-top: 4px solid #B8923B; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+              <h2 style="color: #1a1a1a; margin-top: 0; font-family: Georgia, serif;">Salut,</h2>
+              <p style="color: #444; line-height: 1.6; font-size: 16px;">
+                Îți mulțumim! Am primit cererea ta și revenim cu un răspuns în maximum 24h lucrătoare.
               </p>
-              <p style="color: #555; line-height: 1.6;">
-                Echipa noastră tehnică analizează detaliile trimise. Te vom contacta în curând pentru a discuta următorii pași.
-              </p>
-              <br>
-              <p style="color: #888; font-size: 14px;">Cu respect,<br>Echipa RUJ</p>
+              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 14px;">
+                <p style="margin: 0; font-weight: bold; color: #B8923B;">CARVELLO</p>
+                <p style="margin: 5px 0 0;">Mobilier la comandă • Precizie CNC</p>
+              </div>
             </div>
           </div>
         `,
-        text: `Salut ${name},\n\nAm primit solicitarea ta. Te vom contacta în curând.\n\nCu respect,\nEchipa RUJ`
+        text: `Salut,\n\nÎți mulțumim! Am primit cererea ta și revenim cu un răspuns în maximum 24h lucrătoare.\n\n— CARVELLO | Mobilier la comandă • Precizie CNC`
       };
     }
 
@@ -155,7 +154,6 @@ export default async function handler(req, res) {
 
       // Send Client Email (Non-critical / Best Effort)
       if (clientEmailPayload) {
-        // We don't await the result strictly, or we catch errors so the user still gets a success message
         fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -165,7 +163,7 @@ export default async function handler(req, res) {
           body: JSON.stringify(clientEmailPayload),
           signal: controller.signal
         }).then(r => {
-            if (!r.ok) console.warn(`[LeadAPI] Client Email Failed (likely domain not verified in test mode): ${r.status}`);
+            if (!r.ok) console.warn(`[LeadAPI] Client Email Failed: ${r.status}`);
         }).catch(e => console.warn(`[LeadAPI] Client Email Network Error`));
       }
 

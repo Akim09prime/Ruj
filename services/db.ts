@@ -1,4 +1,3 @@
-
 import { AppDB, Settings, Project, Media, Page, Lead } from '../types';
 
 const DB_KEY = 'carvello_db';
@@ -61,6 +60,18 @@ const SEED_DATA: AppDB = {
       isPublished: true,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
+    },
+    {
+      id: 'proj-3',
+      title: { ro: 'Villa Azure', en: 'Villa Azure' },
+      summary: { ro: 'Amenajare completă bucătărie și dressing cu accente de bronz și piatră naturală.', en: 'Complete kitchen and dressing layout with bronze accents and natural stone.' },
+      projectType: 'Rezidențial',
+      location: { ro: 'Brașov, RO', en: 'Brasov, RO' },
+      publishedAt: new Date().toISOString(),
+      coverMediaId: 'm-5',
+      isPublished: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
   ],
   media: [
@@ -105,6 +116,20 @@ const SEED_DATA: AppDB = {
       shotDate: new Date().toISOString(),
       orderInProject: 0,
       createdAt: new Date().toISOString()
+    },
+    {
+      id: 'm-5',
+      projectId: 'proj-3',
+      kind: 'image',
+      url: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200',
+      room: 'Bucătărie',
+      stage: 'Final',
+      pieceTypes: ['Bucătărie'],
+      stars: 5,
+      caption: { ro: 'Bucătărie Villa Azure', en: 'Villa Azure Kitchen' },
+      shotDate: new Date().toISOString(),
+      orderInProject: 0,
+      createdAt: new Date().toISOString()
     }
   ],
   pages: [],
@@ -119,7 +144,7 @@ class DBService {
     if (stored) {
       try {
         this.db = JSON.parse(stored);
-        if (this.db && this.db.projects.length === 0 && this.db.media.length === 0) {
+        if (this.db && (this.db.projects.length === 0 || this.db.projects.length < 3) && this.db.media.length < 5) {
            this.db = { ...SEED_DATA };
            this.save();
         }

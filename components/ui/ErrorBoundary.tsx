@@ -1,7 +1,7 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+import * as React from 'react';
 
 interface Props {
-  children?: ReactNode;
+  children?: React.ReactNode;
 }
 
 interface State {
@@ -12,15 +12,18 @@ interface State {
  * ErrorBoundary component to catch rendering errors in the component tree.
  */
 export class ErrorBoundary extends React.Component<Props, State> {
-  public state: State = {
-    hasError: false
-  };
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false
+    };
+  }
 
   public static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
   }
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  public componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Uncaught error:', error, errorInfo);
   }
 

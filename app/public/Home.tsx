@@ -7,6 +7,78 @@ import { dbService } from '../../services/db';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { Helmet } from 'react-helmet-async';
 
+// Static Data - Moved outside component to prevent re-renders issues
+const HERO_SLIDES = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2400",
+    tagline: "Architectural Woodworking & CMS Precision",
+    title: { 
+      ro: 'Mobilier la comandă. Precizie CNC.', 
+      en: 'Custom furniture. CNC Precision.' 
+    },
+    desc: { 
+      ro: 'Soluții integrate pentru reședințe exclusiviste. Control absolut de la proiectarea tehnică până la montaj.', 
+      en: 'Integrated solutions for exclusive residences. Absolute control from technical design to installation.' 
+    },
+    ctaPrimary: { label: { ro: 'Cere Ofertă', en: 'Get Quote' }, link: '/cerere-oferta' },
+    ctaSecondary: { label: { ro: 'Vezi Portofoliu', en: 'Portfolio' }, link: '/portofoliu' }
+  },
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=2400",
+    tagline: "Premium 2K Finishing & Surfaces",
+    title: { 
+      ro: 'Finisaje 2K impecabile.', 
+      en: 'Flawless 2K finishes.' 
+    },
+    desc: { 
+      ro: 'Vopsitorie în cabină presurizată. De la ultra-mat la high-gloss, garantăm uniformitate și durabilitate.', 
+      en: 'Painting in pressurized booths. From ultra-matte to high-gloss, we guarantee uniformity and durability.' 
+    },
+    ctaPrimary: { label: { ro: 'Servicii Vopsire', en: 'Painting Services' }, link: '/servicii' },
+    ctaSecondary: { label: { ro: 'Galeria Detalii', en: 'Details Gallery' }, link: '/galerie-mobilier' }
+  },
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=2400",
+    tagline: "Interior Architecture & Design",
+    title: { 
+      ro: 'Design și Arhitectură 3D.', 
+      en: '3D Design & Architecture.' 
+    },
+    desc: { 
+      ro: 'Proiectare tehnică 3D și execuție milimetrică pentru interioare care definesc standardul de lux.', 
+      en: '3D technical design and millimetric execution for interiors that define the luxury standard.' 
+    },
+    ctaPrimary: { label: { ro: 'Contactează-ne', en: 'Contact Us' }, link: '/contact' },
+    ctaSecondary: { label: { ro: 'Despre Noi', en: 'About Us' }, link: '/despre' }
+  },
+  {
+    id: 4,
+    image: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2400",
+    tagline: "Commercial & Office Spaces",
+    title: { 
+      ro: 'Spații Comerciale & Office.', 
+      en: 'Commercial & Office Spaces.' 
+    },
+    desc: { 
+      ro: 'Amenajări complete pentru birouri și spații comerciale. Eficiență, durabilitate și impact vizual.', 
+      en: 'Complete fit-outs for offices and commercial spaces. Efficiency, durability, and visual impact.' 
+    },
+    ctaPrimary: { label: { ro: 'Proiecte Office', en: 'Office Projects' }, link: '/portofoliu' },
+    ctaSecondary: { label: { ro: 'Cere Ofertă', en: 'Get Quote' }, link: '/cerere-oferta' }
+  }
+];
+
+const PROCESS_STEPS = [
+  { id: '01', title: { ro: 'Consultare & Scanare', en: 'Consultation & Scanning' } },
+  { id: '02', title: { ro: 'Proiectare CAD/CAM', en: 'CAD/CAM Engineering' } },
+  { id: '03', title: { ro: 'Debitări CNC 0.1mm', en: '0.1mm CNC Cutting' } },
+  { id: '04', title: { ro: 'Finisaj 2K Premium', en: '2K Premium Finishing' } },
+  { id: '05', title: { ro: 'Montaj Impecabil', en: 'Flawless Installation' } },
+];
+
 const useReveal = () => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -32,8 +104,6 @@ export const Home: React.FC = () => {
   const { t, lang } = useI18n();
   const [featuredMedia, setFeaturedMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Hero Slider State
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const pillarsReveal = useReveal();
@@ -54,70 +124,13 @@ export const Home: React.FC = () => {
     fetchData();
   }, []);
 
-  // Hero Slides Data
-  const heroSlides = [
-    {
-      id: 1,
-      image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2400",
-      tagline: "Architectural Woodworking & CMS Precision",
-      title: { 
-        ro: 'Mobilier la comandă realizat cu precizie CNC.', 
-        en: 'Custom furniture crafted with CNC precision.' 
-      },
-      desc: { 
-        ro: 'Soluții integrate pentru reședințe exclusiviste. Control absolut de la proiectarea tehnică până la montaj.', 
-        en: 'Integrated solutions for exclusive residences. Absolute control from technical design to installation.' 
-      },
-      ctaPrimary: { label: { ro: 'Cere Ofertă', en: 'Get Quote' }, link: '/cerere-oferta' },
-      ctaSecondary: { label: { ro: 'Vezi Portofoliu', en: 'Portfolio' }, link: '/portofoliu' }
-    },
-    {
-      id: 2,
-      image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=2400",
-      tagline: "Premium 2K Finishing & Surfaces",
-      title: { 
-        ro: 'Finisaje 2K impecabile și texturi unice.', 
-        en: 'Flawless 2K finishes and unique textures.' 
-      },
-      desc: { 
-        ro: 'Vopsitorie în cabină presurizată. De la ultra-mat la high-gloss, garantăm uniformitate și durabilitate.', 
-        en: 'Painting in pressurized booths. From ultra-matte to high-gloss, we guarantee uniformity and durability.' 
-      },
-      ctaPrimary: { label: { ro: 'Servicii Vopsire', en: 'Painting Services' }, link: '/servicii' },
-      ctaSecondary: { label: { ro: 'Galeria Detalii', en: 'Details Gallery' }, link: '/galerie-mobilier' }
-    },
-    {
-      id: 3,
-      image: "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=2400",
-      tagline: "Interior Architecture & Design",
-      title: { 
-        ro: 'Transformăm spațiul în experiență vizuală.', 
-        en: 'We transform space into visual experience.' 
-      },
-      desc: { 
-        ro: 'Proiectare tehnică 3D și execuție milimetrică pentru interioare care definesc standardul de lux.', 
-        en: '3D technical design and millimetric execution for interiors that define the luxury standard.' 
-      },
-      ctaPrimary: { label: { ro: 'Contactează-ne', en: 'Contact Us' }, link: '/contact' },
-      ctaSecondary: { label: { ro: 'Despre Noi', en: 'About Us' }, link: '/despre' }
-    }
-  ];
-
   // Auto-advance slider
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [heroSlides.length]);
-
-  const processSteps = [
-    { id: '01', title: { ro: 'Consultare & Scanare', en: 'Consultation & Scanning' } },
-    { id: '02', title: { ro: 'Proiectare CAD/CAM', en: 'CAD/CAM Engineering' } },
-    { id: '03', title: { ro: 'Debitări CNC 0.1mm', en: '0.1mm CNC Cutting' } },
-    { id: '04', title: { ro: 'Finisaj 2K Premium', en: '2K Premium Finishing' } },
-    { id: '05', title: { ro: 'Montaj Impecabil', en: 'Flawless Installation' } },
-  ];
+  }, []);
 
   return (
     <div className="pt-0">
@@ -132,7 +145,7 @@ export const Home: React.FC = () => {
       {/* Hero Section - Slider */}
       <section className="relative h-screen flex items-center overflow-hidden group bg-black">
         {/* Background Images Layer */}
-        {heroSlides.map((slide, index) => (
+        {HERO_SLIDES.map((slide, index) => (
           <div 
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-[1500ms] ease-in-out z-0 ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}
@@ -141,8 +154,9 @@ export const Home: React.FC = () => {
               src={slide.image} 
               className={`w-full h-full object-cover transition-transform duration-[8000ms] ease-out ${index === currentSlide ? 'scale-110' : 'scale-100'}`}
               alt=""
+              loading={index === 0 ? "eager" : "lazy"}
             />
-            {/* Overlay Layers applied to each image to ensure consistency */}
+            {/* Overlay Layers */}
             <div className="absolute inset-0 bg-black/40"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-transparent"></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
@@ -156,24 +170,24 @@ export const Home: React.FC = () => {
             <div key={currentSlide}>
               <div className="overflow-hidden mb-6">
                 <span className="inline-block text-accent uppercase tracking-[0.5em] text-[10px] font-bold animate-slide-up">
-                  {heroSlides[currentSlide].tagline}
+                  {HERO_SLIDES[currentSlide].tagline}
                 </span>
               </div>
               
               <h1 className="font-serif text-5xl md:text-8xl leading-[1.1] mb-8 animate-slide-up" style={{ animationDelay: '150ms', opacity: 0, animationFillMode: 'forwards' }}>
-                {lang === 'ro' ? heroSlides[currentSlide].title.ro : heroSlides[currentSlide].title.en}
+                {lang === 'ro' ? HERO_SLIDES[currentSlide].title.ro : HERO_SLIDES[currentSlide].title.en}
               </h1>
               
               <p className="text-lg md:text-xl font-light mb-12 max-w-xl text-white/80 leading-relaxed animate-slide-up" style={{ animationDelay: '300ms', opacity: 0, animationFillMode: 'forwards' }}>
-                {lang === 'ro' ? heroSlides[currentSlide].desc.ro : heroSlides[currentSlide].desc.en}
+                {lang === 'ro' ? HERO_SLIDES[currentSlide].desc.ro : HERO_SLIDES[currentSlide].desc.en}
               </p>
               
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 animate-slide-up" style={{ animationDelay: '450ms', opacity: 0, animationFillMode: 'forwards' }}>
-                <Link to={heroSlides[currentSlide].ctaPrimary.link} className="px-12 py-5 bg-accent text-white font-bold tracking-widest uppercase hover:bg-white hover:text-accent transition-all duration-500 shadow-2xl shadow-accent/20 text-center text-xs">
-                  {lang === 'ro' ? heroSlides[currentSlide].ctaPrimary.label.ro : heroSlides[currentSlide].ctaPrimary.label.en}
+                <Link to={HERO_SLIDES[currentSlide].ctaPrimary.link} className="px-12 py-5 bg-accent text-white font-bold tracking-widest uppercase hover:bg-white hover:text-accent transition-all duration-500 shadow-2xl shadow-accent/20 text-center text-xs">
+                  {lang === 'ro' ? HERO_SLIDES[currentSlide].ctaPrimary.label.ro : HERO_SLIDES[currentSlide].ctaPrimary.label.en}
                 </Link>
-                <Link to={heroSlides[currentSlide].ctaSecondary.link} className="px-12 py-5 border border-white/30 backdrop-blur-sm text-white font-bold tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-500 text-center text-xs">
-                  {lang === 'ro' ? heroSlides[currentSlide].ctaSecondary.label.ro : heroSlides[currentSlide].ctaSecondary.label.en}
+                <Link to={HERO_SLIDES[currentSlide].ctaSecondary.link} className="px-12 py-5 border border-white/30 backdrop-blur-sm text-white font-bold tracking-widest uppercase hover:bg-white hover:text-black transition-all duration-500 text-center text-xs">
+                  {lang === 'ro' ? HERO_SLIDES[currentSlide].ctaSecondary.label.ro : HERO_SLIDES[currentSlide].ctaSecondary.label.en}
                 </Link>
               </div>
             </div>
@@ -182,7 +196,7 @@ export const Home: React.FC = () => {
 
         {/* Slider Navigation Dots */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex space-x-4">
-          {heroSlides.map((_, idx) => (
+          {HERO_SLIDES.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentSlide(idx)}
@@ -273,7 +287,7 @@ export const Home: React.FC = () => {
           
           <div className="relative">
             <div className="grid grid-cols-1 md:grid-cols-5 gap-8 relative z-10">
-              {processSteps.map((step, idx) => (
+              {PROCESS_STEPS.map((step, idx) => (
                 <div 
                   key={step.id} 
                   className={`bg-surface p-8 border border-border text-center hover:border-accent transition-all group ${processReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}

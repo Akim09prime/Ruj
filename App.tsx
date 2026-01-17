@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './lib/theme';
@@ -42,7 +41,6 @@ const AdminLayout: React.FC = () => {
   
   const handleLogout = () => {
     localStorage.removeItem('carvello_admin_session');
-    localStorage.removeItem('carvello_admin_expiry');
     navigate('/', { replace: true });
   };
 
@@ -75,15 +73,23 @@ const AdminLayout: React.FC = () => {
 };
 
 const AdminGuard: React.FC = () => {
-  const isAuth = localStorage.getItem('carvello_admin_session') === 'active';
-  const expiry = localStorage.getItem('carvello_admin_expiry');
-  const now = Date.now();
+  const sessionStr = localStorage.getItem('carvello_admin_session');
+  
+  if (!sessionStr) {
+    return <Navigate to="/admin/login" replace />;
+  }
 
-  // Session validation
-  if (!isAuth || !expiry || now > parseInt(expiry)) {
-    // Clear potentially stale session data
+  try {
+    const session = JSON.parse(sessionStr);
+    const now = Date.now();
+    const isValid = session.active && (now - session.createdAt < 12 * 60 * 60 * 1000); // 12 hours
+
+    if (!isValid) {
+      localStorage.removeItem('carvello_admin_session');
+      return <Navigate to="/admin/login" replace />;
+    }
+  } catch (e) {
     localStorage.removeItem('carvello_admin_session');
-    localStorage.removeItem('carvello_admin_expiry');
     return <Navigate to="/admin/login" replace />;
   }
 

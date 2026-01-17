@@ -1,11 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { dbService } from '../../services/db';
 import { useI18n } from '../../lib/i18n';
 import { Project, Media } from '../../types';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { Helmet } from 'react-helmet-async';
 
 export const ProjectDetail: React.FC = () => {
   const { id } = useParams();
@@ -27,6 +25,12 @@ export const ProjectDetail: React.FC = () => {
     load();
   }, [id]);
 
+  useEffect(() => {
+    if (project) {
+      document.title = `${t(project.title)} | CARVELLO`;
+    }
+  }, [project, t]);
+
   if (loading) return <div className="pt-40 px-6 max-w-7xl mx-auto"><Skeleton className="h-[60vh] w-full" /></div>;
   if (!project) return <div className="pt-40 text-center font-serif text-3xl">Proiectul nu a fost găsit.</div>;
 
@@ -34,15 +38,6 @@ export const ProjectDetail: React.FC = () => {
 
   return (
     <div className="pt-20">
-      <Helmet>
-        <title>{`${t(project.title)} | CARVELLO Portfolio`}</title>
-        <meta name="description" content={t(project.summary)} />
-        <meta property="og:title" content={`${t(project.title)} | CARVELLO`} />
-        <meta property="og:description" content={t(project.summary)} />
-        <meta property="og:image" content={coverImage} />
-      </Helmet>
-
-      {/* Hero */}
       <div className="relative h-[60vh] overflow-hidden bg-surface-2">
         <img 
           src={coverImage} 
@@ -78,7 +73,6 @@ export const ProjectDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Gallery */}
         <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
           {media.map((item) => (
             <div 
@@ -95,7 +89,6 @@ export const ProjectDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* Lightbox */}
       {selectedImg && (
         <div className="fixed inset-0 z-[100] bg-background/95 backdrop-blur-xl flex items-center justify-center p-4" onClick={() => setSelectedImg(null)}>
           <img src={selectedImg} className="max-w-full max-h-full object-contain shadow-2xl" alt="" />

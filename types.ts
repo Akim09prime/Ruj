@@ -110,7 +110,7 @@ export interface Lead {
   projectType: string;
   message: string;
   createdAt: string;
-  status: 'new' | 'contacted' | 'closed';
+  status: 'new' | 'contacted' | 'won' | 'lost';
 }
 
 export interface AppDB {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dbService } from '../../services/db';
@@ -7,7 +6,6 @@ const LOCKOUT_KEY = 'carvello_login_lockout';
 const ATTEMPTS_KEY = 'carvello_login_attempts';
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_DURATION = 10 * 60 * 1000; // 10 minutes
-const SESSION_DURATION = 12 * 60 * 60 * 1000; // 12 hours
 
 export const Login: React.FC = () => {
   const [pass, setPass] = useState('');
@@ -17,11 +15,18 @@ export const Login: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check session validity
-    const isAuth = localStorage.getItem('carvello_admin_session') === 'active';
-    const expiry = localStorage.getItem('carvello_admin_expiry');
-    if (isAuth && expiry && Date.now() < parseInt(expiry)) {
-      navigate('/admin', { replace: true });
+    // Check if already logged in
+    const sessionStr = localStorage.getItem('carvello_admin_session');
+    if (sessionStr) {
+      try {
+        const session = JSON.parse(sessionStr);
+        const isValid = session.active && (Date.now() - session.createdAt < 12 * 60 * 60 * 1000);
+        if (isValid) {
+          navigate('/admin', { replace: true });
+        }
+      } catch (e) {
+        localStorage.removeItem('carvello_admin_session');
+      }
     }
 
     // Check lockout
@@ -54,8 +59,11 @@ export const Login: React.FC = () => {
     
     if (pass === settings.adminPassword) {
       // Success
-      localStorage.setItem('carvello_admin_session', 'active');
-      localStorage.setItem('carvello_admin_expiry', (Date.now() + SESSION_DURATION).toString());
+      const session = {
+        active: true,
+        createdAt: Date.now()
+      };
+      localStorage.setItem('carvello_admin_session', JSON.stringify(session));
       localStorage.removeItem(ATTEMPTS_KEY);
       setError(false);
       navigate('/admin');
@@ -124,14 +132,6 @@ export const Login: React.FC = () => {
             className="w-full py-4 bg-foreground text-background font-bold uppercase tracking-widest text-[10px] hover:bg-accent hover:text-white transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Accesează CMS
-          </button>
-          
-          <button 
-            type="button"
-            onClick={handleGoBack}
-            className="w-full py-3 text-[9px] uppercase font-bold tracking-widest text-muted hover:text-foreground transition-colors"
-          >
-            Anulează și ieși
           </button>
         </div>
       </form>

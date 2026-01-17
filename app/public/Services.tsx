@@ -1,12 +1,14 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { Link } from 'react-router-dom';
 import { AIExpert } from './AIExpert';
-import { Helmet } from 'react-helmet-async';
 
 export const Services: React.FC = () => {
   const { lang } = useI18n();
+
+  useEffect(() => {
+    document.title = lang === 'ro' ? 'CARVELLO | Servicii Premium' : 'CARVELLO | Premium Services';
+  }, [lang]);
 
   const services = [
     {
@@ -34,12 +36,6 @@ export const Services: React.FC = () => {
 
   return (
     <div className="pt-0">
-      <Helmet>
-        <title>{lang === 'ro' ? 'Servicii CARVELLO | CNC, Vopsitorie 2K, Proiectare' : 'CARVELLO Services | CNC, 2K Painting, Design'}</title>
-        <meta name="description" content={lang === 'ro' ? 'Servicii profesionale de frezare CNC, vopsitorie 2K și proiectare tehnică 3D pentru mobilier la comandă.' : 'Professional CNC milling, 2K painting, and technical 3D design services for custom furniture.'} />
-      </Helmet>
-
-      {/* Services Hero */}
       <section className="relative h-[60vh] flex items-center overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <img 

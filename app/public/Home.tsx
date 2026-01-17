@@ -1,13 +1,11 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../lib/i18n';
 import { Project, Media } from '../../types';
 import { dbService } from '../../services/db';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { Helmet } from 'react-helmet-async';
 
-// Static Data - Moved outside component to prevent re-renders issues
+// Static Data
 const HERO_SLIDES = [
   {
     id: 1,
@@ -80,10 +78,11 @@ const PROCESS_STEPS = [
 ];
 
 const useReveal = () => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    setIsVisible(false);
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -94,7 +93,13 @@ const useReveal = () => {
       { threshold: 0.15 }
     );
     if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
+    
+    const timer = setTimeout(() => setIsVisible(true), 500);
+    
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
   }, []);
 
   return { ref, isVisible };
@@ -111,6 +116,10 @@ export const Home: React.FC = () => {
   const processReveal = useReveal();
 
   useEffect(() => {
+    document.title = "CARVELLO | Precizie Milimetrică";
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       const allMedia = await dbService.getMedia();
       const settings = await dbService.getSettings();
@@ -124,7 +133,6 @@ export const Home: React.FC = () => {
     fetchData();
   }, []);
 
-  // Auto-advance slider
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
@@ -134,17 +142,7 @@ export const Home: React.FC = () => {
 
   return (
     <div className="pt-0">
-      <Helmet>
-        <title>{lang === 'ro' ? 'CARVELLO | Mobilier Custom Premium & CNC' : 'CARVELLO | Premium Custom Furniture & CNC'}</title>
-        <meta name="description" content={lang === 'ro' ? 'Mobilier la comandă, vopsitorie 2K și debitare CNC de precizie în Cluj-Napoca. Soluții arhitecturale de lux.' : 'Custom furniture, 2K finishing, and precision CNC cutting in Cluj-Napoca. Luxury architectural solutions.'} />
-        <meta property="og:title" content="CARVELLO | Precizie Milimetrică" />
-        <meta property="og:description" content="Mobilier la comandă și soluții CNC de top." />
-        <meta property="og:image" content="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200" />
-      </Helmet>
-
-      {/* Hero Section - Slider */}
       <section className="relative h-screen flex items-center overflow-hidden group bg-black">
-        {/* Background Images Layer */}
         {HERO_SLIDES.map((slide, index) => (
           <div 
             key={slide.id}
@@ -156,17 +154,14 @@ export const Home: React.FC = () => {
               alt=""
               loading={index === 0 ? "eager" : "lazy"}
             />
-            {/* Overlay Layers */}
             <div className="absolute inset-0 bg-black/40"></div>
             <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/30 to-transparent"></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
           </div>
         ))}
         
-        {/* Content Layer */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full text-white mt-10 md:mt-0">
           <div className="max-w-4xl">
-            {/* Key changing forces React to re-mount the component, triggering the CSS animations again */}
             <div key={currentSlide}>
               <div className="overflow-hidden mb-6">
                 <span className="inline-block text-accent uppercase tracking-[0.5em] text-[10px] font-bold animate-slide-up">
@@ -174,15 +169,15 @@ export const Home: React.FC = () => {
                 </span>
               </div>
               
-              <h1 className="font-serif text-5xl md:text-8xl leading-[1.1] mb-8 animate-slide-up" style={{ animationDelay: '150ms', opacity: 0, animationFillMode: 'forwards' }}>
+              <h1 className="font-serif text-5xl md:text-8xl leading-[1.1] mb-8 animate-slide-up">
                 {lang === 'ro' ? HERO_SLIDES[currentSlide].title.ro : HERO_SLIDES[currentSlide].title.en}
               </h1>
               
-              <p className="text-lg md:text-xl font-light mb-12 max-w-xl text-white/80 leading-relaxed animate-slide-up" style={{ animationDelay: '300ms', opacity: 0, animationFillMode: 'forwards' }}>
+              <p className="text-lg md:text-xl font-light mb-12 max-w-xl text-white/80 leading-relaxed animate-slide-up">
                 {lang === 'ro' ? HERO_SLIDES[currentSlide].desc.ro : HERO_SLIDES[currentSlide].desc.en}
               </p>
               
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 animate-slide-up" style={{ animationDelay: '450ms', opacity: 0, animationFillMode: 'forwards' }}>
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 animate-slide-up">
                 <Link to={HERO_SLIDES[currentSlide].ctaPrimary.link} className="px-12 py-5 bg-accent text-white font-bold tracking-widest uppercase hover:bg-white hover:text-accent transition-all duration-500 shadow-2xl shadow-accent/20 text-center text-xs">
                   {lang === 'ro' ? HERO_SLIDES[currentSlide].ctaPrimary.label.ro : HERO_SLIDES[currentSlide].ctaPrimary.label.en}
                 </Link>
@@ -194,7 +189,6 @@ export const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Slider Navigation Dots */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex space-x-4">
           {HERO_SLIDES.map((_, idx) => (
             <button
@@ -207,7 +201,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Pillars of Excellence - Staggered Reveal */}
       <section ref={pillarsReveal.ref} className="py-32 px-6 bg-surface border-b border-border">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
@@ -243,7 +236,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Featured Projects - Rapid Reveal */}
       <section ref={projectsReveal.ref} className="py-32 bg-background overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <div className={`mb-20 transition-all duration-700 ${projectsReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}>
@@ -277,7 +269,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Mini Timeline - Process Preview Staggered */}
       <section ref={processReveal.ref} className="py-32 bg-surface-2 border-y border-border">
         <div className="max-w-7xl mx-auto px-6">
           <div className={`text-center mb-20 transition-all duration-700 ${processReveal.isVisible ? 'reveal-visible' : 'reveal-hidden'}`}>
@@ -302,7 +293,6 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* CTA Band */}
       <section className="py-32 bg-accent relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-6 text-center relative z-10">
           <h2 className="font-serif text-4xl md:text-6xl text-white mb-10 leading-tight">

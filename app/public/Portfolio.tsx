@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../lib/i18n';
@@ -6,13 +5,16 @@ import { Project, Media } from '../../types';
 import { dbService } from '../../services/db';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { OptimizedImage } from '../../components/ui/OptimizedImage';
-import { Helmet } from 'react-helmet-async';
 
 export const Portfolio: React.FC = () => {
   const { t, lang } = useI18n();
   const [projects, setProjects] = useState<Project[]>([]);
   const [media, setMedia] = useState<Media[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    document.title = lang === 'ro' ? 'CARVELLO | Portofoliu Proiecte' : 'CARVELLO | Project Portfolio';
+  }, [lang]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,11 +38,6 @@ export const Portfolio: React.FC = () => {
 
   return (
     <div className="pt-0 pb-24">
-      <Helmet>
-        <title>{lang === 'ro' ? 'Portofoliu CARVELLO | Proiecte Rezidențiale & Comerciale' : 'CARVELLO Portfolio | Residential & Commercial Projects'}</title>
-        <meta name="description" content={lang === 'ro' ? 'Explorează portofoliul CARVELLO: amenajări interioare de lux, mobilier CNC și finisaje premium.' : 'Explore the CARVELLO portfolio: luxury interior design, CNC furniture, and premium finishes.'} />
-      </Helmet>
-      
       <section className="relative h-[75vh] flex items-center overflow-hidden bg-[#050505] mb-24">
         <div className="absolute inset-0 z-0">
           <img 

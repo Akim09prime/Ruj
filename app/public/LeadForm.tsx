@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { dbService } from '../../services/db';
@@ -26,12 +25,8 @@ export const LeadForm: React.FC = () => {
       status: 'new'
     };
     
-    try {
-      await dbService.addLead(newLead);
-    } catch (dbError) {
-      console.error("Local DB Save Error", dbError);
-      // Continue to try sending to API even if local fails, or handle appropriately
-    }
+    // Always save locally
+    await dbService.addLead(newLead).catch(console.error);
 
     // 2. Send to Serverless API
     try {
@@ -44,8 +39,6 @@ export const LeadForm: React.FC = () => {
           email: formData.email,
           city: formData.city,
           message: formData.message,
-          // honeypot field usually handled by backend logic or ignored, 
-          // passing it here if the backend expects to validate it too.
           company: formData.company 
         })
       });
@@ -53,15 +46,12 @@ export const LeadForm: React.FC = () => {
       if (response.ok) {
         setStatus('success');
       } else {
-        // Even if API fails, we saved locally, so we might show success with a warning or just success 
-        // depending on UX preference. Here we'll treat it as success for the user but log it.
         console.warn('API submission failed, but saved locally.');
-        setStatus('success');
+        setStatus('success'); // We consider it success for user if saved locally
       }
     } catch (error) {
       console.error('Network error:', error);
-      // Fallback: It's saved locally, so we tell the user it worked.
-      setStatus('success');
+      setStatus('success'); // Fallback: It's saved locally
     }
   };
 

@@ -11,16 +11,10 @@ export const LeadForm: React.FC = () => {
     name: '', email: '', phone: '', city: '', projectType: 'Rezidențial', message: '', company: '' // Company is honeypot
   });
   
-  // UI Logic State
-  const [status, setStatus] = useState<'idle' | 'loading' | 'finished'>('idle');
-  
-  // Result State (for the success/error screen)
-  const [result, setResult] = useState<{
-    localSaved: boolean;
-    emailSent: boolean;
-    serverCode?: string;
-    serverError?: string;
-  } | null>(null);
+  // UX State
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [localSaved, setLocalSaved] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,17 +25,12 @@ export const LeadForm: React.FC = () => {
        return;
     }
 
-    // 2. Initialize Loading
+    // 2. Start Loading
     setStatus('loading');
-    setResult(null);
+    setErrorMsg('');
+    setLocalSaved(false);
 
-    // Track operation results
-    let localSaved = false;
-    let emailSent = false;
-    let serverCode = '';
-    let serverError = '';
-
-    // 3. Client-Side Timeout Controller (8 seconds max)
+    // Timeout Controller
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 8000);
 
@@ -55,150 +44,105 @@ export const LeadForm: React.FC = () => {
         projectType: formData.projectType,
         message: formData.message,
         company: formData.company,
-        createdAt: now
+        createdAt: now,
+        userAgent: navigator.userAgent,
+        currentUrl: window.location.href
       };
 
-      // --- STEP A: LOCAL SAVE (Primary) ---
+      // --- A: Local Save (Best Effort) ---
       try {
         const newLead: Lead = {
           id: Math.random().toString(36).substr(2, 9),
           ...payload,
           status: 'new'
         } as unknown as Lead;
-        
         await dbService.addLead(newLead);
-        localSaved = true;
-        console.log('LeadForm: Saved to IndexedDB');
-      } catch (dbErr: any) {
-        console.error('LeadForm: DB Error', dbErr);
-        serverCode = 'LOCAL_DB_ERROR';
-        serverError = dbErr.message || 'Could not save locally';
+        setLocalSaved(true);
+      } catch (e) {
+        console.warn('Local DB Save Failed', e);
       }
 
-      // --- STEP B: EMAIL SEND (Secondary) ---
-      try {
-        const res = await fetch("/api/lead-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-          signal: controller.signal,
-        });
-
-        // Parse JSON safely
-        const rawText = await res.text();
-        let data: any = {};
-        try {
-          data = JSON.parse(rawText);
-        } catch {
-          data = { ok: false, code: 'INVALID_JSON', error: rawText.substring(0, 200) };
-        }
-
-        if (res.ok && data.ok) {
-          emailSent = true;
-        } else {
-          // Capture the exact error code from the server (e.g. RESEND_ERROR)
-          serverCode = data.code || `HTTP_${res.status}`;
-          serverError = data.error || data.details || 'Unknown API Error';
-          console.warn('LeadForm: API Error', data);
-        }
-
-      } catch (netErr: any) {
-        // Handle Network or Timeout errors
-        if (netErr.name === 'AbortError') {
-          serverCode = 'CLIENT_TIMEOUT';
-          serverError = 'Request took longer than 8 seconds';
-        } else {
-          serverCode = 'NETWORK_ERROR';
-          serverError = netErr.message || 'Connection failed';
-        }
-        console.error('LeadForm: Network Error', netErr);
-      }
-
-    } catch (generalErr: any) {
-      // Catch-all for unexpected runtime errors
-      console.error('LeadForm: Critical Error', generalErr);
-      serverCode = 'CRITICAL_UI_ERROR';
-      serverError = generalErr.message;
-    } finally {
-      // 4. CLEANUP (Guaranteed)
-      clearTimeout(timeoutId);
-      
-      setResult({
-        localSaved,
-        emailSent,
-        serverCode,
-        serverError
+      // --- B: API Send ---
+      const res = await fetch("/api/lead-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
       });
+
+      let data: any = {};
+      const rawText = await res.text();
+      try { data = JSON.parse(rawText); } catch { data = { ok: false, code: 'INVALID_JSON' }; }
+
+      if (res.ok && data.ok) {
+        setStatus('success');
+      } else {
+        // If API fails but Local Saved, show partial success message or specific error
+        if (data.code === 'RATE_LIMIT') {
+          throw new Error(lang === 'ro' ? 'Prea multe cereri. Vă rugăm așteptați 10 minute.' : 'Too many requests. Please wait 10 minutes.');
+        } else {
+          throw new Error(data.error || 'Server error');
+        }
+      }
+
+    } catch (err: any) {
+      console.error('Submission Error:', err);
       
-      setStatus('finished');
+      // If we saved locally but API failed, we can consider it a "Partial Success" or just show error
+      // For this requirement, we show explicit error if email fails, but note if saved.
+      if (localSaved) {
+         setStatus('error');
+         setErrorMsg(lang === 'ro' 
+           ? 'Cererea a fost salvată local, dar emailul nu s-a trimis. Te vom contacta.' 
+           : 'Request saved locally, but email failed. We will contact you.');
+      } else {
+         setStatus('error');
+         setErrorMsg(err.name === 'AbortError' 
+           ? (lang === 'ro' ? 'Conexiunea a expirat. Încearcă din nou.' : 'Connection timed out. Try again.') 
+           : (err.message || 'Error sending request.'));
+      }
+    } finally {
+      clearTimeout(timeoutId);
+      // If status is still loading (unexpected), force error
+      if (status === 'loading') setStatus('error'); 
     }
   };
 
-  const resetForm = () => {
+  const handleReset = () => {
     setStatus('idle');
-    setResult(null);
     setFormData({
       name: '', email: '', phone: '', city: '', projectType: 'Rezidențial', message: '', company: ''
     });
   };
 
-  // --- RENDER: FINISHED STATE ---
-  if (status === 'finished' && result) {
-    const isTotalSuccess = result.localSaved && result.emailSent;
-    const isPartialSuccess = result.localSaved && !result.emailSent;
-    const isFailure = !result.localSaved;
-
+  // --- RENDER: SUCCESS STATE ---
+  if (status === 'success') {
     return (
-      <div className="pt-40 pb-24 text-center max-w-xl mx-auto px-6 animate-fade-in">
-        {/* Icon */}
-        <div className={`text-6xl mb-6 ${isFailure ? 'text-red-500' : isPartialSuccess ? 'text-yellow-500' : 'text-accent'}`}>
-          {isFailure ? '⚠' : '✓'}
-        </div>
-        
-        {/* Main Title */}
-        <h2 className="font-serif text-3xl mb-4">
-          {isTotalSuccess && (lang === 'ro' ? 'Mesaj Trimis!' : 'Message Sent!')}
-          {isPartialSuccess && (lang === 'ro' ? 'Mesaj Salvat (Atenție)' : 'Message Saved (Warning)')}
-          {isFailure && (lang === 'ro' ? 'Eroare Trimitere' : 'Sending Error')}
-        </h2>
-
-        {/* Status Box */}
-        <div className="bg-surface-2 border border-border p-6 mb-8 text-left rounded shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-muted">Bază de date:</span>
-            <span className={`text-xs font-bold ${result.localSaved ? 'text-green-600' : 'text-red-500'}`}>
-              {result.localSaved ? 'SALVAT OK' : 'EROARE'}
-            </span>
+      <div className="pt-32 pb-24 px-6 max-w-2xl mx-auto text-center animate-fade-in">
+        <div className="bg-surface p-12 border border-accent/20 shadow-2xl shadow-accent/5">
+          <div className="w-20 h-20 bg-accent text-white rounded-full flex items-center justify-center mx-auto mb-8 text-4xl shadow-lg">
+            ✓
           </div>
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-widest text-muted">Email Notificare:</span>
-            <span className={`text-xs font-bold ${result.emailSent ? 'text-green-600' : 'text-red-500'}`}>
-              {result.emailSent ? 'TRIMIS OK' : 'EȘUAT'}
-            </span>
+          <h2 className="font-serif text-4xl mb-6">
+            {lang === 'ro' ? 'Cerere Trimisă' : 'Request Sent'}
+          </h2>
+          <p className="text-muted text-lg mb-10 leading-relaxed">
+            {lang === 'ro' 
+              ? 'Îți mulțumim pentru interes. Un consultant CARVELLO a primit detaliile tale și te va contacta în cel mai scurt timp.' 
+              : 'Thank you for your interest. A CARVELLO consultant has received your details and will contact you shortly.'}
+          </p>
+          <div className="flex flex-col space-y-4">
+             <button 
+               onClick={handleReset}
+               className="px-8 py-4 bg-background border border-foreground text-[10px] uppercase font-bold tracking-widest hover:bg-foreground hover:text-white transition-all"
+             >
+               {lang === 'ro' ? 'Trimite o altă cerere' : 'Send Another Request'}
+             </button>
+             <p className="text-[9px] text-muted uppercase tracking-widest">
+               {localSaved && (lang === 'ro' ? 'Copie salvată securizat' : 'Copy saved securely')}
+             </p>
           </div>
-
-          {/* Detailed Error for Debugging */}
-          {!result.emailSent && (
-            <div className="mt-4 pt-4 border-t border-border/50">
-              <p className="text-[10px] uppercase font-bold text-red-500 mb-1">Detalii Eroare (Debug):</p>
-              <code className="block bg-black/5 p-2 text-[10px] font-mono text-red-600 break-all">
-                [{result.serverCode}] {result.serverError}
-              </code>
-              <p className="text-[9px] text-muted mt-2 italic">
-                {lang === 'ro' 
-                  ? 'Mesajul a fost salvat în admin. Vă rugăm să verificați panoul de control.' 
-                  : 'Message saved in admin. Please check the dashboard.'}
-              </p>
-            </div>
-          )}
         </div>
-
-        <button 
-          onClick={resetForm}
-          className="px-10 py-4 border border-foreground uppercase tracking-widest font-bold hover:bg-foreground hover:text-background transition-all"
-        >
-          {lang === 'ro' ? 'Trimite alt mesaj' : 'Send another message'}
-        </button>
       </div>
     );
   }
@@ -211,17 +155,9 @@ export const LeadForm: React.FC = () => {
         <p className="text-muted">Partenerul tău pentru proiecte precise și execuție premium.</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface p-12 border border-border shadow-sm relative">
-        {/* Loading Overlay */}
-        {status === 'loading' && (
-           <div className="absolute inset-0 bg-surface/90 z-20 flex items-center justify-center flex-col cursor-wait backdrop-blur-sm">
-             <div className="w-10 h-10 border-2 border-accent/30 border-t-accent rounded-full animate-spin mb-4"></div>
-             <span className="text-xs font-bold uppercase tracking-widest text-accent animate-pulse">Se procesează...</span>
-             <span className="text-[9px] text-muted mt-2">Vă rugăm așteptați</span>
-           </div>
-        )}
-
-        {/* Hidden Honeypot */}
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface p-12 border border-border shadow-sm relative transition-opacity duration-500">
+        
+        {/* Honeypot */}
         <div className="hidden">
            <input name="company" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} autoComplete="off"/>
         </div>
@@ -252,12 +188,24 @@ export const LeadForm: React.FC = () => {
             value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} disabled={status === 'loading'} />
         </div>
         
+        {status === 'error' && (
+          <div className="md:col-span-2 bg-red-500/10 border border-red-500/20 p-4 text-center">
+            <p className="text-red-500 text-xs font-bold uppercase tracking-widest">{errorMsg}</p>
+          </div>
+        )}
+
         <button 
           type="submit" 
           disabled={status === 'loading'}
-          className="md:col-span-2 py-4 bg-accent text-white uppercase tracking-widest font-bold hover:opacity-90 transition-all shadow-lg shadow-accent/20 disabled:opacity-50 disabled:shadow-none"
+          className="md:col-span-2 py-4 bg-accent text-white uppercase tracking-widest font-bold hover:opacity-90 transition-all shadow-lg shadow-accent/20 disabled:opacity-70 disabled:cursor-wait flex justify-center items-center gap-3"
         >
-          {lang === 'ro' ? 'TRIMITE CEREREA' : 'SEND REQUEST'}
+          {status === 'loading' && (
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+          )}
+          {status === 'loading' 
+            ? (lang === 'ro' ? 'SE TRIMITE...' : 'SENDING...') 
+            : (lang === 'ro' ? 'TRIMITE CEREREA' : 'SEND REQUEST')
+          }
         </button>
       </form>
     </div>

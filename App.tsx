@@ -1,36 +1,49 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './lib/theme';
 import { I18nProvider } from './lib/i18n';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
-import { Home } from './app/public/Home';
-import { Portfolio } from './app/public/Portfolio';
-import { ProjectDetail } from './app/public/ProjectDetail';
-import { Gallery } from './app/public/Gallery';
-import { LeadForm } from './app/public/LeadForm';
-import { About } from './app/public/About';
-import { Contact } from './app/public/Contact';
-import { Services } from './app/public/Services';
-import { Reviews } from './app/public/Reviews';
-import { Process } from './app/public/Process';
-import { DynamicPage } from './app/public/DynamicPage';
-import { Dashboard } from './app/admin/Dashboard';
-import { ProjectManager } from './app/admin/ProjectManager';
-import { MediaManager } from './app/admin/MediaManager';
-import { LeadsManager } from './app/admin/LeadsManager';
-import { SettingsManager } from './app/admin/SettingsManager';
-import { PageManager } from './app/admin/PageManager';
-import { ProjectMediaReorder } from './app/admin/ProjectMediaReorder';
-import { Login } from './app/admin/Login';
 import { dbService } from './services/db';
 import { Settings } from './types';
+
+// Lazy load Public pages
+const Home = React.lazy(() => import('./app/public/Home').then(m => ({ default: m.Home })));
+const Portfolio = React.lazy(() => import('./app/public/Portfolio').then(m => ({ default: m.Portfolio })));
+const ProjectDetail = React.lazy(() => import('./app/public/ProjectDetail').then(m => ({ default: m.ProjectDetail })));
+const Gallery = React.lazy(() => import('./app/public/Gallery').then(m => ({ default: m.Gallery })));
+const LeadForm = React.lazy(() => import('./app/public/LeadForm').then(m => ({ default: m.LeadForm })));
+const About = React.lazy(() => import('./app/public/About').then(m => ({ default: m.About })));
+const Contact = React.lazy(() => import('./app/public/Contact').then(m => ({ default: m.Contact })));
+const Services = React.lazy(() => import('./app/public/Services').then(m => ({ default: m.Services })));
+const Reviews = React.lazy(() => import('./app/public/Reviews').then(m => ({ default: m.Reviews })));
+const Process = React.lazy(() => import('./app/public/Process').then(m => ({ default: m.Process })));
+const DynamicPage = React.lazy(() => import('./app/public/DynamicPage').then(m => ({ default: m.DynamicPage })));
+
+// Lazy load Admin pages
+const Login = React.lazy(() => import('./app/admin/Login').then(m => ({ default: m.Login })));
+const Dashboard = React.lazy(() => import('./app/admin/Dashboard').then(m => ({ default: m.Dashboard })));
+const ProjectManager = React.lazy(() => import('./app/admin/ProjectManager').then(m => ({ default: m.ProjectManager })));
+const MediaManager = React.lazy(() => import('./app/admin/MediaManager').then(m => ({ default: m.MediaManager })));
+const LeadsManager = React.lazy(() => import('./app/admin/LeadsManager').then(m => ({ default: m.LeadsManager })));
+const SettingsManager = React.lazy(() => import('./app/admin/SettingsManager').then(m => ({ default: m.SettingsManager })));
+const PageManager = React.lazy(() => import('./app/admin/PageManager').then(m => ({ default: m.PageManager })));
+const ProjectMediaReorder = React.lazy(() => import('./app/admin/ProjectMediaReorder').then(m => ({ default: m.ProjectMediaReorder })));
+
+// Loading Component
+const LoadingFallback = () => (
+  <div className="min-h-[50vh] flex items-center justify-center">
+    <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin"></div>
+  </div>
+);
 
 const PublicLayout: React.FC<{ settings?: Settings }> = ({ settings }) => (
   <div className="min-h-screen flex flex-col">
     <Navbar settings={settings} />
     <main className="flex-grow">
-      <Outlet />
+      <Suspense fallback={<LoadingFallback />}>
+        <Outlet />
+      </Suspense>
     </main>
     <Footer settings={settings} />
   </div>
@@ -66,7 +79,9 @@ const AdminLayout: React.FC = () => {
         </nav>
       </aside>
       <main className="flex-grow p-4 md:p-8 overflow-x-hidden">
-        <Outlet />
+        <Suspense fallback={<LoadingFallback />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   );
@@ -122,7 +137,11 @@ const App: React.FC = () => {
               <Route path="p/:slug" element={<DynamicPage />} />
             </Route>
             
-            <Route path="/admin/login" element={<Login />} />
+            <Route path="/admin/login" element={
+              <Suspense fallback={<LoadingFallback />}>
+                <Login />
+              </Suspense>
+            } />
 
             <Route path="/admin" element={<AdminGuard />}>
               <Route index element={<Dashboard />} />

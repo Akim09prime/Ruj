@@ -16,21 +16,41 @@ export const LeadForm: React.FC = () => {
     if (formData.company) return; // Honeypot triggered
     
     setStatus('loading');
+    setErrorMessage('');
 
-    // 1. Save locally first (Reliability)
+    const now = new Date().toISOString();
+
+    // 1. Create Lead Object
     const newLead: Lead = {
-      ...formData,
       id: Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toISOString(),
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      city: formData.city,
+      projectType: formData.projectType,
+      message: formData.message,
+      createdAt: now,
       status: 'new'
     };
     
-    // Always save locally
-    await dbService.addLead(newLead).catch(console.error);
+    let localSaveSuccess = false;
 
-    // 2. Send to Serverless API
+    // 2. ALWAYS Save locally first (Reliability)
     try {
-      const response = await fetch('/api/lead', {
+      await dbService.addLead(newLead);
+      localSaveSuccess = true;
+      console.log('Lead saved locally to IndexedDB/LocalStorage');
+    } catch (localError) {
+      console.error('Failed to save locally:', localError);
+      // We continue to try sending the email even if local save fails
+    }
+
+    // 3. Send to Serverless API (Resend) with Timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+    try {
+      const response = await fetch('/api/lead-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -39,19 +59,49 @@ export const LeadForm: React.FC = () => {
           email: formData.email,
           city: formData.city,
           message: formData.message,
-          company: formData.company 
-        })
+          company: formData.company, // Honeypot
+          createdAt: now
+        }),
+        signal: controller.signal
       });
 
-      if (response.ok) {
+      clearTimeout(timeoutId);
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        data = { ok: false, error: 'Invalid JSON response from server' };
+      }
+
+      if (response.ok && data.ok) {
         setStatus('success');
       } else {
-        console.warn('API submission failed, but saved locally.');
-        setStatus('success'); // We consider it success for user if saved locally
+        console.warn('Email API submission failed:', data.error);
+        
+        // If local save worked, we still tell the user "Success" to avoid panic, 
+        // as the admin can see the lead in the dashboard.
+        if (localSaveSuccess) {
+          setStatus('success');
+        } else {
+          throw new Error(data.error || 'Server error');
+        }
       }
-    } catch (error) {
-      console.error('Network error:', error);
-      setStatus('success'); // Fallback: It's saved locally
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      console.error('Network/Submission error:', error);
+      
+      if (localSaveSuccess) {
+        setStatus('success');
+      } else {
+        setStatus('error');
+        const isTimeout = error.name === 'AbortError';
+        setErrorMessage(
+          lang === 'ro' 
+            ? (isTimeout ? 'Conexiunea a expirat. Vă rugăm încercați telefonic.' : 'Eroare de conexiune. Vă rugăm încercați telefonic.')
+            : (isTimeout ? 'Connection timed out. Please contact us by phone.' : 'Connection error. Please contact us by phone.')
+        );
+      }
     }
   };
 
@@ -66,7 +116,7 @@ export const LeadForm: React.FC = () => {
             : 'We will contact you shortly to discuss your project details.'}
         </p>
         <button 
-          onClick={() => { setStatus('idle'); setFormData({...formData, message: '', name: '', email: '', phone: '', city: ''}); }}
+          onClick={() => { setStatus('idle'); setFormData({...formData, message: '', name: '', email: '', phone: '', city: '', company: ''}); }}
           className="px-10 py-4 border border-foreground uppercase tracking-widest font-bold hover:bg-foreground hover:text-background transition-all"
         >
           {lang === 'ro' ? 'Trimite o altă cerere' : 'Send another request'}
@@ -146,8 +196,15 @@ export const LeadForm: React.FC = () => {
         </div>
         
         {errorMessage && (
-           <div className="md:col-span-2 text-red-500 text-xs font-bold uppercase tracking-widest text-center">
+           <div className="md:col-span-2 text-red-500 text-xs font-bold uppercase tracking-widest text-center animate-pulse">
              {errorMessage}
+             <button 
+                type="button"
+                onClick={() => setStatus('idle')}
+                className="block mx-auto mt-2 underline"
+             >
+               Reîncearcă
+             </button>
            </div>
         )}
 
@@ -159,7 +216,7 @@ export const LeadForm: React.FC = () => {
           {status === 'loading' ? (
             <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
           ) : null}
-          {status === 'loading' ? 'Se trimite...' : 'Trimite Cererea'}
+          {status === 'loading' ? 'Se procesează...' : 'Trimite Cererea'}
         </button>
       </form>
     </div>

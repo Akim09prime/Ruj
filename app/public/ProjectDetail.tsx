@@ -5,6 +5,7 @@ import { dbService } from '../../services/db';
 import { useI18n } from '../../lib/i18n';
 import { Project, Media } from '../../types';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { Helmet } from 'react-helmet-async';
 
 export const ProjectDetail: React.FC = () => {
   const { id } = useParams();
@@ -29,12 +30,22 @@ export const ProjectDetail: React.FC = () => {
   if (loading) return <div className="pt-40 px-6 max-w-7xl mx-auto"><Skeleton className="h-[60vh] w-full" /></div>;
   if (!project) return <div className="pt-40 text-center font-serif text-3xl">Proiectul nu a fost găsit.</div>;
 
+  const coverImage = media.find(m => m.id === project.coverMediaId)?.url || media[0]?.url;
+
   return (
     <div className="pt-20">
+      <Helmet>
+        <title>{`${t(project.title)} | CARVELLO Portfolio`}</title>
+        <meta name="description" content={t(project.summary)} />
+        <meta property="og:title" content={`${t(project.title)} | CARVELLO`} />
+        <meta property="og:description" content={t(project.summary)} />
+        <meta property="og:image" content={coverImage} />
+      </Helmet>
+
       {/* Hero */}
       <div className="relative h-[60vh] overflow-hidden bg-surface-2">
         <img 
-          src={media.find(m => m.id === project.coverMediaId)?.url || media[0]?.url} 
+          src={coverImage} 
           className="w-full h-full object-cover opacity-60 grayscale"
           alt="" 
         />

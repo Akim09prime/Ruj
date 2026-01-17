@@ -56,10 +56,32 @@ export const SettingsManager: React.FC = () => {
           Salvează Tot
         </button>
       </div>
+
+      {settings.adminPassword === 'admin' && (
+        <div className="bg-red-500/10 border border-red-500/30 p-6 mb-10 flex justify-between items-center">
+          <div>
+            <h3 className="text-red-500 font-bold uppercase tracking-widest text-xs mb-1">Avertisment Securitate</h3>
+            <p className="text-muted text-xs">Utilizați parola implicită "admin". Vă rugăm să o schimbați imediat.</p>
+          </div>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
           
+          <section className="bg-surface p-8 border border-border shadow-sm">
+             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Securitate CMS</h2>
+             <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-muted block">Parolă Administrator</label>
+                <input 
+                  type="text"
+                  className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent font-mono"
+                  value={settings.adminPassword}
+                  onChange={e => setSettings({...settings, adminPassword: e.target.value})}
+                />
+             </div>
+          </section>
+
           <section className="bg-surface p-8 border border-border shadow-sm">
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Theme Engine (Luxury Presets)</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

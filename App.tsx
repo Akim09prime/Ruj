@@ -42,6 +42,7 @@ const AdminLayout: React.FC = () => {
   
   const handleLogout = () => {
     localStorage.removeItem('carvello_admin_session');
+    localStorage.removeItem('carvello_admin_expiry');
     navigate('/', { replace: true });
   };
 
@@ -75,7 +76,17 @@ const AdminLayout: React.FC = () => {
 
 const AdminGuard: React.FC = () => {
   const isAuth = localStorage.getItem('carvello_admin_session') === 'active';
-  if (!isAuth) return <Navigate to="/admin/login" replace />;
+  const expiry = localStorage.getItem('carvello_admin_expiry');
+  const now = Date.now();
+
+  // Session validation
+  if (!isAuth || !expiry || now > parseInt(expiry)) {
+    // Clear potentially stale session data
+    localStorage.removeItem('carvello_admin_session');
+    localStorage.removeItem('carvello_admin_expiry');
+    return <Navigate to="/admin/login" replace />;
+  }
+
   return <AdminLayout />;
 };
 

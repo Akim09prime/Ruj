@@ -6,6 +6,8 @@ import { Lead } from '../../types';
 export const LeadsManager: React.FC = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [selected, setSelected] = useState<Lead | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState<'all' | Lead['status']>('all');
 
   const loadData = async () => {
     const l = await dbService.getLeads();
@@ -37,13 +39,45 @@ export const LeadsManager: React.FC = () => {
     a.click();
   };
 
+  const filteredLeads = leads.filter(l => {
+    const matchesSearch = 
+      l.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      l.email.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      l.phone.includes(searchTerm);
+    const matchesStatus = filterStatus === 'all' || l.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="font-serif text-3xl">Inbox Cereri Ofertă</h1>
-        <button onClick={exportCSV} className="text-[10px] font-bold uppercase tracking-widest bg-surface border border-border px-4 py-2 hover:bg-surface-2 transition-colors">
+    <div className="p-8 animate-fade-in">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+           <h1 className="font-serif text-3xl">Inbox Cereri Ofertă</h1>
+           <p className="text-[10px] uppercase tracking-[0.2em] text-muted font-bold mt-1">Gestiune clienți potențiali</p>
+        </div>
+        <button onClick={exportCSV} className="text-[10px] font-bold uppercase tracking-widest bg-surface border border-border px-6 py-3 hover:bg-surface-2 transition-colors">
           Export CSV
         </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <input 
+          placeholder="Caută după nume, email sau telefon..." 
+          className="bg-surface p-4 border border-border text-xs outline-none focus:border-accent"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+        />
+        <div className="flex space-x-2">
+           {['all', 'new', 'contacted', 'closed'].map(s => (
+             <button
+               key={s}
+               onClick={() => setFilterStatus(s as any)}
+               className={`flex-grow border text-[10px] uppercase font-bold tracking-widest transition-all ${filterStatus === s ? 'bg-accent text-white border-accent' : 'bg-surface border-border hover:bg-surface-2'}`}
+             >
+               {s}
+             </button>
+           ))}
+        </div>
       </div>
 
       <div className="bg-surface border border-border overflow-hidden shadow-sm">
@@ -58,7 +92,7 @@ export const LeadsManager: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {leads.length > 0 ? leads.map(lead => (
+            {filteredLeads.length > 0 ? filteredLeads.map(lead => (
               <tr key={lead.id} className="border-b border-border hover:bg-surface-2 transition-colors">
                 <td className="p-4 text-muted">{new Date(lead.createdAt).toLocaleDateString()}</td>
                 <td className="p-4 font-bold">{lead.name}</td>
@@ -77,7 +111,7 @@ export const LeadsManager: React.FC = () => {
                 </td>
               </tr>
             )) : (
-              <tr><td colSpan={5} className="p-10 text-center text-muted italic">Nicio cerere primită momentan.</td></tr>
+              <tr><td colSpan={5} className="p-10 text-center text-muted italic">Nu am găsit rezultate pentru filtrele selectate.</td></tr>
             )}
           </tbody>
         </table>

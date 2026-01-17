@@ -1,8 +1,7 @@
-
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 
 interface Props {
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 interface State {
@@ -12,13 +11,10 @@ interface State {
 /**
  * ErrorBoundary component to catch rendering errors in the component tree.
  */
-// Fixed: Explicitly extended React.Component with <Props, State> generics to ensure this.state and this.props are recognized
-export class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    // Initializing state
-    this.state = { hasError: false };
-  }
+export class ErrorBoundary extends React.Component<Props, State> {
+  public state: State = {
+    hasError: false
+  };
 
   public static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
@@ -29,7 +25,6 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public render() {
-    // Fixed: Properly accessing this.state on class component
     if (this.state.hasError) {
       return (
         <div className="min-h-screen flex items-center justify-center p-6 text-center bg-background">
@@ -50,7 +45,6 @@ export class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Fixed: Properly accessing this.props on class component
     return this.props.children;
   }
 }

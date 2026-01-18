@@ -134,6 +134,7 @@ export interface AboutPageData {
 
 export interface Settings {
   id: 'global';
+  maintenanceMode: boolean; // NEW: Maintenance Toggle
   projectTypes: string[];
   rooms: string[];
   stages: string[];

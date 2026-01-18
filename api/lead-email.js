@@ -1,3 +1,4 @@
+
 // Simple in-memory store for rate limiting (reset on cold start is acceptable for serverless)
 const rateLimit = new Map();
 
@@ -70,10 +71,10 @@ export default async function handler(req, res) {
     
     // Email A: Notification to Admin (Internal)
     const adminEmailPayload = {
-      from: `RUJ Lead System <${emailFrom}>`,
+      from: `CARVELLO Leads <${emailFrom}>`,
       to: [emailTo],
       reply_to: email || undefined,
-      subject: "Lead nou — RUJ",
+      subject: "Lead nou — Website",
       html: `
         <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden;">
@@ -89,7 +90,7 @@ export default async function handler(req, res) {
               </table>
               <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
               <p style="color: #666; margin-bottom: 10px;">Mesaj:</p>
-              <div style="background: #f5f5f5; padding: 15px; border-left: 4px solid #B8923B; white-space: pre-wrap;">${message}</div>
+              <div style="background: #f5f5f5; padding: 15px; border-left: 4px solid #B8923B; white-space: pre-wrap; color: #333;">${message}</div>
               
               <div style="margin-top: 30px; font-size: 11px; color: #999; border-top: 1px solid #eee; padding-top: 10px;">
                 <p>📍 Page: ${currentUrl || 'Unknown'}</p>
@@ -110,7 +111,7 @@ export default async function handler(req, res) {
         from: `CARVELLO <${emailFrom}>`,
         to: [email],
         reply_to: emailTo, 
-        subject: "Cererea ta a fost înregistrată — CARVELLO",
+        subject: "Am primit cererea ta — CARVELLO",
         html: `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px 20px; background-color: #f9f9f9;">
             <div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-top: 4px solid #B8923B; box-shadow: 0 2px 15px rgba(0,0,0,0.05);">
@@ -119,8 +120,14 @@ export default async function handler(req, res) {
                 Îți mulțumim! Cererea ta a fost înregistrată cu succes.
               </p>
               <p style="color: #444; line-height: 1.6; font-size: 16px;">
-                Revenim în max. 24h lucrătoare.
+                Revenim în max. 24h lucrătoare cu un răspuns sau o propunere de întâlnire.
               </p>
+              
+              <div style="margin-top: 30px; background: #fdfdfd; padding: 20px; border: 1px solid #eee;">
+                 <p style="font-size: 12px; color: #999; margin-bottom: 5px; text-transform: uppercase;">Rezumatul mesajului tău:</p>
+                 <p style="font-style: italic; color: #555; margin: 0;">"${message}"</p>
+              </div>
+
               <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #111; font-size: 14px;">
                 <p style="margin: 0; font-weight: bold; letter-spacing: 1px; color: #B8923B;">CARVELLO</p>
                 <p style="margin: 5px 0 0; color: #666;">Mobilier premium. Precizie CNC.</p>
@@ -128,7 +135,7 @@ export default async function handler(req, res) {
             </div>
           </div>
         `,
-        text: `Bună, ${name},\n\nÎți mulțumim! Cererea ta a fost înregistrată cu succes.\nRevenim în max. 24h lucrătoare.\n\nCARVELLO — Mobilier premium. Precizie CNC.`
+        text: `Bună, ${name},\n\nÎți mulțumim! Cererea ta a fost înregistrată cu succes.\nRevenim în max. 24h lucrătoare.\n\nCopie mesaj: "${message}"\n\nCARVELLO — Mobilier premium. Precizie CNC.`
       };
     }
 

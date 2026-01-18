@@ -352,6 +352,7 @@ const SEED_PROCESS: ProcessStep[] = [
 const SEED_DATA: AppDB = {
   settings: {
     id: 'global',
+    maintenanceMode: false, // Default is OFF
     projectTypes: ['Rezidențial', 'HoReCa', 'Office', 'Comercial', 'Hotel'],
     rooms: ['Living', 'Bucătărie', 'Dormitor', 'Baie', 'Hol', 'Office', 'Lobby', 'Restaurant'],
     stages: ['Concept', 'Proiectare', 'Execuție', 'Finisaj', 'Montaj'],

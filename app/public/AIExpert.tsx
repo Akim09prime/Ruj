@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { useI18n } from '../../lib/i18n';
@@ -18,29 +17,21 @@ export const AIExpert: React.FC = () => {
     setSources([]);
 
     try {
-      // Fix: Initialize with named parameter apiKey as per guidelines
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
       
-      // Fix: Use ai.models.generateContent directly with correct model and parameter structure
       const res = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: [{
-          parts: [{
-            text: `You are the technical expert at CARVELLO, a CNC and premium furniture brand. 
+        contents: `You are the technical expert at CARVELLO, a CNC and premium furniture brand. 
             Answer this customer question with professional precision: ${query}. 
             Focus on technical details of MDF, CNC, 2K finishes, and custom assembly. 
-            Answer in ${lang === 'ro' ? 'Romanian' : 'English'}.`
-          }]
-        }],
+            Answer in ${lang === 'ro' ? 'Romanian' : 'English'}.`,
         config: {
           tools: [{ googleSearch: {} }]
         }
       });
 
-      // Fix: Use .text property instead of text()
       setResponse(res.text || '');
       
-      // Fix: Extract grounding metadata from candidates and groundingChunks
       const chunks = res.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
       const webSources = chunks
         .filter((c: any) => c.web)

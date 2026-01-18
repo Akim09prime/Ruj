@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './lib/theme';
 import { I18nProvider } from './lib/i18n';
 import { Navbar } from './components/layout/Navbar';
@@ -21,6 +21,7 @@ const ServiceDetail = React.lazy(() => import('./app/public/ServiceDetail').then
 const Reviews = React.lazy(() => import('./app/public/Reviews').then(m => ({ default: m.Reviews })));
 const Process = React.lazy(() => import('./app/public/Process').then(m => ({ default: m.Process })));
 const DynamicPage = React.lazy(() => import('./app/public/DynamicPage').then(m => ({ default: m.DynamicPage })));
+const Maintenance = React.lazy(() => import('./app/public/Maintenance').then(m => ({ default: m.Maintenance })));
 
 // Lazy load Admin pages
 const Login = React.lazy(() => import('./app/admin/Login').then(m => ({ default: m.Login })));
@@ -46,17 +47,43 @@ const LoadingFallback = () => (
   </div>
 );
 
-const PublicLayout: React.FC<{ settings?: Settings }> = ({ settings }) => (
-  <div className="min-h-screen flex flex-col">
-    <Navbar settings={settings} />
-    <main className="flex-grow">
+const PublicLayout: React.FC<{ settings?: Settings }> = ({ settings }) => {
+  const location = useLocation();
+
+  // Maintenance Guard
+  if (settings?.maintenanceMode) {
+    // If not in maintenance page and not in admin, redirect
+    if (location.pathname !== '/maintenance' && !location.pathname.startsWith('/admin')) {
+      return <Navigate to="/maintenance" replace />;
+    }
+  } else {
+    // If maintenance mode is OFF, but user is on maintenance page, go home
+    if (location.pathname === '/maintenance') {
+      return <Navigate to="/" replace />;
+    }
+  }
+
+  // If in maintenance mode and on /maintenance route, show only Maintenance page (no navbar/footer)
+  if (settings?.maintenanceMode && location.pathname === '/maintenance') {
+    return (
       <Suspense fallback={<LoadingFallback />}>
         <Outlet />
       </Suspense>
-    </main>
-    <Footer settings={settings} />
-  </div>
-);
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Navbar settings={settings} />
+      <main className="flex-grow">
+        <Suspense fallback={<LoadingFallback />}>
+          <Outlet />
+        </Suspense>
+      </main>
+      <Footer settings={settings} />
+    </div>
+  );
+};
 
 const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -133,6 +160,8 @@ const App: React.FC = () => {
     dbService.getSettings().then(setSettings).catch(console.error);
   }, []);
 
+  if (!settings) return <LoadingFallback />;
+
   return (
     <ThemeProvider>
       <I18nProvider>
@@ -153,6 +182,7 @@ const App: React.FC = () => {
               <Route path="despre" element={<About />} />
               <Route path="contact" element={<Contact />} />
               <Route path="p/:slug" element={<DynamicPage />} />
+              <Route path="maintenance" element={<Maintenance />} />
             </Route>
             
             <Route path="/admin/login" element={

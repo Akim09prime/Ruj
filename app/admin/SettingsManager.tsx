@@ -16,7 +16,8 @@ export const SettingsManager: React.FC = () => {
     if (settings) {
       await dbService.updateSettings(settings);
       setTheme(settings.activeTheme);
-      alert('Setările globale și tema au fost salvate cu succes!');
+      alert('Setările globale și tema au fost salvate cu succes! Refresh-ul paginii ar putea fi necesar pentru aplicarea completă.');
+      window.location.reload();
     }
   };
 
@@ -76,6 +77,41 @@ export const SettingsManager: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
           
+          {/* CONTACT GLOBAL */}
+          <section className="bg-surface p-8 border border-border shadow-sm relative overflow-hidden group">
+             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
+                <span className="text-6xl">📞</span>
+             </div>
+             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Date Contact Globale (Footer)</h2>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                   <label className="text-[10px] uppercase font-bold text-muted">Telefon Afișat</label>
+                   <input 
+                     className="w-full bg-surface-2 border border-border p-3 text-xs focus:border-accent outline-none" 
+                     value={settings.footer.contact.phone} 
+                     onChange={e => setSettings({...settings, footer: {...settings.footer, contact: {...settings.footer.contact, phone: e.target.value}}})} 
+                   />
+                </div>
+                <div className="space-y-4">
+                   <label className="text-[10px] uppercase font-bold text-muted">Email Oficial</label>
+                   <input 
+                     className="w-full bg-surface-2 border border-border p-3 text-xs focus:border-accent outline-none" 
+                     value={settings.footer.contact.email} 
+                     onChange={e => setSettings({...settings, footer: {...settings.footer, contact: {...settings.footer.contact, email: e.target.value}}})} 
+                   />
+                </div>
+                <div className="space-y-4 md:col-span-2">
+                   <label className="text-[10px] uppercase font-bold text-muted">Adresă Fizică</label>
+                   <input 
+                     className="w-full bg-surface-2 border border-border p-3 text-xs focus:border-accent outline-none" 
+                     value={settings.footer.contact.address} 
+                     onChange={e => setSettings({...settings, footer: {...settings.footer, contact: {...settings.footer.contact, address: e.target.value}}})} 
+                   />
+                </div>
+             </div>
+          </section>
+
           <section className="bg-surface p-8 border border-border shadow-sm">
              <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Branding & Identity</h2>
              
@@ -156,6 +192,28 @@ export const SettingsManager: React.FC = () => {
         </div>
 
         <div className="space-y-10">
+          
+          {/* SYSTEM STATUS / MAINTENANCE - NEW SECTION */}
+          <section className="bg-surface p-8 border border-border shadow-sm relative overflow-hidden">
+            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-6">Status Sistem</h2>
+            <div className={`p-6 border transition-colors ${settings.maintenanceMode ? 'bg-accent text-white border-accent' : 'bg-surface-2 border-border'}`}>
+               <div className="flex items-center justify-between mb-4">
+                  <span className="font-serif text-xl">Mod Mentenanță</span>
+                  <div 
+                    onClick={() => setSettings({...settings, maintenanceMode: !settings.maintenanceMode})}
+                    className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${settings.maintenanceMode ? 'bg-white' : 'bg-gray-600'}`}
+                  >
+                     <div className={`w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${settings.maintenanceMode ? 'translate-x-6 bg-accent' : 'translate-x-0 bg-white'}`}></div>
+                  </div>
+               </div>
+               <p className={`text-xs leading-relaxed ${settings.maintenanceMode ? 'text-white/90' : 'text-muted'}`}>
+                  {settings.maintenanceMode 
+                    ? 'SITE BLOCAT. Vizitatorii văd pagina "În Construcție". Tu poți naviga în Admin.' 
+                    : 'SITE ONLINE. Platforma este vizibilă publicului.'}
+               </p>
+            </div>
+          </section>
+
           <section className="bg-surface p-8 border border-border shadow-sm">
             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-6">Navigație Website</h2>
             <div className="space-y-2">

@@ -1,7 +1,7 @@
 import { AppDB, Settings, Project, Media, Page, Lead, ServicePage, ProcessStep, AboutPageData, Review, ContactPageData } from '../types';
 
 const DB_KEY = 'carvello_db';
-const DB_VERSION = 3; // INCREMENT THIS TO FORCE UPDATE FOR ALL USERS
+const DB_VERSION = 4; // INCREMENTED TO FORCE MAINTENANCE MODE UPDATE
 
 const BRAND_LOGO_DARK = "https://i.ibb.co/L9vC8Lh/carvello-logo-gold.png"; 
 const BRAND_LOGO_LIGHT = "https://i.ibb.co/L9vC8Lh/carvello-logo-gold.png"; 
@@ -353,7 +353,7 @@ const SEED_DATA: AppDB = {
   version: DB_VERSION, // Track version
   settings: {
     id: 'global',
-    maintenanceMode: false, // Default is OFF
+    maintenanceMode: true, // FORCED ON FOR ALL
     projectTypes: ['Rezidențial', 'HoReCa', 'Office', 'Comercial', 'Hotel'],
     rooms: ['Living', 'Bucătărie', 'Dormitor', 'Baie', 'Hol', 'Office', 'Lobby', 'Restaurant'],
     stages: ['Concept', 'Proiectare', 'Execuție', 'Finisaj', 'Montaj'],

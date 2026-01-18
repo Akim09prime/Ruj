@@ -382,10 +382,10 @@ const SEED_DATA: AppDB = {
     },
     adminPassword: 'admin',
     hero: {
-      mode: 'video',
+      mode: 'slider', // SLIDER ACTIVATED
       enabled: true,
       height: 'fullscreen',
-      overlayStrength: 65,
+      overlayStrength: 45,
       align: 'center',
       eyebrow: { ro: 'CARVELLO — Mobilier premium la comandă', en: 'CARVELLO — Premium Custom Furniture' },
       titleLine1: { ro: 'Mobilier premium la comandă.', en: 'Premium Custom Furniture.' },
@@ -398,15 +398,56 @@ const SEED_DATA: AppDB = {
       primaryCta: { label: { ro: 'Cere ofertă', en: 'Get Quote' }, href: '/cerere-oferta' },
       secondaryCta: { label: { ro: 'Vezi portofoliu', en: 'View Portfolio' }, href: '/portofoliu', visible: true },
       
-      videoUrl: 'https://player.vimeo.com/external/494252666.sd.mp4?s=265c0293774618772023026742510167c645d944&profile_id=165&oauth2_token_id=57447761', 
-      posterUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2400',
+      videoUrl: '', 
+      posterUrl: '',
       muted: true,
       loop: true,
       showPlayButton: false,
       
       autoplay: true,
-      interval: 4500,
-      slides: []
+      interval: 5000,
+      slides: [
+        {
+           id: 'sl1',
+           imageUrl: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=2000',
+           title: { ro: 'Bucătării de Lux.', en: 'Luxury Kitchens.' },
+           subtitle: { ro: 'Ergonomie perfectă și finisaje impecabile pentru inima casei tale.', en: 'Perfect ergonomics and flawless finishes for the heart of your home.' },
+           primaryCta: { label: { ro: 'Vezi Galerie', en: 'View Gallery' }, href: '/galerie-mobilier' },
+           secondaryCta: { label: { ro: 'Cere Ofertă', en: 'Get Quote' }, href: '/cerere-oferta' }
+        },
+        {
+           id: 'sl2',
+           imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000',
+           title: { ro: 'Finisaje 2K.', en: '2K Finishes.' },
+           subtitle: { ro: 'Vopsitorie industrială proprie. Mat, Satin sau Lucios, orice culoare NCS.', en: 'In-house industrial painting. Matte, Satin or Gloss, any NCS color.' },
+           primaryCta: { label: { ro: 'Despre Noi', en: 'About Us' }, href: '/despre' },
+           secondaryCta: { label: { ro: 'Contact', en: 'Contact' }, href: '/contact' }
+        },
+        {
+           id: 'sl3',
+           imageUrl: 'https://images.unsplash.com/photo-1551516594-56cb78394645?auto=format&fit=crop&q=80&w=2000',
+           title: { ro: 'Dressing Walk-In.', en: 'Walk-In Wardrobes.' },
+           subtitle: { ro: 'Organizare inteligentă într-un design spectaculos.', en: 'Smart organization in a spectacular design.' },
+           primaryCta: { label: { ro: 'Proiecte', en: 'Projects' }, href: '/portofoliu' },
+           secondaryCta: { label: { ro: 'Detalii', en: 'Details' }, href: '/servicii' }
+        },
+        {
+           id: 'sl4',
+           imageUrl: 'https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=2000',
+           title: { ro: 'Precizie CNC.', en: 'CNC Precision.' },
+           subtitle: { ro: 'Tehnologie digitală pentru forme complexe și detalii arhitecturale.', en: 'Digital technology for complex shapes and architectural details.' },
+           primaryCta: { label: { ro: 'Proces', en: 'Process' }, href: '/proces-garantii' },
+           secondaryCta: { label: { ro: 'Expertiză', en: 'Expertise' }, href: '/servicii' }
+        },
+        {
+           id: 'sl5',
+           imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000',
+           title: { ro: 'Spații Comerciale.', en: 'Commercial Spaces.' },
+           subtitle: { ro: 'Amenajări office și HoReCa la cheie, durabile și estetice.', en: 'Turnkey office and HoReCa fit-outs, durable and aesthetic.' },
+           primaryCta: { label: { ro: 'Portofoliu', en: 'Portfolio' }, href: '/portofoliu' },
+           secondaryCta: { label: { ro: 'B2B', en: 'B2B' }, href: '/contact' }
+        }
+      ]
     }
   },
   about: SEED_ABOUT,

@@ -20,14 +20,14 @@ const SEED_CONTACT: ContactPageData = {
     coverImageId: null // uses fallback
   },
   info: {
-    phone: '+40 700 000 000',
+    phone: '0729 728 880',
     email: 'office@carvello.ro',
     address: 'Strada Industriei Nr. 10',
     city: 'Cluj-Napoca',
     country: 'România',
     hours: 'L–V 09:00–18:00',
     responseBuffer: { ro: 'Răspundem în max. 24h lucrătoare', en: 'We reply in max 24 business hours' },
-    whatsappLink: 'https://wa.me/40700000000',
+    whatsappLink: 'https://wa.me/40729728880',
     mapEmbedUrl: '' // Empty to trigger premium placeholder
   },
   timeline: {
@@ -368,7 +368,7 @@ const SEED_DATA: AppDB = {
       { id: '8', label: { ro: 'Contact', en: 'Contact' }, href: '/contact', visible: true, order: 7 },
     ],
     footer: {
-      contact: { address: 'Strada Industriei Nr. 10, Cluj-Napoca', email: 'office@carvello.ro', phone: '+40 700 000 000' },
+      contact: { address: 'Strada Industriei Nr. 10, Cluj-Napoca', email: 'office@carvello.ro', phone: '0729 728 880' },
       socials: [{ platform: 'Instagram', url: '#' }, { platform: 'Facebook', url: '#' }],
       legal: { ro: '© 2024 CARVELLO. Toate drepturile rezervate.', en: '© 2024 CARVELLO. All rights reserved.' }
     },

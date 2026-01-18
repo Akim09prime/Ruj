@@ -110,22 +110,25 @@ export default async function handler(req, res) {
         from: `CARVELLO <${emailFrom}>`,
         to: [email],
         reply_to: emailTo, 
-        subject: "Cererea ta a fost primită — CARVELLO",
+        subject: "Cererea ta a fost înregistrată — CARVELLO",
         html: `
-          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px 20px; background-color: #f4f4f4;">
-            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-top: 4px solid #B8923B; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-              <h2 style="color: #1a1a1a; margin-top: 0; font-family: Georgia, serif;">Salut,</h2>
-              <p style="color: #444; line-height: 1.6; font-size: 16px;">
-                Îți mulțumim! Am primit cererea ta și revenim cu un răspuns în maximum 24h lucrătoare.
+          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px 20px; background-color: #f9f9f9;">
+            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-top: 4px solid #B8923B; box-shadow: 0 2px 15px rgba(0,0,0,0.05);">
+              <h2 style="color: #111; margin-top: 0; font-family: Georgia, serif; font-size: 24px;">Bună, ${name},</h2>
+              <p style="color: #444; line-height: 1.6; font-size: 16px; margin-top: 20px;">
+                Îți mulțumim! Cererea ta a fost înregistrată cu succes.
               </p>
-              <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #888; font-size: 14px;">
-                <p style="margin: 0; font-weight: bold; color: #B8923B;">CARVELLO</p>
-                <p style="margin: 5px 0 0;">Mobilier la comandă • Precizie CNC</p>
+              <p style="color: #444; line-height: 1.6; font-size: 16px;">
+                Revenim în max. 24h lucrătoare.
+              </p>
+              <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee; color: #111; font-size: 14px;">
+                <p style="margin: 0; font-weight: bold; letter-spacing: 1px; color: #B8923B;">CARVELLO</p>
+                <p style="margin: 5px 0 0; color: #666;">Mobilier premium. Precizie CNC.</p>
               </div>
             </div>
           </div>
         `,
-        text: `Salut,\n\nÎți mulțumim! Am primit cererea ta și revenim cu un răspuns în maximum 24h lucrătoare.\n\n— CARVELLO | Mobilier la comandă • Precizie CNC`
+        text: `Bună, ${name},\n\nÎți mulțumim! Cererea ta a fost înregistrată cu succes.\nRevenim în max. 24h lucrătoare.\n\nCARVELLO — Mobilier premium. Precizie CNC.`
       };
     }
 

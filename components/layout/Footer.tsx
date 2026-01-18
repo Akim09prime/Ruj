@@ -18,7 +18,14 @@ export const Footer: React.FC<FooterProps> = ({ settings }) => {
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
           <div className="md:col-span-2">
-            <span className="font-serif text-3xl tracking-widest font-bold text-accent block mb-8">CARVELLO</span>
+            <div className="mb-8">
+               <span className="font-serif text-3xl tracking-widest font-bold text-accent block">
+                 {settings.brand.brandName || 'CARVELLO'}
+               </span>
+               <span className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold block mt-2">
+                 {settings.brand.brandSlogan || 'Executat milimetric.'}
+               </span>
+            </div>
             <p className="text-muted text-lg max-w-sm leading-relaxed font-light">
               {lang === 'ro' 
                 ? 'Excelență în prelucrarea digitală a lemnului și finisaje de lux. Precizie milimetrică pentru proiecte vizionare.' 

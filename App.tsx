@@ -29,6 +29,7 @@ const LeadsManager = React.lazy(() => import('./app/admin/LeadsManager').then(m 
 const SettingsManager = React.lazy(() => import('./app/admin/SettingsManager').then(m => ({ default: m.SettingsManager })));
 const PageManager = React.lazy(() => import('./app/admin/PageManager').then(m => ({ default: m.PageManager })));
 const ProjectMediaReorder = React.lazy(() => import('./app/admin/ProjectMediaReorder').then(m => ({ default: m.ProjectMediaReorder })));
+const HeroManager = React.lazy(() => import('./app/admin/HeroManager').then(m => ({ default: m.HeroManager })));
 
 // Loading Component
 const LoadingFallback = () => (
@@ -73,6 +74,7 @@ const AdminLayout: React.FC = () => {
              <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Leads</Link>
           </div>
           <div className="mt-auto space-y-4">
+            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent text-accent">Hero Manager</Link>
             <Link to="/admin/settings" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent">Setări</Link>
             <button onClick={handleLogout} className="text-left text-[9px] uppercase font-bold text-red-500 hover:underline">Logout & Exit</button>
           </div>
@@ -151,6 +153,7 @@ const App: React.FC = () => {
               <Route path="pages" element={<PageManager />} />
               <Route path="leads" element={<LeadsManager />} />
               <Route path="settings" element={<SettingsManager />} />
+              <Route path="hero" element={<HeroManager />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

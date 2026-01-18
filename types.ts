@@ -7,6 +7,38 @@ export interface I18nString {
   en: string;
 }
 
+export interface HeroSlide {
+  id: string;
+  imageUrl: string;
+  title: I18nString;
+  subtitle: I18nString;
+  primaryCta: { label: I18nString; href: string };
+  secondaryCta: { label: I18nString; href: string };
+}
+
+export interface HeroConfig {
+  mode: 'video' | 'slider' | 'image';
+  enabled: boolean;
+  height: 'fullscreen' | 'large' | 'medium';
+  overlayStrength: number; // 0-100
+  align: 'left' | 'center';
+  eyebrow: I18nString;
+  titleLine1: I18nString;
+  titleLine2: I18nString;
+  subtitle: I18nString;
+  microFeatures: string[]; 
+  primaryCta: { label: I18nString; href: string };
+  secondaryCta: { label: I18nString; href: string; visible: boolean };
+  videoUrl: string;
+  posterUrl: string;
+  muted: boolean;
+  loop: boolean;
+  showPlayButton: boolean;
+  autoplay: boolean;
+  interval: number;
+  slides: HeroSlide[];
+}
+
 export interface Settings {
   id: 'global';
   projectTypes: string[];
@@ -28,8 +60,12 @@ export interface Settings {
   brand: {
     logoDarkUrl: string;
     logoLightUrl: string;
+    brandName: string; // Default: CARVELLO
+    brandSlogan: string; // Default: Executat milimetric.
+    useTextLogo: boolean;
   };
   adminPassword: string;
+  hero: HeroConfig; 
 }
 
 export interface NavItem {
@@ -40,10 +76,51 @@ export interface NavItem {
   order: number;
 }
 
+// --- NEW PROCESS STAGE TYPE ---
+export interface ProjectStage {
+  title: I18nString;
+  description: I18nString;
+  date?: string;
+  highlights: string[];
+  images: string[]; // URLs
+}
+
+export interface ProjectMetrics {
+  duration: string;
+  finish: string;
+  materials: string;
+  hardware: string;
+  services: string[];
+}
+
 export interface Project {
   id: string;
+  slug?: string;
   title: I18nString;
-  summary: I18nString;
+  summary: I18nString; // Short summary for card
+  
+  // Timeline Sorting
+  timelineDate: string; // ISO Date for sorting on portfolio page
+  
+  // Executive Summary (Case Study)
+  clientBrief?: I18nString; // "Challenge"
+  ourSolution?: I18nString; // "Solution"
+  result?: I18nString; // "Result"
+
+  metrics?: ProjectMetrics;
+  
+  // Detailed Process Timeline
+  stages?: ProjectStage[];
+  
+  // Tech Specs (Key-Value)
+  techSpecs?: { label: string; value: string }[];
+
+  testimonial?: {
+    text: I18nString;
+    author: string;
+    role: string;
+  };
+
   projectType: string;
   location: I18nString;
   publishedAt: string;
@@ -103,14 +180,17 @@ export interface SectionBlock {
 
 export interface Lead {
   id: string;
+  type: 'general' | 'project-feedback';
+  projectRef?: { id: string; title: string }; // If feedback
+  rating?: number; // If feedback
   name: string;
   email: string;
   phone: string;
   city: string;
-  projectType: string;
+  projectType: string; // Or "Feedback"
   message: string;
   createdAt: string;
-  status: 'new' | 'contacted' | 'won' | 'lost';
+  status: 'new' | 'contacted' | 'won' | 'lost' | 'approved' | 'archived'; // Approved for testimonials
 }
 
 export interface AppDB {

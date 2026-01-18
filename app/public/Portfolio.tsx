@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../lib/i18n';
@@ -20,7 +21,12 @@ export const Portfolio: React.FC = () => {
     const fetchData = async () => {
       const p = await dbService.getProjects();
       const m = await dbService.getMedia();
-      setProjects(p.filter(proj => proj.isPublished).sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()));
+      // Sort by timelineDate descending
+      setProjects(p.filter(proj => proj.isPublished).sort((a, b) => {
+        const dateA = a.timelineDate || a.publishedAt;
+        const dateB = b.timelineDate || b.publishedAt;
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      }));
       setMedia(m);
       setLoading(false);
     };
@@ -36,107 +42,121 @@ export const Portfolio: React.FC = () => {
     return first ? first.url : 'https://images.unsplash.com/photo-1581092160607-ee22621dd758';
   };
 
+  const getYear = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? '2024' : d.getFullYear();
+  };
+
+  const getMonth = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const months = lang === 'ro' 
+      ? ['IAN', 'FEB', 'MAR', 'APR', 'MAI', 'IUN', 'IUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+      : ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    return isNaN(d.getTime()) ? '' : months[d.getMonth()];
+  };
+
   return (
-    <div className="pt-0 pb-24">
-      <section className="relative h-[75vh] flex items-center overflow-hidden bg-[#050505] mb-24">
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format,compress&q=80&w=2000" 
-            className="w-full h-full object-cover opacity-60 grayscale scale-110 animate-slow-zoom"
-            alt="Carvello Architectural Background"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent"></div>
-        </div>
+    <div className="bg-background text-foreground overflow-hidden">
+      
+      {/* HEADER HERO */}
+      <section className="relative py-32 px-6 bg-[#050505] text-white text-center border-b border-white/5">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background"></div>
         
-        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full text-white">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center space-x-4 mb-6 animate-fade-in">
-              <div className="w-12 h-[1px] bg-accent"></div>
-              <span className="text-accent uppercase tracking-[0.5em] text-[10px] font-bold">
-                {lang === 'ro' ? 'CRONOLOGIA EXCELENȚEI' : 'TIMELINE OF EXCELLENCE'}
-              </span>
-            </div>
-            <h1 className="font-serif text-6xl md:text-9xl leading-[0.9] mb-8 animate-slide-up">
-              {lang === 'ro' ? 'Portofoliu' : 'Portfolio'}
-            </h1>
-            <p className="text-lg md:text-2xl font-light max-w-xl text-white/60 leading-relaxed animate-slide-up-delayed italic font-serif">
-              {lang === 'ro' 
-                ? 'Fiecare piesă este o dovadă a preciziei noastre. De la concept digital la realitate tactilă.' 
-                : 'Every piece is a testament to our precision. From digital concept to tactile reality.'}
-            </p>
-          </div>
+        <div className="relative z-10 max-w-4xl mx-auto">
+           <h1 className="font-serif text-5xl md:text-7xl mb-6 animate-slide-up">{lang === 'ro' ? 'Portofoliu' : 'Portfolio'}</h1>
+           <p className="text-xl text-white/70 font-light max-w-2xl mx-auto mb-10 leading-relaxed animate-slide-up-delayed">
+             {lang === 'ro' 
+               ? 'Proiecte complete livrate end-to-end: de la concept & randare 3D la CNC, finisaje și montaj.' 
+               : 'Complete projects delivered end-to-end: from concept & 3D rendering to CNC, finishes and assembly.'}
+           </p>
+           <div className="flex flex-col sm:flex-row justify-center gap-6 animate-fade-in">
+             <Link to="/cerere-oferta" className="px-10 py-4 bg-accent text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-accent transition-all shadow-xl shadow-accent/20">
+               {lang === 'ro' ? 'Cere Ofertă' : 'Get Quote'}
+             </Link>
+             <button onClick={() => document.getElementById('timeline')?.scrollIntoView({ behavior: 'smooth' })} className="px-10 py-4 border border-white/20 text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all">
+               {lang === 'ro' ? 'Vezi Proiecte' : 'View Projects'}
+             </button>
+           </div>
         </div>
-        <div className="absolute bottom-0 right-0 p-12 hidden lg:block select-none pointer-events-none overflow-hidden">
-          <span className="font-serif text-[18vw] leading-none text-white/[0.03] uppercase tracking-tighter block transform translate-y-1/4">
-            Archives
-          </span>
-        </div>
-        <div className="absolute bottom-0 left-[88px] md:left-[144px] w-[1px] h-32 bg-gradient-to-t from-accent to-transparent"></div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="relative border-l border-border/30 pl-8 md:pl-24 space-y-40">
-          {loading ? (
-            [1,2,3].map(i => (
-              <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-12">
-                <div className="md:col-span-5 space-y-4">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-24 w-full" />
-                </div>
-                <div className="md:col-span-7">
-                  <Skeleton className="aspect-[16/10] w-full" />
-                </div>
-              </div>
-            ))
-          ) : (
-            projects.map((proj) => (
-              <div key={proj.id} className="relative group animate-fade-in">
-                <div className="absolute -left-[41px] md:-left-[105px] top-2 w-5 h-5 rounded-full bg-accent border-4 border-background group-hover:scale-150 transition-all duration-700 shadow-xl shadow-accent/20 z-10"></div>
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-16 items-center">
-                  <div className="md:col-span-5">
-                    <div className="flex items-center space-x-4 mb-6">
-                       <span className="text-[10px] font-mono text-accent bg-accent/10 px-3 py-1">
-                        {new Date(proj.publishedAt).getFullYear()}
-                      </span>
-                      <span className="text-[9px] uppercase tracking-widest text-muted font-bold">
-                        {proj.projectType}
-                      </span>
-                    </div>
-                    <h2 className="font-serif text-4xl md:text-5xl mb-6 group-hover:text-accent transition-colors duration-500 leading-tight">
-                      {t(proj.title)}
-                    </h2>
-                    <p className="text-muted mb-10 line-clamp-3 font-light leading-relaxed text-lg border-l border-accent/20 pl-6">
-                      {t(proj.summary)}
-                    </p>
-                    <Link 
-                      to={`/proiect/${proj.id}`} 
-                      className="group/btn inline-flex items-center space-x-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:text-accent transition-all"
-                    >
-                      <span>{lang === 'ro' ? 'Explorează Detalii' : 'Explore Details'}</span>
-                      <div className="w-8 h-[1px] bg-foreground group-hover/btn:w-16 group-hover/btn:bg-accent transition-all duration-500"></div>
-                    </Link>
+      {/* TIMELINE SECTION */}
+      <section id="timeline" className="py-24 px-4 md:px-0 relative max-w-7xl mx-auto">
+         {/* Vertical Line (Desktop Centered, Mobile Left) */}
+         <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-border to-transparent md:-ml-[0.5px]"></div>
+
+         <div className="space-y-32">
+           {loading ? (
+             [1, 2, 3].map(i => <div key={i} className="h-96 w-full bg-surface-2 animate-pulse rounded-lg ml-12 md:ml-0 max-w-xl mx-auto"></div>)
+           ) : (
+             projects.map((proj, idx) => (
+               <div key={proj.id} className={`relative flex flex-col md:flex-row items-center w-full group ${idx % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
+                  
+                  {/* Badge Date */}
+                  <div className="absolute left-8 md:left-1/2 top-0 md:-ml-6 -ml-6 z-10">
+                     <div className="w-12 h-12 rounded-full bg-background border border-accent flex flex-col items-center justify-center shadow-lg shadow-accent/10 group-hover:scale-110 transition-transform duration-500">
+                        <span className="text-[8px] font-bold text-accent leading-none">{getYear(proj.timelineDate || proj.publishedAt)}</span>
+                        <span className="text-[7px] font-bold text-muted uppercase leading-none mt-0.5">{getMonth(proj.timelineDate || proj.publishedAt)}</span>
+                     </div>
                   </div>
-                  <div className="md:col-span-7 shadow-2xl group-hover:shadow-accent/10 transition-all duration-700">
-                    <OptimizedImage 
-                      src={getCoverUrl(proj.id, proj.coverMediaId)} 
-                      alt={t(proj.title)}
-                      aspectRatio="aspect-[16/10]"
-                      className="border border-border/50 group-hover:border-accent/30"
-                    />
+
+                  {/* Content Card */}
+                  <div className={`w-full md:w-1/2 pl-20 md:pl-0 ${idx % 2 === 0 ? 'md:pr-20 md:text-right' : 'md:pl-20 md:text-left'} text-left`}>
+                     <Link to={`/proiect/${proj.slug || proj.id}`} className="block group-hover:-translate-y-2 transition-transform duration-500">
+                        <div className="relative aspect-[16/9] overflow-hidden bg-surface-2 border border-border shadow-sm mb-6">
+                           <OptimizedImage 
+                              src={getCoverUrl(proj.id, proj.coverMediaId)} 
+                              alt={t(proj.title)} 
+                              className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105"
+                           />
+                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <span className="px-6 py-2 border border-white text-white text-[10px] uppercase font-bold tracking-widest bg-black/30 backdrop-blur-sm">
+                                {lang === 'ro' ? 'Vezi Detalii' : 'View Details'}
+                              </span>
+                           </div>
+                        </div>
+                        
+                        <div className={`flex flex-col ${idx % 2 === 0 ? 'md:items-end' : 'md:items-start'} items-start`}>
+                           <div className="flex gap-3 mb-3">
+                              <span className="text-[9px] uppercase tracking-widest font-bold text-accent">{proj.projectType}</span>
+                              <span className="text-[9px] uppercase tracking-widest font-bold text-muted">•</span>
+                              <span className="text-[9px] uppercase tracking-widest font-bold text-muted">{t(proj.location)}</span>
+                           </div>
+                           <h2 className="font-serif text-3xl md:text-4xl mb-4 leading-tight group-hover:text-accent transition-colors">{t(proj.title)}</h2>
+                           <p className="text-sm text-muted font-light leading-relaxed max-w-md line-clamp-3 mb-6">
+                              {t(proj.summary)}
+                           </p>
+                           
+                           {proj.metrics && (
+                             <div className="flex flex-wrap gap-2">
+                                <span className="px-3 py-1 bg-surface-2 border border-border text-[9px] uppercase tracking-widest text-muted font-bold">{proj.metrics.duration}</span>
+                                <span className="px-3 py-1 bg-surface-2 border border-border text-[9px] uppercase tracking-widest text-muted font-bold">{proj.metrics.finish}</span>
+                             </div>
+                           )}
+                        </div>
+                     </Link>
                   </div>
-                </div>
-              </div>
-            ))
-          )}
-          {!loading && projects.length === 0 && (
-            <div className="py-24 text-center border border-dashed border-border/50 rounded-lg">
-               <p className="font-serif text-3xl text-muted/40 italic">Arhiva este în curs de actualizare...</p>
-            </div>
-          )}
-        </div>
-      </div>
+
+                  {/* Empty Spacer for Zig-Zag */}
+                  <div className="w-full md:w-1/2"></div>
+               </div>
+             ))
+           )}
+         </div>
+      </section>
+
+      {/* CTA FOOTER */}
+      <section className="py-24 bg-[#080808] text-center border-t border-white/10 px-6">
+         <div className="max-w-2xl mx-auto">
+            <h2 className="font-serif text-4xl text-white mb-6">{lang === 'ro' ? 'Vrei un proiect similar?' : 'Want a similar project?'}</h2>
+            <p className="text-white/60 mb-10 font-light">{lang === 'ro' ? 'Discută cu echipa noastră tehnică.' : 'Talk to our technical team.'}</p>
+            <Link to="/cerere-oferta" className="inline-block px-12 py-4 bg-white text-black font-bold uppercase tracking-[0.2em] text-xs hover:bg-accent hover:text-white transition-all">
+               {lang === 'ro' ? 'Contactează-ne' : 'Contact Us'}
+            </Link>
+         </div>
+      </section>
+
     </div>
   );
 };

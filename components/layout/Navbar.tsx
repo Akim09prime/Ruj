@@ -15,10 +15,8 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Filtrăm navigația: Ascundem 'Home' (id: '1' sau href: '/') dacă suntem pe pagina principală
   const navItems = (settings?.nav.filter(item => {
     if (!item.visible) return false;
-    // Dacă suntem pe pagina de start '/', ascundem butonul care duce la '/'
     if (location.pathname === '/' && item.href === '/') return false;
     return true;
   }).sort((a, b) => a.order - b.order) || []);
@@ -30,22 +28,41 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
     setTheme(newTheme);
   };
 
-  return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo dinamic cu stilizare auriu premium */}
-        <Link to="/" className="flex items-center space-x-3 group">
-          {settings?.brand?.logoDarkUrl ? (
-            <div className="relative">
-              <img 
-                src={isDark ? settings.brand.logoDarkUrl : settings.brand.logoLightUrl} 
-                alt="CARVELLO" 
-                className="h-7 md:h-9 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-          ) : (
-            <span className="font-serif text-2xl tracking-[0.2em] font-bold text-accent">CARVELLO</span>
+  const Logo = () => {
+    const brand = settings?.brand;
+    if (!brand) return <span className="font-serif text-2xl tracking-[0.2em] font-bold text-accent">CARVELLO</span>;
+
+    if (brand.useTextLogo || (!brand.logoDarkUrl && !brand.logoLightUrl)) {
+      return (
+        <div className="flex flex-col">
+          <span className="font-serif text-2xl lg:text-3xl tracking-[0.25em] font-bold text-foreground leading-none">
+            {brand.brandName || 'CARVELLO'}
+          </span>
+          {brand.brandSlogan && (
+            <span className="text-[9px] uppercase tracking-[0.3em] text-accent font-bold mt-1 text-right">
+              {brand.brandSlogan}
+            </span>
           )}
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative">
+        <img 
+          src={isDark ? brand.logoDarkUrl : brand.logoLightUrl} 
+          alt={brand.brandName} 
+          className="h-8 md:h-10 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+        />
+      </div>
+    );
+  };
+
+  return (
+    <nav className="fixed top-0 left-0 w-full z-50 bg-background/90 backdrop-blur-md border-b border-border">
+      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+        <Link to="/" className="flex items-center space-x-3 group">
+          <Logo />
         </Link>
 
         {/* Desktop Nav */}

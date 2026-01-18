@@ -20,6 +20,22 @@ export const SettingsManager: React.FC = () => {
     }
   };
 
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'dark' | 'light') => {
+    const file = e.target.files?.[0];
+    if (!file || !settings) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSettings({
+        ...settings,
+        brand: {
+          ...settings.brand,
+          [type === 'dark' ? 'logoDarkUrl' : 'logoLightUrl']: reader.result as string
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const updateNavItem = (id: string, updates: Partial<NavItem>) => {
     if (!settings) return;
     const newNav = settings.nav.map(item => item.id === id ? { ...item, ...updates } : item);
@@ -57,29 +73,49 @@ export const SettingsManager: React.FC = () => {
         </button>
       </div>
 
-      {settings.adminPassword === 'admin' && (
-        <div className="bg-red-500/10 border border-red-500/30 p-6 mb-10 flex justify-between items-center">
-          <div>
-            <h3 className="text-red-500 font-bold uppercase tracking-widest text-xs mb-1">Avertisment Securitate</h3>
-            <p className="text-muted text-xs">Utilizați parola implicită "admin". Vă rugăm să o schimbați imediat.</p>
-          </div>
-        </div>
-      )}
-      
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2 space-y-10">
           
           <section className="bg-surface p-8 border border-border shadow-sm">
-             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Securitate CMS</h2>
-             <div className="space-y-2">
-                <label className="text-[10px] uppercase font-bold text-muted block">Parolă Administrator</label>
-                <input 
-                  type="text"
-                  className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent font-mono"
-                  value={settings.adminPassword}
-                  onChange={e => setSettings({...settings, adminPassword: e.target.value})}
-                />
+             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Branding & Identity</h2>
+             
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div className="space-y-4">
+                   <label className="text-[10px] uppercase font-bold text-muted">Nume Brand (Text Logo)</label>
+                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" value={settings.brand.brandName} onChange={e => setSettings({...settings, brand: {...settings.brand, brandName: e.target.value}})} />
+                </div>
+                <div className="space-y-4">
+                   <label className="text-[10px] uppercase font-bold text-muted">Slogan</label>
+                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" value={settings.brand.brandSlogan} onChange={e => setSettings({...settings, brand: {...settings.brand, brandSlogan: e.target.value}})} />
+                </div>
              </div>
+
+             <div className="flex items-center space-x-4 mb-8 p-4 border border-border bg-surface-2">
+                <input 
+                  type="checkbox" 
+                  checked={settings.brand.useTextLogo} 
+                  onChange={e => setSettings({...settings, brand: {...settings.brand, useTextLogo: e.target.checked}})} 
+                  className="w-4 h-4 accent-accent"
+                />
+                <label className="text-xs font-bold uppercase tracking-widest">Forțează Logo Text (Ignoră Imaginile)</label>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <label className="text-[10px] uppercase font-bold text-muted block">Logo Dark Theme (PNG/SVG)</label>
+                <div className="h-24 bg-black flex items-center justify-center border border-border relative group">
+                  {settings.brand.logoDarkUrl ? <img src={settings.brand.logoDarkUrl} className="max-h-16" alt="Dark" /> : <span className="text-white/50 text-xs">Upload</span>}
+                  <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleLogoUpload(e, 'dark')} />
+                </div>
+              </div>
+              <div className="space-y-4">
+                <label className="text-[10px] uppercase font-bold text-muted block">Logo Light Theme (PNG/SVG)</label>
+                <div className="h-24 bg-white flex items-center justify-center border border-border relative group">
+                  {settings.brand.logoLightUrl ? <img src={settings.brand.logoLightUrl} className="max-h-16" alt="Light" /> : <span className="text-black/50 text-xs">Upload</span>}
+                  <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleLogoUpload(e, 'light')} />
+                </div>
+              </div>
+            </div>
           </section>
 
           <section className="bg-surface p-8 border border-border shadow-sm">
@@ -103,54 +139,19 @@ export const SettingsManager: React.FC = () => {
                 </button>
               ))}
             </div>
-            <p className="mt-6 text-[9px] text-muted italic">Schimbarea temei aici va afecta aspectul site-ului pentru toți vizitatorii.</p>
           </section>
 
           <section className="bg-surface p-8 border border-border shadow-sm">
-            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Nomenclatoare Producție</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase font-bold text-muted block">Categorii Proiecte</label>
-                <textarea 
-                  className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent min-h-[100px] leading-relaxed"
-                  value={settings.projectTypes.join(', ')}
-                  onChange={e => setSettings({...settings, projectTypes: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
-                  placeholder="Rezidențial, HoReCa, Office..."
+             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Securitate CMS</h2>
+             <div className="space-y-2">
+                <label className="text-[10px] uppercase font-bold text-muted block">Parolă Administrator</label>
+                <input 
+                  type="text"
+                  className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent font-mono"
+                  value={settings.adminPassword}
+                  onChange={e => setSettings({...settings, adminPassword: e.target.value})}
                 />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] uppercase font-bold text-muted block">Încăperi</label>
-                <textarea 
-                  className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent min-h-[100px] leading-relaxed"
-                  value={settings.rooms.join(', ')}
-                  onChange={e => setSettings({...settings, rooms: e.target.value.split(',').map(s => s.trim()).filter(s => s)})}
-                />
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-surface p-8 border border-border shadow-sm">
-            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Branding & Logo</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase font-bold text-muted">Logo Dark Theme (URL)</label>
-                  <input className="w-full bg-surface-2 border border-border p-3 text-xs" value={settings.brand.logoDarkUrl} onChange={e => setSettings({...settings, brand: {...settings.brand, logoDarkUrl: e.target.value}})} />
-                </div>
-                <div className="h-20 bg-black flex items-center justify-center border border-border">
-                  <img src={settings.brand.logoDarkUrl} className="max-h-12" alt="Preview Dark" />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase font-bold text-muted">Logo Light Theme (URL)</label>
-                  <input className="w-full bg-surface-2 border border-border p-3 text-xs" value={settings.brand.logoLightUrl} onChange={e => setSettings({...settings, brand: {...settings.brand, logoLightUrl: e.target.value}})} />
-                </div>
-                <div className="h-20 bg-white flex items-center justify-center border border-border">
-                  <img src={settings.brand.logoLightUrl} className="max-h-12" alt="Preview Light" />
-                </div>
-              </div>
-            </div>
+             </div>
           </section>
         </div>
 

@@ -27,12 +27,14 @@ export const Maintenance: React.FC = () => {
         </div>
       </div>
 
-      {/* Invisible Admin Button (Bottom Right) */}
+      {/* Secret Admin Button (Bottom Right) - Visible only on hover */}
       <Link 
         to="/admin/login" 
-        className="fixed bottom-0 right-0 w-16 h-16 opacity-0 z-50 cursor-default hover:bg-white/5 transition-colors"
+        className="fixed bottom-0 right-0 w-24 h-24 z-50 flex items-center justify-center opacity-0 hover:opacity-50 transition-all duration-500 cursor-pointer"
         title="Admin Access"
-      />
+      >
+        <span className="text-3xl filter grayscale hover:grayscale-0">🔒</span>
+      </Link>
     </div>
   );
 };

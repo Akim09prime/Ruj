@@ -1,7 +1,7 @@
-
 import { AppDB, Settings, Project, Media, Page, Lead, ServicePage, ProcessStep, AboutPageData, Review, ContactPageData } from '../types';
 
 const DB_KEY = 'carvello_db';
+const DB_VERSION = 3; // INCREMENT THIS TO FORCE UPDATE FOR ALL USERS
 
 const BRAND_LOGO_DARK = "https://i.ibb.co/L9vC8Lh/carvello-logo-gold.png"; 
 const BRAND_LOGO_LIGHT = "https://i.ibb.co/L9vC8Lh/carvello-logo-gold.png"; 
@@ -350,6 +350,7 @@ const SEED_PROCESS: ProcessStep[] = [
 ];
 
 const SEED_DATA: AppDB = {
+  version: DB_VERSION, // Track version
   settings: {
     id: 'global',
     maintenanceMode: false, // Default is OFF
@@ -469,7 +470,17 @@ class DBService {
     const stored = localStorage.getItem(DB_KEY);
     if (stored) {
       try {
-        this.db = JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+        
+        // CHECK VERSION: If code version is newer than stored data, force reset to seed
+        if (!parsed.version || parsed.version < DB_VERSION) {
+           console.log(`System Upgrade: ${parsed.version || 0} -> ${DB_VERSION}. Resetting local DB.`);
+           this.db = { ...SEED_DATA };
+           this.save();
+           return this.db;
+        }
+
+        this.db = parsed;
         
         let needsSave = false;
 

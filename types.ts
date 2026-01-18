@@ -383,9 +383,10 @@ export interface Lead {
 }
 
 export interface AppDB {
+  version?: number; // Added for migration control
   settings: Settings;
   about: AboutPageData;
-  contact: ContactPageData; // NEW
+  contact: ContactPageData;
   reviews: Review[];
   projects: Project[];
   services: ServicePage[];

@@ -257,7 +257,7 @@ export const HeroManager: React.FC = () => {
                     value={hero.videoUrl} 
                     onChange={e => setHero({...hero, videoUrl: e.target.value})} 
                  />
-                 <p className="text-[9px] text-muted italic">Fișierele mari (>5MB) pot încetini browserul (stocare locală).</p>
+                 <p className="text-[9px] text-muted italic">Fișierele mari (&gt;5MB) pot încetini browserul (stocare locală).</p>
                </div>
             </div>
             

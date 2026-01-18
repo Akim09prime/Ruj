@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../../lib/i18n';
@@ -63,6 +64,11 @@ const PROCESS_STEPS = [
   "Producție CNC",
   "Finisaje & control calitate",
   "Montaj & predare"
+];
+
+const PARTNERS = [
+  "EGGER", "BLUM", "HÄFELE", "KRONOSPAN",
+  "FUNDERMAX", "FENIX", "ARPA", "MAKE"
 ];
 
 const useReveal = () => {
@@ -218,7 +224,25 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 5) MATERIALS & DETAILS */}
+      {/* 5) COLLABORATORS & PARTNERS (NEW) */}
+      <section className="py-20 border-b border-border bg-background">
+        <div className="max-w-7xl mx-auto px-6">
+           <p className="text-center text-[10px] font-bold uppercase tracking-[0.3em] text-muted mb-12">
+             {lang === 'ro' ? 'Colaboratori & Materiale' : 'Partners & Materials'}
+           </p>
+           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-8 items-center text-center">
+              {PARTNERS.map((brand, i) => (
+                <div key={i} className="group">
+                  <span className="font-serif text-lg md:text-xl font-bold text-muted/40 group-hover:text-accent transition-colors duration-500 cursor-default uppercase tracking-wider">
+                    {brand}
+                  </span>
+                </div>
+              ))}
+           </div>
+        </div>
+      </section>
+
+      {/* 6) MATERIALS & DETAILS */}
       <section className="py-24 md:py-32 bg-background px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
@@ -253,7 +277,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 6) TESTIMONIALS */}
+      {/* 7) TESTIMONIALS */}
       <section className="py-24 bg-surface border-y border-border px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
           {TESTIMONIALS.map((t, i) => (
@@ -266,7 +290,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* 7) COMPACT CTA */}
+      {/* 8) COMPACT CTA */}
       <section className="py-20 bg-[#080808] px-6 text-center border-t border-white/5">
         <div className="max-w-3xl mx-auto">
           <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">Transformăm schița ta într-un proiect perfect executat.</h2>

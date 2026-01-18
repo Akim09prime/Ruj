@@ -405,7 +405,7 @@ const SEED_DATA: AppDB = {
       showPlayButton: false,
       
       autoplay: true,
-      interval: 5000,
+      interval: 6000,
       slides: [
         {
            id: 'sl1',
@@ -417,10 +417,10 @@ const SEED_DATA: AppDB = {
         },
         {
            id: 'sl2',
-           imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000',
-           title: { ro: 'Finisaje 2K.', en: '2K Finishes.' },
-           subtitle: { ro: 'Vopsitorie industrială proprie. Mat, Satin sau Lucios, orice culoare NCS.', en: 'In-house industrial painting. Matte, Satin or Gloss, any NCS color.' },
-           primaryCta: { label: { ro: 'Despre Noi', en: 'About Us' }, href: '/despre' },
+           imageUrl: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=2000',
+           title: { ro: 'Living & Dining.', en: 'Living & Dining.' },
+           subtitle: { ro: 'Mobilier custom care transformă spațiul într-o experiență.', en: 'Custom furniture that turns space into an experience.' },
+           primaryCta: { label: { ro: 'Portofoliu', en: 'Portfolio' }, href: '/portofoliu' },
            secondaryCta: { label: { ro: 'Contact', en: 'Contact' }, href: '/contact' }
         },
         {
@@ -428,8 +428,8 @@ const SEED_DATA: AppDB = {
            imageUrl: 'https://images.unsplash.com/photo-1551516594-56cb78394645?auto=format&fit=crop&q=80&w=2000',
            title: { ro: 'Dressing Walk-In.', en: 'Walk-In Wardrobes.' },
            subtitle: { ro: 'Organizare inteligentă într-un design spectaculos.', en: 'Smart organization in a spectacular design.' },
-           primaryCta: { label: { ro: 'Proiecte', en: 'Projects' }, href: '/portofoliu' },
-           secondaryCta: { label: { ro: 'Detalii', en: 'Details' }, href: '/servicii' }
+           primaryCta: { label: { ro: 'Detalii', en: 'Details' }, href: '/servicii' },
+           secondaryCta: { label: { ro: 'Cere Ofertă', en: 'Get Quote' }, href: '/cerere-oferta' }
         },
         {
            id: 'sl4',
@@ -444,8 +444,8 @@ const SEED_DATA: AppDB = {
            imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000',
            title: { ro: 'Spații Comerciale.', en: 'Commercial Spaces.' },
            subtitle: { ro: 'Amenajări office și HoReCa la cheie, durabile și estetice.', en: 'Turnkey office and HoReCa fit-outs, durable and aesthetic.' },
-           primaryCta: { label: { ro: 'Portofoliu', en: 'Portfolio' }, href: '/portofoliu' },
-           secondaryCta: { label: { ro: 'B2B', en: 'B2B' }, href: '/contact' }
+           primaryCta: { label: { ro: 'B2B', en: 'B2B' }, href: '/contact' },
+           secondaryCta: { label: { ro: 'Proiecte', en: 'Projects' }, href: '/portofoliu' }
         }
       ]
     }

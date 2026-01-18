@@ -87,6 +87,8 @@ export const Hero: React.FC<HeroProps> = ({ config }) => {
             src={config.posterUrl} 
             className={`w-full h-full object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`}
             alt="Hero Background"
+            loading="eager"
+            fetchPriority="high"
           />
           {/* Video */}
           {config.videoUrl && (
@@ -134,7 +136,10 @@ export const Hero: React.FC<HeroProps> = ({ config }) => {
               <img 
                 src={slide.imageUrl} 
                 className={`w-full h-full object-cover transform transition-transform duration-[10s] ${idx === currentSlide ? 'scale-110' : 'scale-100'}`}
-                alt="" 
+                alt={t(slide.title)}
+                loading={idx === 0 ? "eager" : "lazy"}
+                fetchPriority={idx === 0 ? "high" : "auto"}
+                decoding={idx === 0 ? "sync" : "async"}
               />
                <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity }}></div>
                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
@@ -173,6 +178,8 @@ export const Hero: React.FC<HeroProps> = ({ config }) => {
             src={config.posterUrl} 
             className="w-full h-full object-cover animate-slow-zoom"
             alt="Hero Background"
+            loading="eager"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black" style={{ opacity: overlayOpacity }}></div>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>

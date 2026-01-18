@@ -6,76 +6,82 @@ import { Link } from 'react-router-dom';
 
 export const ProjectManager: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [projectMedia, setProjectMedia] = useState<Media[]>([]);
+  const [allMedia, setAllMedia] = useState<Media[]>([]); 
   const [editing, setEditing] = useState<Partial<Project> | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'basic' | 'story' | 'process' | 'tech' | 'media'>('basic');
+  const [activeTab, setActiveTab] = useState<'basic' | 'hero' | 'story' | 'stages' | 'tech'>('basic');
+  const [mediaPickerOpen, setMediaPickerOpen] = useState<{ field: string, multiple: boolean, context?: any } | null>(null);
 
   const loadData = async () => {
-    const p = await dbService.getProjects();
-    setProjects(p);
+    setProjects(await dbService.getProjects());
+    setAllMedia(await dbService.getMedia());
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const handleEdit = async (p: Project) => {
-    const m = await dbService.getMedia(p.id);
-    setProjectMedia(m);
-    setEditing(p);
-    setActiveTab('basic');
-  };
+  useEffect(() => { loadData(); }, []);
 
   const handleSave = async () => {
     if (!editing?.id) return;
-    const fullProject = {
-      ...editing,
-      updatedAt: new Date().toISOString()
-    } as Project;
+    const fullProject = { ...editing, updatedAt: new Date().toISOString() } as Project;
     await dbService.upsertProject(fullProject);
     setEditing(null);
     loadData();
   };
 
-  const executeDelete = async () => {
-    if (confirmDelete) {
-      await dbService.deleteProject(confirmDelete);
-      setConfirmDelete(null);
-      loadData();
+  // calculate completeness
+  const getScore = (p: Partial<Project>) => {
+    let score = 0;
+    if (p.coverMediaId) score += 10;
+    if (p.heroConfig?.imageId || p.heroConfig?.videoId) score += 10;
+    if (p.stages && p.stages.length >= 3) score += 20;
+    if (p.techSpecs && p.techSpecs.length >= 4) score += 10;
+    if (p.clientBrief?.ro && p.ourSolution?.ro && p.result?.ro) score += 20;
+    if (p.tags && p.tags.length > 0) score += 10;
+    return Math.min(score + 20, 100); // base 20
+  };
+
+  // --- MEDIA PICKER ---
+  const openMediaPicker = (field: string, multiple: boolean, context?: any) => {
+    setMediaPickerOpen({ field, multiple, context });
+  };
+
+  const handleMediaSelect = (mediaId: string) => {
+    if (!mediaPickerOpen || !editing) return;
+    const { field, multiple, context } = mediaPickerOpen;
+
+    if (field.startsWith('stage.')) {
+        const stageIdx = context.index;
+        const subField = field.split('.')[1];
+        const newStages = [...(editing.stages || [])];
+        if (!newStages[stageIdx].media) newStages[stageIdx].media = { galleryIds: [] };
+
+        if (multiple && subField === 'galleryIds') {
+            const current = newStages[stageIdx].media.galleryIds;
+            if (!current.includes(mediaId)) newStages[stageIdx].media.galleryIds.push(mediaId);
+        } else {
+            // @ts-ignore
+            newStages[stageIdx].media[subField] = mediaId;
+        }
+        setEditing({ ...editing, stages: newStages });
+    } else if (field.startsWith('hero.')) {
+        const subField = field.split('.')[1];
+        setEditing({
+            ...editing,
+            heroConfig: { ...editing.heroConfig!, [subField]: mediaId }
+        });
+    } else {
+        // @ts-ignore
+        setEditing({ ...editing, [field]: mediaId });
     }
+    if (!multiple) setMediaPickerOpen(null);
   };
 
-  // --- HELPER UPDATERS ---
-  const updateMetric = (key: keyof Project['metrics'], val: any) => {
-    if (!editing) return;
-    setEditing({
-      ...editing,
-      metrics: {
-        duration: '', finish: '', materials: '', hardware: '', services: [],
-        ...(editing.metrics || {}),
-        [key]: val
-      }
-    });
-  };
-
-  const addStage = () => {
-    if (!editing) return;
-    const newStage: ProjectStage = { title: { ro: 'Etape Nouă', en: 'New Stage' }, description: { ro: '', en: '' }, highlights: [], images: [] };
-    setEditing({ ...editing, stages: [...(editing.stages || []), newStage] });
-  };
-
+  // --- STAGE HELPERS ---
   const updateStage = (idx: number, field: string, val: any) => {
     if (!editing || !editing.stages) return;
     const stages = [...editing.stages];
-    if (field === 'highlights') {
-      stages[idx].highlights = typeof val === 'string' ? val.split(',').map(s => s.trim()) : val;
-    } else if (field === 'images') {
-      stages[idx].images = typeof val === 'string' ? [val] : val;
-    } else if (field.includes('.')) {
-      const [key, lang] = field.split('.');
+    if (field.includes('.')) {
+      const [key, sub] = field.split('.');
       // @ts-ignore
-      stages[idx][key][lang] = val;
+      stages[idx][key][sub] = val;
     } else {
       // @ts-ignore
       stages[idx][field] = val;
@@ -83,264 +89,266 @@ export const ProjectManager: React.FC = () => {
     setEditing({ ...editing, stages });
   };
 
-  const removeStage = (idx: number) => {
-    if (!editing || !editing.stages) return;
-    const stages = [...editing.stages];
-    stages.splice(idx, 1);
-    setEditing({ ...editing, stages });
+  const addStage = () => {
+    const newStage: ProjectStage = {
+        id: Math.random().toString(36).substr(2, 5),
+        title: { ro: 'Etapă Nouă', en: 'New Stage' },
+        description: { ro: '', en: '' },
+        highlights: [],
+        media: { galleryIds: [] }
+    };
+    setEditing({ ...editing, stages: [...(editing?.stages || []), newStage] });
   };
 
-  const addTechSpec = () => {
-    if (!editing) return;
-    setEditing({ ...editing, techSpecs: [...(editing.techSpecs || []), { label: '', value: '' }] });
+  const moveStage = (idx: number, direction: 'up' | 'down') => {
+    if (!editing?.stages) return;
+    const newStages = [...editing.stages];
+    const targetIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (targetIdx >= 0 && targetIdx < newStages.length) {
+        [newStages[idx], newStages[targetIdx]] = [newStages[targetIdx], newStages[idx]];
+        setEditing({ ...editing, stages: newStages });
+    }
   };
 
-  const updateTechSpec = (idx: number, field: 'label' | 'value', val: string) => {
-    if (!editing || !editing.techSpecs) return;
-    const specs = [...editing.techSpecs];
-    specs[idx][field] = val;
-    setEditing({ ...editing, techSpecs: specs });
+  // --- TECH SPEC HELPERS ---
+  const updateSpec = (idx: number, key: 'label' | 'value', val: string) => {
+    const newSpecs = [...(editing?.techSpecs || [])];
+    newSpecs[idx][key] = val;
+    setEditing({...editing, techSpecs: newSpecs});
   };
-
-  const removeTechSpec = (idx: number) => {
-    if (!editing || !editing.techSpecs) return;
-    const specs = [...editing.techSpecs];
-    specs.splice(idx, 1);
-    setEditing({ ...editing, techSpecs: specs });
+  const addSpec = () => setEditing({...editing, techSpecs: [...(editing?.techSpecs || []), {label: '', value: ''}]});
+  const removeSpec = (idx: number) => {
+    const newSpecs = [...(editing?.techSpecs || [])];
+    newSpecs.splice(idx, 1);
+    setEditing({...editing, techSpecs: newSpecs});
   };
 
   return (
-    <div className="p-8 animate-fade-in">
+    <div className="p-8 animate-fade-in relative">
       <div className="flex justify-between items-center mb-12">
-        <div>
-          <h1 className="font-serif text-4xl mb-2">Gestiune Proiecte</h1>
-          <p className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold">Catalogul de Referințe CARVELLO</p>
-        </div>
+        <h1 className="font-serif text-4xl mb-2">Editor Proiecte</h1>
         <button 
           onClick={() => setEditing({ 
             id: Math.random().toString(36).substr(2, 9), 
-            title: { ro: '', en: '' }, 
-            summary: { ro: '', en: '' }, 
-            location: { ro: '', en: '' }, 
-            publishedAt: new Date().toISOString(), 
-            timelineDate: new Date().toISOString().split('T')[0],
-            isPublished: true, 
-            createdAt: new Date().toISOString(), 
-            projectType: 'Rezidențial', 
-            coverMediaId: null,
-            stages: [],
-            techSpecs: [],
-            metrics: { duration: '', finish: '', materials: '', hardware: '', services: [] }
+            title: { ro: '', en: '' }, summary: { ro: '', en: '' }, location: { ro: '', en: '' }, 
+            publishedAt: new Date().toISOString(), timelineDate: new Date().toISOString().split('T')[0],
+            isPublished: true, createdAt: new Date().toISOString(), projectType: 'Rezidențial', 
+            coverMediaId: null, stages: [], techSpecs: [], tags: [],
+            heroConfig: { mode: 'image', overlay: { intensity: 40, vignette: true, grain: false } }
           })}
-          className="bg-accent text-white px-8 py-3 text-[10px] font-bold uppercase tracking-widest shadow-xl shadow-accent/20 hover:scale-105 transition-all"
+          className="bg-accent text-white px-8 py-3 text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-all"
         >
           Proiect Nou
         </button>
       </div>
 
-      <div className="grid gap-6">
-        {projects.map(p => (
-          <div key={p.id} className="bg-surface p-8 border border-border flex flex-col md:flex-row justify-between items-center shadow-sm hover:border-accent/40 transition-all group">
-            <div className="flex items-center space-x-6 w-full md:w-auto mb-6 md:mb-0">
-              <div className="w-16 h-16 bg-surface-2 border border-border flex items-center justify-center font-bold text-lg text-muted">
-                {new Date(p.timelineDate || p.publishedAt).getFullYear()}
-              </div>
-              <div>
-                <h3 className="font-serif text-2xl mb-1 group-hover:text-accent transition-colors">{p.title.ro || 'Fără titlu'}</h3>
-                <div className="flex items-center space-x-3">
-                  <span className="text-[10px] text-muted font-bold uppercase tracking-widest">{p.projectType}</span>
-                  <span className="w-1 h-1 bg-border rounded-full"></span>
-                  <span className="text-[10px] text-muted">{p.location.ro}</span>
+      {/* LIST */}
+      <div className="grid gap-4">
+        {projects.map(p => {
+          const score = getScore(p);
+          return (
+          <div key={p.id} className="bg-surface p-6 border border-border flex justify-between items-center group hover:border-accent">
+             <div className="flex items-center gap-6">
+                <div className="w-16 h-16 bg-surface-2 overflow-hidden border border-border">
+                    {p.coverMediaId && <img src={allMedia.find(m => m.id === p.coverMediaId)?.url} className="w-full h-full object-cover"/>}
                 </div>
-              </div>
-            </div>
-            <div className="flex space-x-3 items-center w-full md:w-auto justify-end">
-              <Link to={`/admin/projects/${p.id}/media`} className="text-[9px] font-bold uppercase tracking-widest bg-surface-2 px-5 py-2 border border-border hover:bg-foreground hover:text-white transition-all">
-                Galerie
-              </Link>
-              <button onClick={() => handleEdit(p)} className="text-[9px] font-bold uppercase tracking-widest text-accent border border-accent/20 px-5 py-2 hover:bg-accent hover:text-white transition-all">Editează</button>
-              <button onClick={() => setConfirmDelete(p.id)} className="text-[9px] font-bold uppercase tracking-widest text-red-500 border border-red-500/20 px-5 py-2 hover:bg-red-500 hover:text-white transition-all">Elimină</button>
-            </div>
+                <div>
+                    <h3 className="font-serif text-xl">{p.title.ro}</h3>
+                    <div className="flex items-center gap-3 mt-1">
+                        <span className="text-[9px] uppercase text-muted">{p.projectType}</span>
+                        {p.isFeatured && <span className="text-[8px] bg-accent text-white px-2 py-0.5 uppercase font-bold">Featured</span>}
+                        {p.timelineDate && <span className="text-[8px] border border-border px-2 py-0.5 font-mono">{p.timelineDate}</span>}
+                    </div>
+                </div>
+             </div>
+             <div className="flex items-center gap-6">
+                <div className="text-right">
+                    <span className="block text-[9px] font-bold uppercase text-muted">Completeness</span>
+                    <div className="w-24 h-1 bg-surface-2 mt-1">
+                        <div className={`h-full ${score > 80 ? 'bg-green-500' : score > 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${score}%` }}></div>
+                    </div>
+                </div>
+                <button onClick={() => setEditing(p)} className="px-6 py-2 border border-border hover:bg-accent hover:text-white transition-colors text-xs uppercase font-bold">Editează</button>
+             </div>
           </div>
-        ))}
+        )})}
       </div>
 
-      {/* Confirmation Modal */}
-      {confirmDelete && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
-          <div className="bg-background max-w-md w-full p-12 border border-border shadow-2xl text-center">
-            <h2 className="font-serif text-3xl mb-4">Ești sigur?</h2>
-            <p className="text-muted text-sm mb-10 leading-relaxed uppercase tracking-widest font-bold">Această acțiune este ireversibilă.</p>
-            <div className="flex flex-col space-y-4">
-              <button onClick={executeDelete} className="w-full py-4 bg-red-500 text-white font-bold uppercase tracking-widest text-[10px] hover:bg-red-600 transition-all">Confirmă</button>
-              <button onClick={() => setConfirmDelete(null)} className="w-full py-4 border border-border text-muted font-bold uppercase tracking-widest text-[10px] hover:bg-surface-2 transition-all">Anulează</button>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* EDITOR MODAL */}
       {editing && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-6" onClick={() => setEditing(null)}>
-          <div className="bg-background w-full max-w-5xl p-10 border border-border shadow-2xl max-h-[90vh] overflow-y-auto animate-slide-up" onClick={e => e.stopPropagation()}>
-            <div className="flex justify-between items-start mb-8 border-b border-border pb-6">
-               <h2 className="font-serif text-3xl">Editor Proiect</h2>
-               <button onClick={() => setEditing(null)} className="text-3xl font-light hover:text-accent transition-colors">×</button>
-            </div>
-
-            <div className="flex gap-2 mb-8 overflow-x-auto pb-2">
-              {['basic', 'story', 'process', 'tech', 'media'].map(t => (
-                <button 
-                  key={t}
-                  onClick={() => setActiveTab(t as any)}
-                  className={`px-6 py-2 text-[10px] uppercase font-bold tracking-widest transition-all whitespace-nowrap ${activeTab === t ? 'bg-accent text-white' : 'bg-surface-2 hover:bg-surface text-muted'}`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
-            
-            <div className="space-y-8">
-              
-              {/* BASIC TAB */}
-              {activeTab === 'basic' && (
-                <div className="space-y-6 animate-fade-in">
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Titlu (RO)</label>
-                      <input className="w-full bg-surface-2 border border-border p-4 text-sm" value={editing.title?.ro} onChange={e => setEditing({...editing, title: {...editing.title!, ro: e.target.value}})} />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Titlu (EN)</label>
-                      <input className="w-full bg-surface-2 border border-border p-4 text-sm" value={editing.title?.en} onChange={e => setEditing({...editing, title: {...editing.title!, en: e.target.value}})} />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                       <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Slug (URL)</label>
-                       <input className="w-full bg-surface-2 border border-border p-4 text-sm" value={editing.slug || ''} onChange={e => setEditing({...editing, slug: e.target.value})} />
-                    </div>
-                    <div className="space-y-2">
-                       <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Data Timeline (YYYY-MM-DD)</label>
-                       <input type="date" className="w-full bg-surface-2 border border-border p-4 text-sm" value={editing.timelineDate || ''} onChange={e => setEditing({...editing, timelineDate: e.target.value})} />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Tip Proiect</label>
-                    <select className="w-full bg-surface-2 border border-border p-4 text-sm" value={editing.projectType} onChange={e => setEditing({...editing, projectType: e.target.value})}>
-                      <option value="Rezidențial">Rezidențial</option>
-                      <option value="HoReCa">HoReCa</option>
-                      <option value="Office">Office</option>
-                      <option value="Comercial">Comercial</option>
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Summary (Pt. Card)</label>
-                    <textarea className="w-full bg-surface-2 border border-border p-4 text-sm h-24" value={editing.summary?.ro} onChange={e => setEditing({...editing, summary: { ...editing.summary!, ro: e.target.value }})} />
-                  </div>
-                </div>
-              )}
-
-              {/* STORY TAB */}
-              {activeTab === 'story' && (
-                <div className="space-y-6 animate-fade-in">
-                  <div className="space-y-4">
-                    <label className="text-[10px] uppercase font-bold tracking-widest text-accent">Provocarea (Brief Client)</label>
-                    <textarea className="bg-surface-2 border border-border p-4 w-full h-32 text-sm" value={editing.clientBrief?.ro || ''} onChange={e => setEditing({...editing, clientBrief: {...(editing.clientBrief || {ro:'',en:''}), ro: e.target.value}})} />
-                  </div>
-                  <div className="space-y-4">
-                    <label className="text-[10px] uppercase font-bold tracking-widest text-accent">Soluția Noastră</label>
-                    <textarea className="bg-surface-2 border border-border p-4 w-full h-32 text-sm" value={editing.ourSolution?.ro || ''} onChange={e => setEditing({...editing, ourSolution: {...(editing.ourSolution || {ro:'',en:''}), ro: e.target.value}})} />
-                  </div>
-                  <div className="space-y-4">
-                    <label className="text-[10px] uppercase font-bold tracking-widest text-accent">Rezultatul</label>
-                    <textarea className="bg-surface-2 border border-border p-4 w-full h-32 text-sm" value={editing.result?.ro || ''} onChange={e => setEditing({...editing, result: {...(editing.result || {ro:'',en:''}), ro: e.target.value}})} />
-                  </div>
-                </div>
-              )}
-
-              {/* PROCESS TAB */}
-              {activeTab === 'process' && (
-                <div className="space-y-6 animate-fade-in">
-                   {(editing.stages || []).map((step, idx) => (
-                     <div key={idx} className="border border-border p-6 bg-surface-2 relative">
-                        <button className="absolute top-2 right-2 text-red-500 text-[10px] font-bold uppercase border border-red-500/20 px-3 py-1 hover:bg-red-500 hover:text-white" onClick={() => removeStage(idx)}>Șterge Etapa</button>
-                        <div className="grid grid-cols-2 gap-4 mb-4">
-                           <div>
-                             <label className="text-[9px] uppercase font-bold text-muted block mb-1">Titlu (RO)</label>
-                             <input className="w-full bg-white border border-border p-2 text-sm font-bold" value={step.title.ro} onChange={e => updateStage(idx, 'title.ro', e.target.value)} />
-                           </div>
-                           <div>
-                             <label className="text-[9px] uppercase font-bold text-muted block mb-1">Descriere (RO)</label>
-                             <input className="w-full bg-white border border-border p-2 text-sm" value={step.description.ro} onChange={e => updateStage(idx, 'description.ro', e.target.value)} />
-                           </div>
-                        </div>
-                        <div className="mb-4">
-                           <label className="text-[9px] uppercase font-bold text-muted block mb-1">Highlights (virgulă)</label>
-                           <input className="w-full bg-white border border-border p-2 text-sm" value={step.highlights.join(', ')} onChange={e => updateStage(idx, 'highlights', e.target.value)} />
-                        </div>
-                        <div>
-                           <label className="text-[9px] uppercase font-bold text-muted block mb-1">Imagine URL (doar 1)</label>
-                           <input className="w-full bg-white border border-border p-2 text-sm" value={step.images[0] || ''} onChange={e => updateStage(idx, 'images', e.target.value)} />
-                        </div>
-                     </div>
-                   ))}
-                   <button onClick={addStage} className="w-full py-4 border border-dashed border-accent text-accent text-xs font-bold uppercase hover:bg-accent hover:text-white transition-all">+ Adaugă Etapă Proces</button>
-                </div>
-              )}
-
-              {/* TECH SPECS TAB */}
-              {activeTab === 'tech' && (
-                <div className="space-y-6 animate-fade-in">
-                  <div className="bg-surface-2 p-6 border border-border">
-                    <h3 className="text-xs font-bold uppercase tracking-widest mb-4 text-muted">Tabel Specificații</h3>
-                    {editing.techSpecs?.map((spec, i) => (
-                      <div key={i} className="flex gap-4 mb-2">
-                        <input className="w-1/3 bg-white border border-border p-2 text-sm" placeholder="Label (ex: Blat)" value={spec.label} onChange={e => updateTechSpec(i, 'label', e.target.value)} />
-                        <input className="w-2/3 bg-white border border-border p-2 text-sm" placeholder="Valoare" value={spec.value} onChange={e => updateTechSpec(i, 'value', e.target.value)} />
-                        <button className="text-red-500 px-2" onClick={() => removeTechSpec(i)}>×</button>
-                      </div>
-                    ))}
-                    <button onClick={addTechSpec} className="mt-4 text-[10px] font-bold uppercase text-accent hover:underline">+ Adaugă Rând</button>
-                  </div>
-
-                  <div className="bg-surface-2 p-6 border border-border">
-                    <h3 className="text-xs font-bold uppercase tracking-widest mb-4 text-muted">Metrici Rapide</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                       <input className="bg-white p-2 border border-border text-sm" placeholder="Durată" value={editing.metrics?.duration} onChange={e => updateMetric('duration', e.target.value)} />
-                       <input className="bg-white p-2 border border-border text-sm" placeholder="Finisaj" value={editing.metrics?.finish} onChange={e => updateMetric('finish', e.target.value)} />
-                       <input className="bg-white p-2 border border-border text-sm" placeholder="Materiale" value={editing.metrics?.materials} onChange={e => updateMetric('materials', e.target.value)} />
-                       <input className="bg-white p-2 border border-border text-sm" placeholder="Feronerie" value={editing.metrics?.hardware} onChange={e => updateMetric('hardware', e.target.value)} />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* MEDIA TAB (Cover Only) */}
-              {activeTab === 'media' && (
-                <div className="space-y-4 animate-fade-in">
-                  <p className="text-xs text-muted mb-4">Selectează imaginea de copertă (Hero).</p>
-                  <div className="grid grid-cols-4 gap-4 border border-border p-4 bg-surface-2 max-h-[400px] overflow-y-auto">
-                    {projectMedia.length > 0 ? projectMedia.map(m => (
-                      <div 
-                        key={m.id} 
-                        onClick={() => setEditing({...editing, coverMediaId: m.id})}
-                        className={`aspect-square cursor-pointer border-2 transition-all overflow-hidden ${editing.coverMediaId === m.id ? 'border-accent ring-2 ring-accent/20 scale-95' : 'border-transparent opacity-40 hover:opacity-100'}`}
-                      >
-                        <img src={m.url} className="w-full h-full object-cover" alt="" />
-                      </div>
-                    )) : (
-                      <div className="col-span-4 py-8 text-center text-[10px] uppercase text-muted italic border border-dashed border-border/50">Încarcă imagini în galeria proiectului întâi</div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end space-x-4 mt-12 pt-8 border-t border-border">
-                <button onClick={() => setEditing(null)} className="px-8 py-3 text-[10px] uppercase font-bold tracking-widest border border-border hover:bg-surface-2 transition-all">Închide</button>
-                <button onClick={handleSave} className="bg-accent text-white px-12 py-3 text-[10px] font-bold uppercase tracking-widest hover:opacity-90 shadow-2xl shadow-accent/20 transition-all">Salvează Proiectul</button>
+        <div className="fixed inset-0 z-40 bg-black/95 flex justify-center p-6 overflow-hidden">
+           <div className="bg-background w-full max-w-6xl h-full flex flex-col border border-border shadow-2xl">
+              {/* Header */}
+              <div className="p-6 border-b border-border flex justify-between items-center bg-surface">
+                 <h2 className="font-serif text-2xl">Editare: {editing.title?.ro || 'Proiect Nou'}</h2>
+                 <div className="flex gap-2">
+                    <button onClick={() => setEditing(null)} className="px-6 py-2 border border-border hover:bg-surface-2 text-xs uppercase font-bold">Anulează</button>
+                    <button onClick={handleSave} className="px-6 py-2 bg-accent text-white font-bold text-xs uppercase">Salvează</button>
+                 </div>
               </div>
-            </div>
-          </div>
+
+              {/* Tabs */}
+              <div className="flex border-b border-border bg-surface-2">
+                 {['basic', 'hero', 'story', 'stages', 'tech'].map(t => (
+                    <button key={t} onClick={() => setActiveTab(t as any)} className={`px-8 py-4 text-xs uppercase font-bold tracking-widest ${activeTab === t ? 'bg-background border-t-2 border-accent' : 'text-muted hover:text-foreground'}`}>{t}</button>
+                 ))}
+              </div>
+
+              {/* Content Area */}
+              <div className="flex-grow overflow-y-auto p-8 bg-background">
+                 
+                 {/* BASIC */}
+                 {activeTab === 'basic' && (
+                    <div className="grid grid-cols-2 gap-8">
+                       <div className="space-y-4">
+                          <label className="text-xs font-bold uppercase">Titlu (RO)</label>
+                          <input className="w-full bg-surface-2 border border-border p-3" value={editing.title?.ro} onChange={e => setEditing({...editing, title: {...editing.title!, ro: e.target.value}})} />
+                          <label className="text-xs font-bold uppercase">Tags (virgulă)</label>
+                          <input className="w-full bg-surface-2 border border-border p-3" value={editing.tags?.join(', ')} onChange={e => setEditing({...editing, tags: e.target.value.split(',').map(s=>s.trim())})} />
+                          <div className="flex items-center gap-2 mt-2">
+                             <input type="checkbox" checked={editing.isFeatured} onChange={e => setEditing({...editing, isFeatured: e.target.checked})} />
+                             <span className="text-xs uppercase font-bold">Featured Project</span>
+                          </div>
+                          <label className="text-xs font-bold uppercase mt-4 block">Cover Image</label>
+                          <div className="w-32 h-20 bg-surface-2 border border-border cursor-pointer hover:border-accent" onClick={() => openMediaPicker('coverMediaId', false)}>
+                                {editing.coverMediaId ? <img src={allMedia.find(m => m.id === editing.coverMediaId)?.url} className="w-full h-full object-cover" /> : <div className="flex items-center justify-center h-full text-xs text-muted">+ Select</div>}
+                          </div>
+                       </div>
+                       <div className="space-y-4">
+                          <label className="text-xs font-bold uppercase">Summary</label>
+                          <textarea className="w-full bg-surface-2 border border-border p-3 h-32" value={editing.summary?.ro} onChange={e => setEditing({...editing, summary: {...editing.summary!, ro: e.target.value}})} />
+                          <div className="grid grid-cols-2 gap-4">
+                             <div>
+                                <label className="text-xs font-bold uppercase">Tip</label>
+                                <select className="w-full bg-surface-2 border border-border p-3 text-xs" value={editing.projectType} onChange={e => setEditing({...editing, projectType: e.target.value})}>
+                                   {['Rezidențial', 'Comercial', 'Hotel', 'Restaurant', 'Office'].map(t => <option key={t} value={t}>{t}</option>)}
+                                </select>
+                             </div>
+                             
+                             {/* TIMELINE DATE - PROMINENT */}
+                             <div className="bg-accent/5 border border-accent/20 p-2">
+                                <label className="text-xs font-bold uppercase text-accent block mb-1">Data Timeline (Afisare)</label>
+                                <input type="date" className="w-full bg-surface-2 border border-border p-2 text-sm font-bold" value={editing.timelineDate || editing.publishedAt?.split('T')[0]} onChange={e => setEditing({...editing, timelineDate: e.target.value})} />
+                                <span className="text-[9px] text-muted italic">Determină ordinea în Portofoliu.</span>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 )}
+
+                 {/* HERO */}
+                 {activeTab === 'hero' && (
+                    <div className="space-y-8 max-w-3xl">
+                       <div className="flex items-center gap-8 p-4 border border-border bg-surface-2">
+                          <label className="flex items-center gap-2"><input type="radio" checked={editing.heroConfig?.mode === 'image'} onChange={() => setEditing({...editing, heroConfig: {...editing.heroConfig!, mode: 'image'}})} /> <span className="text-xs font-bold uppercase">Image</span></label>
+                          <label className="flex items-center gap-2"><input type="radio" checked={editing.heroConfig?.mode === 'video'} onChange={() => setEditing({...editing, heroConfig: {...editing.heroConfig!, mode: 'video'}})} /> <span className="text-xs font-bold uppercase">Video</span></label>
+                       </div>
+                       <div className="grid grid-cols-2 gap-8">
+                          <div>
+                             <label className="text-xs font-bold uppercase block mb-2">Media</label>
+                             {editing.heroConfig?.mode === 'image' ? (
+                                <div className="border border-border p-4 text-center cursor-pointer hover:bg-surface-2 h-40 flex items-center justify-center" onClick={() => openMediaPicker('hero.imageId', false)}>
+                                   {editing.heroConfig.imageId ? <img src={allMedia.find(m => m.id === editing.heroConfig?.imageId)?.url} className="h-full w-full object-cover"/> : <span className="text-accent">+ Select Image</span>}
+                                </div>
+                             ) : (
+                                <div className="space-y-4">
+                                   <button onClick={() => openMediaPicker('hero.videoId', false)} className="w-full p-3 border border-border text-xs text-left">Video: {editing.heroConfig?.videoId || 'Select...'}</button>
+                                   <button onClick={() => openMediaPicker('hero.posterId', false)} className="w-full p-3 border border-border text-xs text-left">Poster: {editing.heroConfig?.posterId || 'Select...'}</button>
+                                </div>
+                             )}
+                          </div>
+                          <div className="space-y-4">
+                             <label className="text-xs font-bold uppercase block">Overlay</label>
+                             <input type="range" min="0" max="90" className="w-full" value={editing.heroConfig?.overlay.intensity} onChange={e => setEditing({...editing, heroConfig: {...editing.heroConfig!, overlay: {...editing.heroConfig!.overlay, intensity: parseInt(e.target.value)}}})} />
+                             <span className="text-xs">Opacity: {editing.heroConfig?.overlay.intensity}%</span>
+                          </div>
+                       </div>
+                    </div>
+                 )}
+
+                 {/* STAGES */}
+                 {activeTab === 'stages' && (
+                    <div className="space-y-8">
+                       {editing.stages?.map((stage, idx) => (
+                          <div key={idx} className="border border-border p-6 bg-surface-2 relative group">
+                             <div className="absolute top-2 right-2 flex gap-2">
+                                <button onClick={() => moveStage(idx, 'up')} className="text-xs px-2 border border-border">↑</button>
+                                <button onClick={() => moveStage(idx, 'down')} className="text-xs px-2 border border-border">↓</button>
+                                <button onClick={() => { const s = [...editing.stages!]; s.splice(idx,1); setEditing({...editing, stages: s}); }} className="text-red-500 text-xs px-2 border border-red-500">DEL</button>
+                             </div>
+                             <div className="grid grid-cols-12 gap-6">
+                                <div className="col-span-2 flex flex-col items-center">
+                                   <div className="w-full aspect-video border border-border bg-background mb-2 cursor-pointer hover:border-accent" onClick={() => openMediaPicker(`stage.coverId`, false, { index: idx })}>
+                                      {stage.media.coverId ? <img src={allMedia.find(m => m.id === stage.media.coverId)?.url} className="w-full h-full object-cover"/> : <span className="text-[9px] flex h-full items-center justify-center text-center">Cover Media</span>}
+                                   </div>
+                                </div>
+                                <div className="col-span-5 space-y-2">
+                                   <input className="w-full bg-background border border-border p-2 text-xs font-bold" placeholder="Titlu" value={stage.title.ro} onChange={e => updateStage(idx, 'title.ro', e.target.value)} />
+                                   <input className="w-full bg-background border border-border p-2 text-xs" placeholder="Date Label (ex: Week 1)" value={stage.dateLabel} onChange={e => updateStage(idx, 'dateLabel', e.target.value)} />
+                                   <input className="w-full bg-background border border-border p-2 text-xs" placeholder="Highlights (comma)" value={stage.highlights.join(', ')} onChange={e => updateStage(idx, 'highlights', e.target.value.split(','))} />
+                                </div>
+                                <div className="col-span-5">
+                                   <textarea className="w-full bg-background border border-border p-2 text-xs h-full" placeholder="Descriere" value={stage.description.ro} onChange={e => updateStage(idx, 'description.ro', e.target.value)} />
+                                </div>
+                             </div>
+                          </div>
+                       ))}
+                       <button onClick={addStage} className="w-full py-4 border-2 border-dashed border-border text-muted hover:border-accent hover:text-accent font-bold uppercase text-xs">+ Adaugă Etapă</button>
+                    </div>
+                 )}
+
+                 {/* TECH */}
+                 {activeTab === 'tech' && (
+                    <div className="max-w-3xl space-y-4">
+                       {editing.techSpecs?.map((spec, i) => (
+                          <div key={i} className="flex gap-4">
+                             <input className="w-1/3 bg-surface-2 border border-border p-3 text-xs" placeholder="Label (ex: Fronturi)" value={spec.label} onChange={e => updateSpec(i, 'label', e.target.value)} />
+                             <input className="w-2/3 bg-surface-2 border border-border p-3 text-xs" placeholder="Valoare" value={spec.value} onChange={e => updateSpec(i, 'value', e.target.value)} />
+                             <button onClick={() => removeSpec(i)} className="text-red-500 px-2">×</button>
+                          </div>
+                       ))}
+                       <button onClick={addSpec} className="text-accent text-xs uppercase font-bold tracking-widest">+ Add Spec Row</button>
+                    </div>
+                 )}
+
+                 {/* STORY */}
+                 {activeTab === 'story' && (
+                    <div className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase text-accent">1. Challenge</label>
+                            <textarea className="w-full h-24 bg-surface-2 border border-border p-3 text-sm" value={editing.clientBrief?.ro} onChange={e => setEditing({...editing, clientBrief: {...editing.clientBrief!, ro: e.target.value}})} />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase text-accent">2. Solution</label>
+                            <textarea className="w-full h-24 bg-surface-2 border border-border p-3 text-sm" value={editing.ourSolution?.ro} onChange={e => setEditing({...editing, ourSolution: {...editing.ourSolution!, ro: e.target.value}})} />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-xs font-bold uppercase text-accent">3. Result</label>
+                            <textarea className="w-full h-24 bg-surface-2 border border-border p-3 text-sm" value={editing.result?.ro} onChange={e => setEditing({...editing, result: {...editing.result!, ro: e.target.value}})} />
+                        </div>
+                    </div>
+                 )}
+
+              </div>
+           </div>
+
+           {/* MEDIA PICKER OVERLAY */}
+           {mediaPickerOpen && (
+              <div className="absolute inset-0 z-50 bg-surface flex flex-col p-8 animate-fade-in">
+                 <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-serif text-3xl">Alege Media</h3>
+                    <button onClick={() => setMediaPickerOpen(null)} className="text-3xl">×</button>
+                 </div>
+                 <div className="grid grid-cols-6 gap-4 overflow-y-auto">
+                    {allMedia.map(m => (
+                       <div key={m.id} className="aspect-square bg-surface-2 border border-border hover:border-accent cursor-pointer relative group" onClick={() => handleMediaSelect(m.id)}>
+                          <img src={m.url} className="w-full h-full object-cover" />
+                          {m.kind === 'video' && <span className="absolute bottom-2 right-2 bg-black text-white text-[9px] px-1">VIDEO</span>}
+                       </div>
+                    ))}
+                 </div>
+              </div>
+           )}
         </div>
       )}
     </div>

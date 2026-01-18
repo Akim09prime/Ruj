@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate } from 'react-router-dom';
 import { ThemeProvider } from './lib/theme';
@@ -16,6 +17,7 @@ const LeadForm = React.lazy(() => import('./app/public/LeadForm').then(m => ({ d
 const About = React.lazy(() => import('./app/public/About').then(m => ({ default: m.About })));
 const Contact = React.lazy(() => import('./app/public/Contact').then(m => ({ default: m.Contact })));
 const Services = React.lazy(() => import('./app/public/Services').then(m => ({ default: m.Services })));
+const ServiceDetail = React.lazy(() => import('./app/public/ServiceDetail').then(m => ({ default: m.ServiceDetail }))); // NEW
 const Reviews = React.lazy(() => import('./app/public/Reviews').then(m => ({ default: m.Reviews })));
 const Process = React.lazy(() => import('./app/public/Process').then(m => ({ default: m.Process })));
 const DynamicPage = React.lazy(() => import('./app/public/DynamicPage').then(m => ({ default: m.DynamicPage })));
@@ -28,6 +30,7 @@ const MediaManager = React.lazy(() => import('./app/admin/MediaManager').then(m 
 const LeadsManager = React.lazy(() => import('./app/admin/LeadsManager').then(m => ({ default: m.LeadsManager })));
 const SettingsManager = React.lazy(() => import('./app/admin/SettingsManager').then(m => ({ default: m.SettingsManager })));
 const PageManager = React.lazy(() => import('./app/admin/PageManager').then(m => ({ default: m.PageManager })));
+const ServiceManager = React.lazy(() => import('./app/admin/ServiceManager').then(m => ({ default: m.ServiceManager }))); // NEW
 const ProjectMediaReorder = React.lazy(() => import('./app/admin/ProjectMediaReorder').then(m => ({ default: m.ProjectMediaReorder })));
 const HeroManager = React.lazy(() => import('./app/admin/HeroManager').then(m => ({ default: m.HeroManager })));
 
@@ -69,6 +72,7 @@ const AdminLayout: React.FC = () => {
           <Link to="/admin" className="text-[10px] uppercase font-bold tracking-widest hover:text-accent">Dashboard</Link>
           <div className="pt-4 border-t border-border/50">
              <Link to="/admin/projects" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Proiecte</Link>
+             <Link to="/admin/services" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4 text-accent">Servicii</Link>
              <Link to="/admin/media" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Media</Link>
              <Link to="/admin/pages" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Pagini</Link>
              <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Leads</Link>
@@ -130,7 +134,10 @@ const App: React.FC = () => {
               <Route path="portofoliu" element={<Portfolio />} />
               <Route path="proiect/:id" element={<ProjectDetail />} />
               <Route path="galerie-mobilier" element={<Gallery />} />
+              
               <Route path="servicii" element={<Services />} />
+              <Route path="servicii/:slug" element={<ServiceDetail />} /> {/* NEW ROUTE */}
+              
               <Route path="proces-garantii" element={<Process />} />
               <Route path="recenzii" element={<Reviews />} />
               <Route path="cerere-oferta" element={<LeadForm />} />
@@ -149,6 +156,7 @@ const App: React.FC = () => {
               <Route index element={<Dashboard />} />
               <Route path="projects" element={<ProjectManager />} />
               <Route path="projects/:id/media" element={<ProjectMediaReorder />} />
+              <Route path="services" element={<ServiceManager />} /> {/* NEW ROUTE */}
               <Route path="media" element={<MediaManager />} />
               <Route path="pages" element={<PageManager />} />
               <Route path="leads" element={<LeadsManager />} />

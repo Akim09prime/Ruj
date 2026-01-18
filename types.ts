@@ -7,6 +7,7 @@ export interface I18nString {
   en: string;
 }
 
+// Global Hero (Home Page)
 export interface HeroSlide {
   id: string;
   imageUrl: string;
@@ -76,13 +77,83 @@ export interface NavItem {
   order: number;
 }
 
-// --- NEW PROCESS STAGE TYPE ---
-export interface ProjectStage {
+// --- SERVICE TYPES ---
+export interface ServiceFeature {
   title: I18nString;
+  desc: I18nString;
+  icon: string; // Emoji or simple string identifier
+}
+
+export interface ServiceProcessStep {
+  title: I18nString;
+  desc: I18nString;
+}
+
+export interface ServiceFAQ {
+  question: I18nString;
+  answer: I18nString;
+}
+
+export interface ServicePage {
+  id: string;
+  slug: string;
+  title: I18nString;
+  subtitle: I18nString;
+  shortDescription: I18nString; // For the Hub
+  fullDescription: I18nString; // For the Detail Page hero
+  
+  heroMediaId: string | null; // Image or Video
+  
+  bullets: I18nString[]; // For the Hub
+  
+  // Detail Page Content
+  features: ServiceFeature[]; // "What you get" cards
+  processSteps: ServiceProcessStep[];
+  faq: ServiceFAQ[];
+  
+  relatedProjectTags: string[]; // To filter portfolio gallery
+  
+  isPublished: boolean;
+  order: number;
+}
+
+
+// --- PROJECT SPECIFIC TYPES ---
+
+export interface ProjectHeroConfig {
+  mode: 'image' | 'video';
+  imageId?: string; // Media ID
+  videoId?: string; // Media ID
+  posterId?: string; // Media ID (fallback for video)
+  overlay: {
+    intensity: number; // 0-100
+    vignette: boolean;
+    grain: boolean;
+  };
+}
+
+export interface StageMedia {
+  coverId?: string;
+  galleryIds: string[];
+  videoId?: string;
+  posterId?: string;
+}
+
+export interface ProjectStage {
+  id: string;
+  title: I18nString;
+  subtitle?: I18nString;
+  dateLabel?: string; // e.g. "Week 1", "Ziua 10"
   description: I18nString;
-  date?: string;
   highlights: string[];
-  images: string[]; // URLs
+  media: StageMedia;
+}
+
+export interface Album {
+  id: string;
+  title: I18nString;
+  description?: I18nString;
+  mediaIds: string[];
 }
 
 export interface ProjectMetrics {
@@ -109,20 +180,23 @@ export interface Project {
 
   metrics?: ProjectMetrics;
   
+  // Cinematic Hero Per Project
+  heroConfig?: ProjectHeroConfig;
+
   // Detailed Process Timeline
   stages?: ProjectStage[];
   
+  // Organized Albums (Optional)
+  albums?: Album[];
+
   // Tech Specs (Key-Value)
   techSpecs?: { label: string; value: string }[];
 
-  testimonial?: {
-    text: I18nString;
-    author: string;
-    role: string;
-  };
-
-  projectType: string;
+  projectType: string; // "Rezidențial", "Comercial", etc.
   location: I18nString;
+  tags?: string[]; // New: For filtering tags like "CNC", "MDF"
+  isFeatured?: boolean; // New: For "Featured" sort
+
   publishedAt: string;
   coverMediaId: string | null;
   isPublished: boolean;
@@ -134,7 +208,7 @@ export interface Media {
   id: string;
   projectId: string;
   kind: 'image' | 'video';
-  url: string;
+  url: string; // Base64 or URL
   room: string;
   stage: string;
   pieceTypes: string[];
@@ -191,11 +265,15 @@ export interface Lead {
   message: string;
   createdAt: string;
   status: 'new' | 'contacted' | 'won' | 'lost' | 'approved' | 'archived'; // Approved for testimonials
+  company?: string; // Honeypot
+  userAgent?: string;
+  currentUrl?: string;
 }
 
 export interface AppDB {
   settings: Settings;
   projects: Project[];
+  services: ServicePage[]; // NEW
   media: Media[];
   pages: Page[];
   leads: Lead[];

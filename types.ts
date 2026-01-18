@@ -40,6 +40,98 @@ export interface HeroConfig {
   slides: HeroSlide[];
 }
 
+// --- CONTACT PAGE TYPES ---
+export interface ContactFAQ {
+  question: I18nString;
+  answer: I18nString;
+}
+
+export interface ContactPageData {
+  hero: {
+    title: I18nString;
+    subtitle: I18nString;
+    ctaPrimary: I18nString;
+    ctaSecondary: I18nString;
+    coverImageId: string | null;
+  };
+  info: {
+    phone: string;
+    email: string;
+    address: string;
+    city: string;
+    country: string;
+    hours: string;
+    responseBuffer: I18nString; // e.g. "Max 24h"
+    whatsappLink: string;
+    mapEmbedUrl: string;
+  };
+  timeline: {
+    steps: { title: I18nString; desc: I18nString }[];
+  };
+  faq: ContactFAQ[];
+}
+
+// --- REVIEW SYSTEM TYPES ---
+export interface Review {
+  id: string;
+  status: 'pending' | 'approved' | 'hidden';
+  consentPublic: boolean; // Must be true to be approved
+  rating: number; // 1-5
+  text: string;
+  clientNameDisplay: string; // e.g. "Andrei P."
+  city: string;
+  projectType: 'Rezidențial' | 'Comercial';
+  projectLabel: string; // e.g. "Bucătărie + Living"
+  avatarMediaId?: string; // Optional linked media
+  createdAt: string;
+  isFeatured: boolean;
+  source: 'internal' | 'google' | 'instagram';
+}
+
+// --- ABOUT PAGE TYPES ---
+export interface AboutPillar {
+  title: I18nString;
+  desc: I18nString;
+  bullets: I18nString[];
+}
+
+export interface AboutTimelineStep {
+  year: string; // Used as step number
+  title: I18nString;
+  desc: I18nString;
+}
+
+export interface AboutPageData {
+  hero: {
+    title: I18nString;
+    subtitle: I18nString;
+    text: I18nString;
+    mediaId: string | null;
+  };
+  manifesto: {
+    title: I18nString;
+    text: I18nString;
+    bullets: I18nString[];
+  };
+  pillars: AboutPillar[];
+  quality: {
+    title: I18nString;
+    bullets: I18nString[];
+    images: string[]; // Media IDs
+  };
+  timeline: AboutTimelineStep[];
+  clients: {
+    resTitle: I18nString;
+    resDesc: I18nString;
+    comTitle: I18nString;
+    comDesc: I18nString;
+  };
+  cta: {
+    title: I18nString;
+    trustLine: I18nString;
+  }
+}
+
 export interface Settings {
   id: 'global';
   projectTypes: string[];
@@ -115,6 +207,18 @@ export interface ServicePage {
   
   isPublished: boolean;
   order: number;
+}
+
+// --- PROCESS PAGE TYPES ---
+export interface ProcessStep {
+  id: string;
+  order: number;
+  title: I18nString;
+  description: I18nString;
+  bullets: I18nString[];
+  mediaId: string | null;
+  cta: { label: I18nString; href: string };
+  isVisible: boolean;
 }
 
 
@@ -261,10 +365,17 @@ export interface Lead {
   email: string;
   phone: string;
   city: string;
-  projectType: string; // Or "Feedback"
+  
+  // New Fields for Contact Form
+  projectType: string; 
+  category?: string; // e.g. Kitchen, CNC
+  budget?: string; // e.g. 5-10k
+  timeline?: string; // e.g. Urgent
+  attachments?: string[]; // Base64 strings (fake handling)
+  
   message: string;
   createdAt: string;
-  status: 'new' | 'contacted' | 'won' | 'lost' | 'approved' | 'archived'; // Approved for testimonials
+  status: 'new' | 'contacted' | 'won' | 'lost' | 'approved' | 'archived'; 
   company?: string; // Honeypot
   userAgent?: string;
   currentUrl?: string;
@@ -272,8 +383,12 @@ export interface Lead {
 
 export interface AppDB {
   settings: Settings;
+  about: AboutPageData;
+  contact: ContactPageData; // NEW
+  reviews: Review[];
   projects: Project[];
-  services: ServicePage[]; // NEW
+  services: ServicePage[];
+  processSteps: ProcessStep[];
   media: Media[];
   pages: Page[];
   leads: Lead[];

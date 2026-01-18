@@ -1,5 +1,5 @@
 
-import { AppDB, Settings, Project, Media, Page, Lead, ServicePage } from '../types';
+import { AppDB, Settings, Project, Media, Page, Lead, ServicePage, ProcessStep, AboutPageData, Review, ContactPageData } from '../types';
 
 const DB_KEY = 'carvello_db';
 
@@ -9,7 +9,345 @@ const BRAND_LOGO_LIGHT = "https://i.ibb.co/L9vC8Lh/carvello-logo-gold.png";
 // Helper dates
 const today = new Date().toISOString();
 const lastMonth = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-const twoMonthsAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+
+// --- 1. CONTACT SEED ---
+const SEED_CONTACT: ContactPageData = {
+  hero: {
+    title: { ro: 'Hai să construim ceva impecabil.', en: 'Let\'s build something flawless.' },
+    subtitle: { ro: 'Trimite detaliile proiectului și revenim cu o estimare + un plan clar.', en: 'Send project details and we return with an estimate + a clear plan.' },
+    ctaPrimary: { ro: 'Cere Ofertă', en: 'Get Quote' },
+    ctaSecondary: { ro: 'WhatsApp', en: 'WhatsApp' },
+    coverImageId: null // uses fallback
+  },
+  info: {
+    phone: '+40 700 000 000',
+    email: 'office@carvello.ro',
+    address: 'Strada Industriei Nr. 10',
+    city: 'Cluj-Napoca',
+    country: 'România',
+    hours: 'L–V 09:00–18:00',
+    responseBuffer: { ro: 'Răspundem în max. 24h lucrătoare', en: 'We reply in max 24 business hours' },
+    whatsappLink: 'https://wa.me/40700000000',
+    mapEmbedUrl: '' // Empty to trigger premium placeholder
+  },
+  timeline: {
+    steps: [
+      { title: { ro: 'Solicitare', en: 'Request' }, desc: { ro: 'Analizăm cererea ta în 24h.', en: 'We analyze your request in 24h.' } },
+      { title: { ro: 'Clarificare', en: 'Clarification' }, desc: { ro: 'Discuție scurtă pe detalii.', en: 'Short discussion on details.' } },
+      { title: { ro: 'Estimare', en: 'Estimate' }, desc: { ro: 'Ofertă bugetară preliminară.', en: 'Preliminary budget offer.' } },
+      { title: { ro: 'Start', en: 'Start' }, desc: { ro: 'Programare măsurători & contract.', en: 'Measurements & contract.' } }
+    ]
+  },
+  faq: [
+    { question: { ro: 'În cât timp primesc oferta?', en: 'How fast do I get the quote?' }, answer: { ro: 'Pentru proiecte standard, în 24-48h. Pentru proiecte complexe, necesită o discuție tehnică.', en: 'For standard projects, 24-48h. Complex projects need tech discussion.' } },
+    { question: { ro: 'Lucrați în toată România?', en: 'Do you work across Romania?' }, answer: { ro: 'Da, pentru proiecte medii și mari asigurăm transport și montaj oriunde în țară.', en: 'Yes, for medium and large projects we provide transport and installation nationwide.' } },
+    { question: { ro: 'Pot trimite doar poze fără măsurători?', en: 'Can I send just photos?' }, answer: { ro: 'Da, putem face o estimare brută pe baza pozelor, dar prețul final necesită cote exacte.', en: 'Yes, we can give a rough estimate based on photos, but final price needs exact dimensions.' } },
+    { question: { ro: 'Faceți și doar debitare CNC?', en: 'Do you do just CNC cutting?' }, answer: { ro: 'Da, oferim servicii B2B de debitare și căntuire pentru arhitecți și alți producători.', en: 'Yes, we offer B2B cutting and edging services for architects and other makers.' } },
+    { question: { ro: 'Cum funcționează plata?', en: 'How does payment work?' }, answer: { ro: '50% avans la semnare contract, 40% înainte de livrare, 10% la recepția finală.', en: '50% advance on contract, 40% before delivery, 10% on final handover.' } }
+  ]
+};
+
+// --- 2. ABOUT SEED ---
+const SEED_ABOUT: AboutPageData = {
+  hero: {
+    title: { ro: 'Unde precizia întâlnește arta.', en: 'Where precision meets art.' },
+    subtitle: { ro: 'Mobilier premium realizat la comandă.', en: 'Premium custom-made furniture.' },
+    text: { 
+      ro: 'Filosofia CARVELLO se bazează pe echilibrul perfect între tehnologia CNC industrială și finisajele artizanale. Nu acceptăm compromisuri la capitolul toleranțe sau materiale.',
+      en: 'The CARVELLO philosophy is based on the perfect balance between industrial CNC technology and artisanal finishes. We do not compromise on tolerances or materials.'
+    },
+    mediaId: null
+  },
+  manifesto: {
+    title: { ro: 'CARVELLO nu este doar un atelier.', en: 'CARVELLO is not just a workshop.' },
+    text: { 
+      ro: 'Suntem un hub de execuție premium pentru proiecte rezidențiale și comerciale, unde designul, tehnicul și producția lucrează împreună sub același acoperiș.',
+      en: 'We are a premium execution hub for residential and commercial projects, where design, engineering, and production work together under one roof.'
+    },
+    bullets: [
+      { ro: 'Precizie milimetrică garantată prin CNC', en: 'Millimetric precision guaranteed by CNC' },
+      { ro: 'Finisaje premium controlate în cabină proprie', en: 'Premium finishes controlled in-house' },
+      { ro: 'Livrare și montaj cu echipe interne', en: 'Delivery and assembly with in-house teams' }
+    ]
+  },
+  pillars: [
+    {
+      title: { ro: 'Execuție CNC Milimetrică', en: 'CNC Precision Execution' },
+      desc: { ro: 'Utilaje în 5 axe pentru forme complexe.', en: '5-axis machinery for complex shapes.' },
+      bullets: [
+        { ro: 'Toleranță 0.1mm', en: '0.1mm Tolerance' },
+        { ro: 'Găurire automată', en: 'Automatic drilling' },
+        { ro: 'Nesting optimizat', en: 'Optimized nesting' }
+      ]
+    },
+    {
+      title: { ro: 'Finisaje Premium 2K', en: 'Premium 2K Finishes' },
+      desc: { ro: 'Vopsitorie industrială cu control climatic.', en: 'Industrial paint shop with climate control.' },
+      bullets: [
+        { ro: 'Mat, Satin, Lucios', en: 'Matte, Satin, Gloss' },
+        { ro: 'Rezistență la zgârieturi', en: 'Scratch resistance' },
+        { ro: 'Orice cod NCS/RAL', en: 'Any NCS/RAL code' }
+      ]
+    },
+    {
+      title: { ro: 'Proiectare Tehnică', en: 'Technical Engineering' },
+      desc: { ro: 'Validăm fiecare detaliu înainte de producție.', en: 'We validate every detail before production.' },
+      bullets: [
+        { ro: 'Randări 3D', en: '3D Renders' },
+        { ro: 'Planuri de execuție', en: 'Execution plans' },
+        { ro: 'Integrare instalații', en: 'Systems integration' }
+      ]
+    },
+  ],
+  quality: {
+    title: { ro: 'Calitatea se construiește în fiecare etapă.', en: 'Quality is built at every stage.' },
+    bullets: [
+      { ro: 'Verificări riguroase înainte de ambalare', en: 'Rigorous checks before packaging' },
+      { ro: 'Pre-montaj în atelier pentru structuri mari', en: 'Workshop pre-assembly for large structures' },
+      { ro: 'Protecție totală a spațiului clientului', en: 'Total protection of client space' },
+      { ro: 'Predare "la cheie" cu curățenie inclusă', en: 'Turnkey handover with cleaning included' }
+    ],
+    images: []
+  },
+  timeline: [
+    { year: '01', title: { ro: 'Măsurători', en: 'Measurements' }, desc: { ro: 'Scanare laser a spațiului.', en: 'Laser scanning of the space.' } },
+    { year: '02', title: { ro: 'Concept 3D', en: '3D Concept' }, desc: { ro: 'Vizualizare fotorealistică.', en: 'Photorealistic visualization.' } },
+    { year: '03', title: { ro: 'Proiectare', en: 'Engineering' }, desc: { ro: 'Desene tehnice CAD/CAM.', en: 'CAD/CAM technical drawings.' } },
+    { year: '04', title: { ro: 'Producție', en: 'Production' }, desc: { ro: 'Debit, CNC, Vopsire.', en: 'Cutting, CNC, Painting.' } },
+    { year: '05', title: { ro: 'Montaj', en: 'Install' }, desc: { ro: 'Integrare finală.', en: 'Final integration.' } }
+  ],
+  clients: {
+    resTitle: { ro: 'Rezidențial', en: 'Residential' },
+    resDesc: { ro: 'Bucătării, dressinguri, băi și mobilier custom pentru apartamente și case de lux.', en: 'Kitchens, wardrobes, baths and custom furniture for luxury homes.' },
+    comTitle: { ro: 'Comercial & HoReCa', en: 'Commercial & HoReCa' },
+    comDesc: { ro: 'Soluții durabile și estetice pentru hoteluri, restaurante, clinici și spații de birouri.', en: 'Durable and aesthetic solutions for hotels, restaurants, clinics, and offices.' }
+  },
+  cta: {
+    title: { ro: 'Dacă îți dorești un rezultat fără compromis, hai să discutăm.', en: 'If you want an uncompromising result, let\'s talk.' },
+    trustLine: { ro: 'Termen clar • Execuție premium • Garanție extinsă', en: 'Clear deadline • Premium execution • Extended warranty' }
+  }
+};
+
+// --- 3. REVIEWS SEED ---
+const SEED_REVIEWS: Review[] = [
+  {
+    id: 'rev-1',
+    status: 'approved',
+    consentPublic: true,
+    rating: 5,
+    text: "Colaborarea a fost impecabilă. Precizia îmbinărilor la corpurile din bucătărie este ceva ce rar găsești. Echipa de montaj a fost extrem de curată și atentă.",
+    clientNameDisplay: "Adrian M.",
+    city: "Cluj-Napoca",
+    projectType: "Rezidențial",
+    projectLabel: "Bucătărie MDF Vopsit",
+    isFeatured: true,
+    source: 'internal',
+    createdAt: lastMonth
+  },
+  {
+    id: 'rev-2',
+    status: 'approved',
+    consentPublic: true,
+    rating: 5,
+    text: "Am echipat recepția clinicii și sala de așteptare. Panourile CNC arată spectaculos, iar finisajul 2K este foarte rezistent la trafic. Recomand pentru proiecte comerciale.",
+    clientNameDisplay: "Dr. Sorin T.",
+    city: "București",
+    projectType: "Comercial",
+    projectLabel: "Clinică Estetică",
+    isFeatured: true,
+    source: 'internal',
+    createdAt: lastMonth
+  },
+  {
+    id: 'rev-3',
+    status: 'approved',
+    consentPublic: true,
+    rating: 4,
+    text: "Calitate excelentă, dar termenul a fost decalat cu 3 zile. Totuși, rezultatul final a meritat așteptarea. Dressing-ul este perfect compartimentat.",
+    clientNameDisplay: "Elena R.",
+    city: "Timișoara",
+    projectType: "Rezidențial",
+    projectLabel: "Dressing Walk-in",
+    isFeatured: false,
+    source: 'internal',
+    createdAt: today
+  },
+  {
+    id: 'rev-4',
+    status: 'approved',
+    consentPublic: true,
+    rating: 5,
+    text: "Ca arhitect, apreciez enorm faptul că au respectat cotele din proiect la milimetru. Nu a fost nevoie de nicio ajustare pe șantier. O execuție tehnică de top.",
+    clientNameDisplay: "Arh. Radu I.",
+    city: "Cluj-Napoca",
+    projectType: "Rezidențial",
+    projectLabel: "Fit-out Complet",
+    isFeatured: true,
+    source: 'internal',
+    createdAt: today
+  }
+];
+
+// --- 4. MEDIA SEED ---
+const SEED_MEDIA: Media[] = [
+  // PROJECTS
+  { id: 'm1', projectId: 'p1', kind: 'image', url: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200', room: 'Bucătărie', stage: 'Final', stars: 5, orderInProject: 0, createdAt: today, pieceTypes: ['Insulă'], caption: null, shotDate: null },
+  { id: 'm2', projectId: 'p1', kind: 'image', url: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&q=80&w=1200', room: 'Living', stage: 'Final', stars: 4, orderInProject: 1, createdAt: today, pieceTypes: ['Bibliotecă'], caption: null, shotDate: null },
+  { id: 'm3', projectId: 'p2', kind: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200', room: 'Lobby', stage: 'Final', stars: 5, orderInProject: 0, createdAt: today, pieceTypes: ['Recepție'], caption: null, shotDate: null },
+  { id: 'm4', projectId: 'p3', kind: 'image', url: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1200', room: 'Living', stage: 'Final', stars: 5, orderInProject: 0, createdAt: today, pieceTypes: ['Canapea Custom'], caption: null, shotDate: null },
+  // SERVICES HEROES
+  { id: 's1-hero', projectId: 'svc', kind: 'image', url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200', room: 'Atelier', stage: 'Execuție', stars: 0, orderInProject: 0, createdAt: today, pieceTypes: [], caption: null, shotDate: null },
+  { id: 's2-hero', projectId: 'svc', kind: 'image', url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=1200', room: 'Birou', stage: 'Proiectare', stars: 0, orderInProject: 0, createdAt: today, pieceTypes: [], caption: null, shotDate: null },
+  { id: 's3-hero', projectId: 'svc', kind: 'image', url: 'https://images.unsplash.com/photo-1565538810643-b5bdb714032a?auto=format&fit=crop&q=80&w=1200', room: 'Atelier', stage: 'Finisaj', stars: 0, orderInProject: 0, createdAt: today, pieceTypes: [], caption: null, shotDate: null },
+  { id: 's4-hero', projectId: 'svc', kind: 'image', url: 'https://images.unsplash.com/photo-1503387762-592dea58ef21?auto=format&fit=crop&q=80&w=1200', room: 'Santier', stage: 'Montaj', stars: 0, orderInProject: 0, createdAt: today, pieceTypes: [], caption: null, shotDate: null },
+];
+
+// --- 5. SERVICES SEED ---
+const SEED_SERVICES: ServicePage[] = [
+  {
+    id: 'svc-1', slug: 'mobilier-custom', order: 1, isPublished: true,
+    title: { ro: 'Mobilier Custom', en: 'Custom Furniture' },
+    subtitle: { ro: 'Rezidențial Premium', en: 'Premium Residential' },
+    shortDescription: { ro: 'Soluții complete pentru locuințe de lux: bucătării, dressing-uri, biblioteci.', en: 'Complete solutions for luxury homes: kitchens, wardrobes, libraries.' },
+    fullDescription: { ro: 'Creăm mobilier care se integrează perfect în arhitectura spațiului tău. De la bucătării ergonomice cu sisteme Blum de ultimă generație, la dressing-uri walk-in iluminate LED și placări de pereți.', en: 'We create furniture that integrates perfectly into your space architecture. From ergonomic kitchens with latest Blum systems, to LED illuminated walk-in wardrobes and wall cladding.' },
+    heroMediaId: 's1-hero',
+    bullets: [{ ro: 'Bucătării la comandă', en: 'Custom Kitchens' }, { ro: 'Dressing-uri Walk-in', en: 'Walk-in Wardrobes' }, { ro: 'Mobilier Baie', en: 'Bathroom Furniture' }],
+    features: [
+      { icon: '📐', title: { ro: 'Măsurători Laser', en: 'Laser Measurements' }, desc: { ro: 'Scanare 3D a spațiului pentru precizie absolută.', en: '3D space scanning for absolute precision.' } },
+      { icon: '🎨', title: { ro: 'Finisaje Unlimited', en: 'Unlimited Finishes' }, desc: { ro: 'MDF Vopsit, Furnir, Ceramică, Sticlă.', en: 'Painted MDF, Veneer, Ceramics, Glass.' } },
+      { icon: '🔧', title: { ro: 'Feronerie Top', en: 'Top Hardware' }, desc: { ro: 'Blum, Hettich, Hafele.', en: 'Blum, Hettich, Hafele.' } }
+    ],
+    processSteps: [
+      { title: { ro: 'Consultare', en: 'Consultation' }, desc: { ro: 'Discuție inițială.', en: 'Initial talk.' } },
+      { title: { ro: 'Proiectare', en: 'Design' }, desc: { ro: 'Randări și schițe.', en: 'Renders and sketches.' } },
+      { title: { ro: 'Execuție', en: 'Execution' }, desc: { ro: 'Producție în fabrică.', en: 'Factory production.' } },
+      { title: { ro: 'Montaj', en: 'Installation' }, desc: { ro: 'Livrare și montaj.', en: 'Delivery and install.' } }
+    ],
+    faq: [], relatedProjectTags: ['Rezidențial', 'Bucătărie', 'Dressing']
+  },
+  {
+    id: 'svc-2', slug: 'debitare-cnc', order: 2, isPublished: true,
+    title: { ro: 'Prelucrare CNC', en: 'CNC Milling' },
+    subtitle: { ro: 'Servicii B2B', en: 'B2B Services' },
+    shortDescription: { ro: 'Frezare computerizată, gravură și debitare panouri pentru arhitecți și producători.', en: 'Computerized milling, engraving and panel cutting for architects and makers.' },
+    fullDescription: { ro: 'Dispunem de utilaje CNC în 5 axe capabile să execute forme organice complexe, panouri decorative 3D și piese de mobilier unicat. Oferim servicii de debitare și căntuire pentru parteneri.', en: 'We have 5-axis CNC machines capable of executing complex organic shapes, 3D decorative panels and unique furniture pieces. We offer cutting and edging services for partners.' },
+    heroMediaId: 's2-hero',
+    bullets: [{ ro: 'Frezare 3D', en: '3D Milling' }, { ro: 'Gravură MDF', en: 'MDF Engraving' }, { ro: 'Debitare Panouri', en: 'Panel Cutting' }],
+    features: [
+      { icon: '⚡', title: { ro: 'Viteză și Precizie', en: 'Speed and Precision' }, desc: { ro: 'Toleranțe de 0.1mm.', en: '0.1mm tolerances.' } },
+      { icon: '🧩', title: { ro: 'Nesting Optimizat', en: 'Optimized Nesting' }, desc: { ro: 'Pierderi minime de material.', en: 'Minimal material waste.' } },
+      { icon: '📦', title: { ro: 'Capacitate Mare', en: 'High Capacity' }, desc: { ro: 'Producție de serie sau unicat.', en: 'Series or unique production.' } }
+    ],
+    processSteps: [
+      { title: { ro: 'Fișiere CAD', en: 'CAD Files' }, desc: { ro: 'Primire DXF/DWG.', en: 'Receive DXF/DWG.' } },
+      { title: { ro: 'Optimizare', en: 'Optimization' }, desc: { ro: 'Pregătire G-Code.', en: 'G-Code prep.' } },
+      { title: { ro: 'Frezare', en: 'Milling' }, desc: { ro: 'Execuție CNC.', en: 'CNC execution.' } },
+      { title: { ro: 'Finisare', en: 'Finishing' }, desc: { ro: 'Șlefuire (opțional).', en: 'Sanding (optional).' } }
+    ],
+    faq: [], relatedProjectTags: ['CNC', 'Comercial', 'Panouri']
+  },
+  {
+    id: 'svc-3', slug: 'vopsire-mdf', order: 3, isPublished: true,
+    title: { ro: 'Vopsitorie 2K', en: '2K Painting' },
+    subtitle: { ro: 'Finisaje Industriale', en: 'Industrial Finishes' },
+    shortDescription: { ro: 'Cabină de vopsire presurizată pentru finisaje mate, satinate sau lucioase impecabile.', en: 'Pressurized painting booth for flawless matte, satin or gloss finishes.' },
+    fullDescription: { ro: 'Calitatea finisajului este semnătura noastră. Folosim lacuri poliuretanice și pe bază de apă de cea mai înaltă calitate, aplicate în mediu controlat.', en: 'Finish quality is our signature. We use top quality polyurethane and water-based varnishes, applied in a controlled environment.' },
+    heroMediaId: 's3-hero',
+    bullets: [{ ro: 'Orice cod RAL/NCS', en: 'Any RAL/NCS code' }, { ro: 'Mat / Super-Mat', en: 'Matte / Super-Matte' }, { ro: 'High Gloss', en: 'High Gloss' }],
+    features: [
+      { icon: '🌬️', title: { ro: 'Mediu Controlat', en: 'Controlled Env' }, desc: { ro: 'Fără praf, temperatură constantă.', en: 'Dust-free, constant temp.' } },
+      { icon: '🛡️', title: { ro: 'Rezistență', en: 'Durability' }, desc: { ro: 'Lacuri dure anti-zgârieturi.', en: 'Hard anti-scratch varnishes.' } },
+      { icon: '🎨', title: { ro: 'Colorimetrie', en: 'Colorimetry' }, desc: { ro: 'Reproducere exactă a culorii.', en: 'Exact color reproduction.' } }
+    ],
+    processSteps: [
+      { title: { ro: 'Pregătire', en: 'Prep' }, desc: { ro: 'Izolare și curățare.', en: 'Isolation and cleaning.' } },
+      { title: { ro: 'Primer', en: 'Primer' }, desc: { ro: 'Aplicare strat bază.', en: 'Base layer application.' } },
+      { title: { ro: 'Șlefuire', en: 'Sanding' }, desc: { ro: 'Șlefuire intermediară.', en: 'Intermediate sanding.' } },
+      { title: { ro: 'Vopsea Finală', en: 'Top Coat' }, desc: { ro: 'Aplicare strat final.', en: 'Final layer application.' } }
+    ],
+    faq: [], relatedProjectTags: ['MDF', 'Vopsit', 'Finisaje']
+  }
+];
+
+// --- 6. PROJECTS SEED ---
+const SEED_PROJECTS: Project[] = [
+  {
+    id: 'p1', slug: 'penthouse-herastrau', title: { ro: 'Penthouse Herăstrău', en: 'Herastrau Penthouse' },
+    summary: { ro: 'Amenajare completă pentru un apartament de lux, dominat de texturi naturale și finisaje mate.', en: 'Complete fit-out for a luxury apartment, dominated by natural textures and matte finishes.' },
+    timelineDate: today, publishedAt: today, isPublished: true, createdAt: today, updatedAt: today,
+    projectType: 'Rezidențial', location: { ro: 'București', en: 'Bucharest' }, tags: ['MDF', 'Vopsit', 'Rezidențial'], isFeatured: true,
+    coverMediaId: 'm1',
+    heroConfig: { mode: 'image', imageId: 'm1', overlay: { intensity: 40, vignette: true, grain: false } },
+    clientBrief: { ro: 'Clientul a dorit o bucătărie minimalistă, dar extrem de funcțională, și un dressing deschis.', en: 'Client wanted a minimalist but highly functional kitchen and an open wardrobe.' },
+    ourSolution: { ro: 'Am propus fronturi MDF vopsit mat cu mânere frezate și insulă placată cu ceramică.', en: 'We proposed matte painted MDF fronts with milled handles and ceramic-clad island.' },
+    result: { ro: 'Un spațiu fluid, luminos, unde mobilierul devine parte din arhitectură.', en: 'A fluid, bright space where furniture becomes part of architecture.' },
+    stages: [
+      { id: 'st1', title: { ro: 'Proiectare', en: 'Design' }, description: { ro: 'Randări 3D și planuri tehnice.', en: '3D renders and technical plans.' }, highlights: ['Releveu Laser'], media: { galleryIds: [] } },
+      { id: 'st2', title: { ro: 'Producție', en: 'Production' }, description: { ro: 'Debitare și vopsire.', en: 'Cutting and painting.' }, highlights: ['CNC Nesting'], media: { galleryIds: [] } },
+      { id: 'st3', title: { ro: 'Final', en: 'Final' }, description: { ro: 'Montaj și predare.', en: 'Assembly and handover.' }, highlights: ['Recepție'], media: { galleryIds: [], coverId: 'm1' } }
+    ],
+    techSpecs: [{ label: 'Fronturi', value: 'MDF Vopsit NCS S 2005-Y50R' }, { label: 'Blat', value: 'Ceramică Marazzi' }, { label: 'Feronerie', value: 'Blum Legrabox' }],
+    metrics: { duration: '8 Săptămâni', finish: 'Mat', materials: 'MDF, Ceramică', hardware: 'Blum', services: ['Proiectare', 'Execuție'] }
+  },
+  {
+    id: 'p2', slug: 'clinica-estetica', title: { ro: 'Clinică Estetică', en: 'Aesthetic Clinic' },
+    summary: { ro: 'Recepție și spații de tratament cu forme organice realizate la CNC.', en: 'Reception and treatment spaces with organic shapes made on CNC.' },
+    timelineDate: lastMonth, publishedAt: lastMonth, isPublished: true, createdAt: lastMonth, updatedAt: lastMonth,
+    projectType: 'Comercial', location: { ro: 'Cluj-Napoca', en: 'Cluj-Napoca' }, tags: ['Comercial', 'CNC', 'Corian'], isFeatured: true,
+    coverMediaId: 'm3',
+    heroConfig: { mode: 'image', imageId: 'm3', overlay: { intensity: 30, vignette: false, grain: false } },
+    clientBrief: { ro: 'Un spațiu primitor, curat, cu elemente curbe.', en: 'A welcoming, clean space with curved elements.' },
+    ourSolution: { ro: 'Recepție din Corian termoformat și placări perete frezate 3D.', en: 'Thermoformed Corian reception and 3D milled wall cladding.' },
+    result: { ro: 'Un design futurist care inspiră încredere și profesionalism.', en: 'A futuristic design inspiring trust and professionalism.' },
+    techSpecs: [{ label: 'Material', value: 'Corian & MDF' }, { label: 'Forme', value: 'Curbe 3D CNC' }],
+    metrics: { duration: '6 Săptămâni', finish: 'Satin', materials: 'Corian', hardware: 'Hafele', services: ['CNC', 'Termoformare'] }
+  },
+  {
+    id: 'p3', slug: 'casa-privata-brasov', title: { ro: 'Vilă Brașov', en: 'Brasov Villa' },
+    summary: { ro: 'Mobilier integral pentru o reședință de vacanță, stil nordic.', en: 'Full furniture for a holiday residence, Nordic style.' },
+    timelineDate: lastMonth, publishedAt: lastMonth, isPublished: true, createdAt: lastMonth, updatedAt: lastMonth,
+    projectType: 'Rezidențial', location: { ro: 'Brașov', en: 'Brasov' }, tags: ['Lemn Masiv', 'Furnir', 'Rezidențial'], isFeatured: false,
+    coverMediaId: 'm4',
+    heroConfig: { mode: 'image', imageId: 'm4', overlay: { intensity: 50, vignette: true, grain: true } },
+    clientBrief: { ro: 'Cald, natural, durabil.', en: 'Warm, natural, durable.' },
+    ourSolution: { ro: 'Furnir de stejar natur și accente de metal negru.', en: 'Natural oak veneer and black metal accents.' },
+    result: { ro: 'O casă de vacanță primitoare.', en: 'A welcoming holiday home.' },
+    techSpecs: [{ label: 'Fronturi', value: 'Furnir Stejar' }, { label: 'Structură', value: 'PAL Egger' }],
+    metrics: { duration: '10 Săptămâni', finish: 'Ulei Natural', materials: 'Furnir, Metal', hardware: 'Blum', services: ['Mobilier', 'Metal confecționat'] }
+  }
+];
+
+// --- 7. PROCESS SEED ---
+const SEED_PROCESS: ProcessStep[] = [
+  {
+    id: 'ps1', order: 1, isVisible: true, mediaId: 's2-hero',
+    title: { ro: 'Consultanță & Măsurători', en: 'Consultation & Survey' },
+    description: { ro: 'Primul pas este înțelegerea nevoilor tale. Venim la fața locului pentru măsurători laser de precizie și discutăm materialele, bugetul și termenele.', en: 'First step is understanding your needs. We come on site for precision laser measurements and discuss materials, budget and deadlines.' },
+    bullets: [{ ro: 'Măsurători digitale', en: 'Digital measurements' }, { ro: 'Mostrare materiale', en: 'Material samples' }, { ro: 'Estimare buget', en: 'Budget estimation' }],
+    cta: { label: { ro: 'Programează o vizită', en: 'Schedule a visit' }, href: '/contact' }
+  },
+  {
+    id: 'ps2', order: 2, isVisible: true, mediaId: 's1-hero',
+    title: { ro: 'Proiectare Tehnică', en: 'Technical Design' },
+    description: { ro: 'Transformăm ideile în planuri de execuție. Inginerii noștri desenează fiecare corp în software CAD/CAM pentru a elimina erorile și a optimiza materialul.', en: 'We turn ideas into execution plans. Our engineers draw every cabinet in CAD/CAM software to eliminate errors and optimize material.' },
+    bullets: [{ ro: 'Randări 3D', en: '3D Renders' }, { ro: 'Planuri instalații', en: 'Installation plans' }, { ro: 'Ofertă finală', en: 'Final quote' }],
+    cta: { label: { ro: 'Vezi servicii', en: 'See services' }, href: '/servicii' }
+  },
+  {
+    id: 'ps3', order: 3, isVisible: true, mediaId: 's3-hero',
+    title: { ro: 'Producție & Finisare', en: 'Production & Finishing' },
+    description: { ro: 'Proiectul intră în fabrică. Debitarea se face pe CNC, iar vopsirea în cabină presurizată. Totul se pre-asamblează în atelier pentru verificare.', en: 'Project goes to factory. Cutting on CNC, painting in pressurized booth. Everything is pre-assembled in workshop for check.' },
+    bullets: [{ ro: 'Precizie CNC', en: 'CNC Precision' }, { ro: 'Vopsire 2K', en: '2K Painting' }, { ro: 'Pre-montaj', en: 'Pre-assembly' }],
+    cta: { label: { ro: 'Tehnologia noastră', en: 'Our technology' }, href: '/despre' }
+  },
+  {
+    id: 'ps4', order: 4, isVisible: true, mediaId: 's4-hero',
+    title: { ro: 'Livrare & Montaj', en: 'Delivery & Install' },
+    description: { ro: 'Echipa noastră transportă și montează mobilierul. Protejăm spațiul clientului și lăsăm totul curat ("white-glove service").', en: 'Our team transports and installs the furniture. We protect the client space and leave everything clean ("white-glove service").' },
+    bullets: [{ ro: 'Transport propriu', en: 'Own transport' }, { ro: 'Aspirare finală', en: 'Final vacuuming' }, { ro: 'Reglaje fine', en: 'Fine adjustments' }],
+    cta: { label: { ro: 'Cere ofertă', en: 'Get quote' }, href: '/cerere-oferta' }
+  }
+];
 
 const SEED_DATA: AppDB = {
   settings: {
@@ -71,461 +409,13 @@ const SEED_DATA: AppDB = {
       slides: []
     }
   },
-  services: [
-    {
-      id: 'custom-furniture',
-      slug: 'mobilier-la-comanda',
-      order: 1,
-      isPublished: true,
-      title: { ro: 'Mobilier la Comandă', en: 'Custom Furniture' },
-      subtitle: { ro: 'Rezidențial & HoReCa', en: 'Residential & HoReCa' },
-      shortDescription: { 
-        ro: 'Mobilier premium realizat pe comandă, adaptat perfect spațiului tău — de la bucătării și dressinguri până la proiecte comerciale complete.', 
-        en: 'Premium custom-made furniture, perfectly adapted to your space — from kitchens and walk-in closets to complete commercial projects.' 
-      },
-      fullDescription: {
-        ro: 'Creăm mobilier care redefinește spațiile. Fie că este vorba de o reședință privată sau un spațiu HoReCa, abordarea noastră integrează ergonomia, estetica și funcționalitatea absolută.',
-        en: 'We create furniture that redefines spaces. Whether it represents a private residence or a HoReCa space, our approach integrates ergonomics, aesthetics, and absolute functionality.'
-      },
-      heroMediaId: 'm-azure-hero',
-      bullets: [
-        { ro: 'Proiectare + măsurători precise', en: 'Design + precise measurements' },
-        { ro: 'Materiale premium (MDF vopsit, Furnir, Ceramică)', en: 'Premium materials (Painted MDF, Veneer, Ceramics)' },
-        { ro: 'Executat milimetric, pregătit pentru montaj', en: 'Millimetrically executed, ready for assembly' },
-        { ro: 'Soluții ascunse + ergonomie modernă', en: 'Hidden solutions + modern ergonomics' }
-      ],
-      features: [
-        { title: { ro: 'Adaptabilitate Totală', en: 'Total Adaptability' }, desc: { ro: 'Orice dimensiune, orice formă, orice material.', en: 'Any size, any shape, any material.' }, icon: '📐' },
-        { title: { ro: 'Hardware Blum/Hettich', en: 'Blum/Hettich Hardware' }, desc: { ro: 'Sisteme de glisare și ridicare de top.', en: 'Top-tier sliding and lifting systems.' }, icon: '🔩' },
-        { title: { ro: 'Iluminare Integrată', en: 'Integrated Lighting' }, desc: { ro: 'Senzori și benzi LED încastrate.', en: 'Recessed LED strips and sensors.' }, icon: '💡' }
-      ],
-      processSteps: [
-        { title: { ro: 'Consultanță', en: 'Consultation' }, desc: { ro: 'Discuție inițială și releu foto.', en: 'Initial discussion and photo survey.' } },
-        { title: { ro: 'Concept & 3D', en: 'Concept & 3D' }, desc: { ro: 'Propuneri vizuale fotorealiste.', en: 'Photorealistic visual proposals.' } },
-        { title: { ro: 'Producție', en: 'Production' }, desc: { ro: 'Debitare, frezare și asamblare în atelier.', en: 'Cutting, milling, and assembly in workshop.' } },
-        { title: { ro: 'Montaj', en: 'Installation' }, desc: { ro: 'Instalare finală la cheie.', en: 'Final turnkey installation.' } }
-      ],
-      faq: [
-        { question: { ro: 'Cât durează execuția?', en: 'How long does execution take?' }, answer: { ro: 'Între 4 și 8 săptămâni, în funcție de complexitate.', en: 'Between 4 and 8 weeks, depending on complexity.' } },
-        { question: { ro: 'Oferiți garanție?', en: 'Do you offer warranty?' }, answer: { ro: 'Da, oferim 24 luni garanție pentru structură și finisaje.', en: 'Yes, we offer 24 months warranty for structure and finishes.' } }
-      ],
-      relatedProjectTags: ['MDF Vopsit', 'Bucătărie', 'Dressing', 'Rezidențial', 'Comercial']
-    },
-    {
-      id: 'cnc',
-      slug: 'servicii-cnc-precizie',
-      order: 2,
-      isPublished: true,
-      title: { ro: 'Servicii CNC Precizie', en: 'CNC Precision Services' },
-      subtitle: { ro: 'Tehnologie Industrială', en: 'Industrial Technology' },
-      shortDescription: { 
-        ro: 'Frezare și găurire CNC cu toleranță controlată. Ideal pentru arhitecți și producători care externalizează producția.', 
-        en: 'CNC milling and drilling with controlled tolerance. Ideal for architects and manufacturers outsourcing production.' 
-      },
-      fullDescription: {
-        ro: 'Utilizăm centre de prelucrare CNC în 3 și 5 axe pentru a realiza repere complexe, panouri decorative și structuri precise. Tehnologia nesting ne permite optimizarea materialului la peste 95%.',
-        en: 'We use 3 and 5-axis CNC machining centers to create complex parts, decorative panels, and precise structures. Nesting technology allows us to optimize material usage to over 95%.'
-      },
-      heroMediaId: 'm-azure-s2-1',
-      bullets: [
-        { ro: 'Toleranță până la 0.1mm', en: 'Tolerance up to 0.1mm' },
-        { ro: 'Găurire automată + canturi curate', en: 'Automatic drilling + clean edges' },
-        { ro: 'Nesting optimizat (pierderi minime)', en: 'Optimized nesting (minimal waste)' },
-        { ro: 'Perfect pentru producție serie mică', en: 'Perfect for small batch production' }
-      ],
-      features: [
-        { title: { ro: 'Nesting Software', en: 'Nesting Software' }, desc: { ro: 'Optimizare automată a tăierilor.', en: 'Automatic cut optimization.' }, icon: '💻' },
-        { title: { ro: 'Frezare 3D', en: '3D Milling' }, desc: { ro: 'Forme organice și texturi complexe.', en: 'Organic shapes and complex textures.' }, icon: '🌀' },
-        { title: { ro: 'Capacitate Mare', en: 'High Capacity' }, desc: { ro: 'Producție rapidă pentru volume mari.', en: 'Fast production for large volumes.' }, icon: '🏭' }
-      ],
-      processSteps: [
-        { title: { ro: 'Fișiere CAD', en: 'CAD Files' }, desc: { ro: 'Primire DXF/DWG sau proiectare internă.', en: 'Receive DXF/DWG or internal design.' } },
-        { title: { ro: 'Simulare', en: 'Simulation' }, desc: { ro: 'Verificare trasee scule și coliziuni.', en: 'Check toolpaths and collisions.' } },
-        { title: { ro: 'Prelucrare', en: 'Machining' }, desc: { ro: 'Execuție pe utilaj CNC.', en: 'Execution on CNC machine.' } },
-        { title: { ro: 'Control Calitate', en: 'QC' }, desc: { ro: 'Verificare dimensiuni și bavuri.', en: 'Check dimensions and burrs.' } }
-      ],
-      faq: [
-        { question: { ro: 'Ce materiale prelucrați?', en: 'What materials do you machine?' }, answer: { ro: 'MDF, PAL, Placaj, Lemn Masiv, Corian, HPL.', en: 'MDF, Chipboard, Plywood, Solid Wood, Corian, HPL.' } }
-      ],
-      relatedProjectTags: ['CNC', 'CNC Custom', 'Frezare 3D', 'Panotări']
-    },
-    {
-      id: 'finishing',
-      slug: 'vopsitorie-2k-finisaje',
-      order: 3,
-      isPublished: true,
-      title: { ro: 'Vopsitorie 2K & Finisaje', en: '2K Painting & Finishing' },
-      subtitle: { ro: 'Calitate Automotivă', en: 'Automotive Quality' },
-      shortDescription: { 
-        ro: 'Finisaje poliuretanice premium — de la super-mat soft-touch până la high-gloss perfect uniform.', 
-        en: 'Premium polyurethane finishes — from super-matte soft-touch to perfectly uniform high-gloss.' 
-      },
-      fullDescription: {
-        ro: 'Atelierul nostru de vopsitorie dispune de cabină presurizată cu control al umidității și temperaturii. Aplicăm lacuri și vopseluri poliuretanice, acrilice sau pe bază de apă la standarde industriale.',
-        en: 'Our paint shop features a pressurized booth with humidity and temperature control. We apply polyurethane, acrylic, or water-based varnishes and paints to industrial standards.'
-      },
-      heroMediaId: 'm-azure-s2-2',
-      bullets: [
-        { ro: 'Rezistență chimică + zgârieturi', en: 'Chemical + scratch resistance' },
-        { ro: 'Potrivire nuanțe (RAL / NCS / Pantone)', en: 'Color matching (RAL / NCS / Pantone)' },
-        { ro: 'Cabină presurizată, rezultat uniform', en: 'Pressurized booth, uniform result' },
-        { ro: 'Finisaje speciale (metalic, texturat)', en: 'Special finishes (metallic, textured)' }
-      ],
-      features: [
-        { title: { ro: 'Cabină Presurizată', en: 'Pressurized Booth' }, desc: { ro: 'Zero praf, zero imperfecțiuni.', en: 'Zero dust, zero imperfections.' }, icon: '🌪️' },
-        { title: { ro: 'Colorimetrie', en: 'Colorimetry' }, desc: { ro: 'Orice nuanță din paletarele internaționale.', en: 'Any shade from international palettes.' }, icon: '🎨' },
-        { title: { ro: 'Efecte Speciale', en: 'Special Effects' }, desc: { ro: 'Metalizat, perlat, beton aparent.', en: 'Metallic, pearlescent, concrete look.' }, icon: '✨' }
-      ],
-      processSteps: [
-        { title: { ro: 'Pregătire', en: 'Prep' }, desc: { ro: 'Șlefuire și aplicare izolator.', en: 'Sanding and insulator application.' } },
-        { title: { ro: 'Grunduire', en: 'Priming' }, desc: { ro: 'Aplicare 2 straturi grund.', en: 'Applying 2 coats of primer.' } },
-        { title: { ro: 'Vopsire Finală', en: 'Final Painting' }, desc: { ro: 'Aplicare email colorat.', en: 'Applying colored enamel.' } },
-        { title: { ro: 'Uscare & Polish', en: 'Drying & Polish' }, desc: { ro: 'Uscare controlată și polișare (pt lucios).', en: 'Controlled drying and polishing (for gloss).' } }
-      ],
-      faq: [
-        { question: { ro: 'Vopsiți și fronturi vechi?', en: 'Do you paint old fronts?' }, answer: { ro: 'Doar dacă starea lor permite o refacere de calitate.', en: 'Only if their condition allows for a quality restoration.' } }
-      ],
-      relatedProjectTags: ['Vopsit 2K', 'MDF Vopsit', 'Black Matte', 'Vopsit Alb Mat', 'Lac Mat Open Pore']
-    },
-    {
-      id: 'design',
-      slug: 'proiectare-tehnica-3d',
-      order: 4,
-      isPublished: true,
-      title: { ro: 'Proiectare Tehnică 3D', en: 'Technical 3D Design' },
-      subtitle: { ro: 'De la Concept la Producție', en: 'From Concept to Production' },
-      shortDescription: { 
-        ro: 'Randări fotorealiste pentru vizualizare și fișiere tehnice CAD/CAM pregătite direct pentru producție.', 
-        en: 'Photorealistic renderings for visualization and CAD/CAM technical files ready for production.' 
-      },
-      fullDescription: {
-        ro: 'Transformăm orice schiță de mână într-un model digital complet. Generăm liste de debitare, fișiere CNC și planuri de montaj detaliate pentru a elimina orice eroare înainte de a tăia prima placă.',
-        en: 'We transform any hand sketch into a complete digital model. We generate cutting lists, CNC files, and detailed assembly plans to eliminate any error before cutting the first board.'
-      },
-      heroMediaId: 'm-azure-s1-2',
-      bullets: [
-        { ro: 'Randări 3D fotorealiste', en: 'Photorealistic 3D renderings' },
-        { ro: 'Planuri tehnice + cote exacte', en: 'Technical plans + exact dimensions' },
-        { ro: 'Optimizare costuri înainte de execuție', en: 'Cost optimization before execution' },
-        { ro: 'Eliminăm erori de producție', en: 'We eliminate production errors' }
-      ],
-      features: [
-        { title: { ro: 'Software BIM', en: 'BIM Software' }, desc: { ro: 'Parametrizare completă.', en: 'Full parameterization.' }, icon: '🖥️' },
-        { title: { ro: 'Randare 4K', en: '4K Rendering' }, desc: { ro: 'Vizualizare hiper-realistă.', en: 'Hyper-realistic visualization.' }, icon: '👁️' },
-        { title: { ro: 'BOM Automat', en: 'Auto BOM' }, desc: { ro: 'Listă de materiale generată automat.', en: 'Automatically generated Bill of Materials.' }, icon: '📋' }
-      ],
-      processSteps: [
-        { title: { ro: 'Brief', en: 'Brief' }, desc: { ro: 'Înțelegerea nevoilor clientului.', en: 'Understanding client needs.' } },
-        { title: { ro: 'Modelare', en: 'Modeling' }, desc: { ro: 'Construcția spațiului 3D.', en: 'Building the 3D space.' } },
-        { title: { ro: 'Randare', en: 'Rendering' }, desc: { ro: 'Aplicare texturi și lumini.', en: 'Applying textures and lights.' } },
-        { title: { ro: 'Planuri Tehnice', en: 'Tech Plans' }, desc: { ro: 'Export cote și detalii.', en: 'Export dimensions and details.' } }
-      ],
-      faq: [],
-      relatedProjectTags: ['Design', 'Proiectare', 'Proiectare 3D', 'Design Parametric']
-    },
-    {
-      id: 'assembly',
-      slug: 'montaj-integrare',
-      order: 5,
-      isPublished: true,
-      title: { ro: 'Montaj & Integrare', en: 'Assembly & Integration' },
-      subtitle: { ro: 'Serviciu White-Glove', en: 'White-Glove Service' },
-      shortDescription: { 
-        ro: 'Montaj profesionist și integrare perfectă în spațiu. Echipa noastră se asigură că aliniamentul este perfect.', 
-        en: 'Professional assembly and perfect integration into the space. Our team ensures perfect alignment.' 
-      },
-      fullDescription: {
-        ro: 'Ultimul pas este cel mai important. Echipele noastre proprii de montaj sunt echipate cu scule Festool de ultimă generație și aspiratoare profesionale pentru a asigura un montaj curat, rapid și silențios.',
-        en: 'The last step is the most important. Our in-house assembly teams are equipped with state-of-the-art Festool tools and professional vacuums to ensure a clean, fast, and quiet installation.'
-      },
-      heroMediaId: 'm-azure-s3-1',
-      bullets: [
-        { ro: 'Protecție pardoseală și pereți', en: 'Floor and wall protection' },
-        { ro: 'Aliniere perfectă & reglaje fine', en: 'Perfect alignment & fine adjustments' },
-        { ro: 'Integrare electrocasnice', en: 'Appliance integration' },
-        { ro: 'Predare la cheie', en: 'Turnkey handover' }
-      ],
-      features: [
-        { title: { ro: 'Echipă Proprie', en: 'In-House Team' }, desc: { ro: 'Fără subcontractori.', en: 'No subcontractors.' }, icon: '👷' },
-        { title: { ro: 'Curățenie', en: 'Cleanliness' }, desc: { ro: 'Aspirăm tot praful generat.', en: 'We vacuum all generated dust.' }, icon: '🧹' },
-        { title: { ro: 'Reglaj Fin', en: 'Fine Tuning' }, desc: { ro: 'Aliniere fronturi la milimetru.', en: 'Millimetric front alignment.' }, icon: '📏' }
-      ],
-      processSteps: [
-        { title: { ro: 'Pregătire', en: 'Prep' }, desc: { ro: 'Protejare zonă de lucru.', en: 'Protecting work area.' } },
-        { title: { ro: 'Asamblare', en: 'Assembly' }, desc: { ro: 'Montaj corpuri și structuri.', en: 'Assembling cabinets and structures.' } },
-        { title: { ro: 'Topuri & Electro', en: 'Tops & Appliances' }, desc: { ro: 'Montaj blaturi și aparatură.', en: 'Installing tops and appliances.' } },
-        { title: { ro: 'Recepție', en: 'Handover' }, desc: { ro: 'Verificare finală cu clientul.', en: 'Final check with client.' } }
-      ],
-      faq: [],
-      relatedProjectTags: ['Montaj', 'Fit-out', 'Organizare']
-    }
-  ],
-  projects: [
-    {
-      id: 'proj-1',
-      slug: 'villa-azure',
-      title: { ro: 'Villa Azure', en: 'Villa Azure' },
-      summary: { ro: 'Amenajare completă bucătărie și dressing cu accente de bronz și piatră naturală.', en: 'Complete kitchen and dressing layout with bronze accents and natural stone.' },
-      timelineDate: '2023-08-20',
-      projectType: 'Rezidențial',
-      location: { ro: 'Brașov, RO', en: 'Brasov, RO' },
-      tags: ['MDF Vopsit', 'Piatră', 'LED', 'Dressing'],
-      isFeatured: true,
-      publishedAt: today,
-      coverMediaId: 'm-azure-1',
-      isPublished: true,
-      createdAt: today,
-      updatedAt: today,
-      metrics: {
-        duration: "60 Zile",
-        finish: "Vopsit Satinat",
-        materials: "MDF + Metal + Piatră",
-        hardware: "Häfele",
-        services: ["Design", "Producție", "Montaj"]
-      },
-      heroConfig: {
-        mode: 'image',
-        imageId: 'm-azure-hero',
-        overlay: { intensity: 40, vignette: true, grain: true }
-      },
-      stages: [
-        {
-          id: 's1',
-          title: { ro: 'Măsurători & Scanare', en: 'Scan & Measure' },
-          subtitle: { ro: 'Ziua 1', en: 'Day 1' },
-          dateLabel: 'Săptămâna 1',
-          description: { ro: 'Am preluat spațiul la roșu și am efectuat o scanare laser 3D pentru a identifica imperfecțiunile pereților.', en: '3D Laser scanning of the site.' },
-          highlights: ['Scanare Leica', 'Releu Digital', 'Toleranță 1mm'],
-          media: { coverId: 'm-azure-s1-1', galleryIds: ['m-azure-s1-1', 'm-azure-s1-2'] }
-        },
-        {
-          id: 's2',
-          title: { ro: 'Producție CNC', en: 'CNC Production' },
-          subtitle: { ro: 'Ziua 15-25', en: 'Day 15-25' },
-          dateLabel: 'Săptămâna 3',
-          description: { ro: 'Frezarea parametrică a panourilor frontale și pregătirea structurilor interne.', en: 'Parametric milling.' },
-          highlights: ['Nesting Optimizat', 'MDF Hidrofugat'],
-          media: { coverId: 'm-azure-s2-1', galleryIds: ['m-azure-s2-1', 'm-azure-s2-2'] }
-        },
-        {
-          id: 's3',
-          title: { ro: 'Montaj & Finalizare', en: 'Install & Finish' },
-          subtitle: { ro: 'Ziua 55-60', en: 'Day 55-60' },
-          dateLabel: 'Săptămâna 6',
-          description: { ro: 'Asamblarea finală la client, reglajul fronturilor și integrarea electrocasnicelor.', en: 'Final assembly and adjustments.' },
-          highlights: ['Echipă Internă', 'Curățenie Finală'],
-          media: { coverId: 'm-azure-s3-1', galleryIds: ['m-azure-s3-1', 'm-azure-1'] }
-        }
-      ],
-      techSpecs: [
-        { label: "Fronturi", value: "MDF 22mm Vopsit 2K NCS S 2005-Y50R" },
-        { label: "Structură", value: "PAL Egger W1000 ST9" },
-        { label: "Feronerie", value: "Blum Legrabox + ServoDrive" },
-        { label: "Blat", value: "Piatră Naturală (Marmură)" },
-        { label: "Iluminat", value: "Loox LED 3000K, profil îngropat" }
-      ],
-      clientBrief: { ro: "Clientul a dorit o bucătărie care să ascundă complet funcționalitatea în spatele unui design sculptural.", en: "The client wanted a kitchen that completely hid functionality behind a sculptural design." },
-      ourSolution: { ro: "Am utilizat sisteme pocket doors pentru zona de electrocasnice mici și fronturi frezate CNC pentru a crea textură și adâncime.", en: "We used pocket door systems for small appliances and CNC milled fronts to create texture and depth." },
-      result: { ro: "O bucătărie care pare un monolit de piatră și lemn, complet funcțională și ergonomică.", en: "A kitchen that looks like a monolith of stone and wood, fully functional and ergonomic." }
-    },
-    {
-      id: 'proj-2',
-      slug: 'penthouse-obsidian',
-      title: { ro: 'Penthouse Obsidian', en: 'Obsidian Penthouse' },
-      summary: { ro: 'Un proiect minimalist definit prin linii drepte și finisaj 2K negru mat profund.', en: 'Minimalist project defined by straight lines and deep matte black 2K finish.' },
-      timelineDate: '2024-03-15',
-      projectType: 'Rezidențial',
-      location: { ro: 'București, RO', en: 'Bucharest, RO' },
-      tags: ['Minimalist', 'Black Matte', 'Filomuro'],
-      isFeatured: true,
-      publishedAt: today,
-      coverMediaId: 'm-obsidian-1',
-      isPublished: true,
-      createdAt: today,
-      updatedAt: today,
-      metrics: {
-        duration: "45 Zile",
-        finish: "MDF Vopsit 2K Mat",
-        materials: "MDF + Sticlă Fumurie",
-        hardware: "Blum Legrabox",
-        services: ["Proiectare 3D", "CNC", "Finisaj", "Montaj"]
-      },
-      heroConfig: {
-        mode: 'image',
-        imageId: 'm-obsidian-1',
-        overlay: { intensity: 50, vignette: true, grain: false }
-      },
-      stages: [],
-      techSpecs: [
-        { label: "Materiale", value: "MDF Vopsit Mat, Sticlă Fumurie" },
-        { label: "Feronerie", value: "Blum Onyx" }
-      ]
-    },
-    {
-      id: 'proj-3',
-      slug: 'showroom-automobilistic',
-      title: { ro: 'Showroom Automobilistic', en: 'Automotive Showroom' },
-      summary: { ro: 'Panotări CNC complexe și birouri recepție pentru un spațiu expozițional de lux.', en: 'Complex CNC wall panels and reception desks for a luxury showroom.' },
-      timelineDate: '2023-11-10',
-      projectType: 'Comercial',
-      location: { ro: 'Cluj-Napoca, RO', en: 'Cluj-Napoca, RO' },
-      tags: ['Comercial', 'CNC', 'Recepție', 'Panotări'],
-      isFeatured: false,
-      publishedAt: lastMonth,
-      coverMediaId: 'm-showroom-1',
-      isPublished: true,
-      createdAt: lastMonth,
-      updatedAt: lastMonth,
-      metrics: {
-        duration: "30 Zile",
-        finish: "Furnir Natural",
-        materials: "Placaj Mesteacăn",
-        hardware: "Heavy Duty",
-        services: ["Design Parametric", "CNC"]
-      },
-      heroConfig: {
-        mode: 'image',
-        imageId: 'm-showroom-hero',
-        overlay: { intensity: 30, vignette: true, grain: false }
-      },
-      techSpecs: [
-        { label: "Panouri", value: "MDF 18mm Frezat CNC Model Valuri" },
-        { label: "Recepție", value: "Corian Glacier White termoformat" }
-      ]
-    },
-    {
-      id: 'proj-4',
-      slug: 'bucatarie-sculpted-light',
-      title: { ro: 'Bucătărie Sculpted Light', en: 'Sculpted Light Kitchen' },
-      summary: { ro: 'Jocuri de lumină și umbră pe fronturi frezate custom, într-o reședință privată.', en: 'Play of light and shadow on custom milled fronts in a private residence.' },
-      timelineDate: '2023-10-05',
-      projectType: 'Rezidențial',
-      location: { ro: 'Timișoara, RO', en: 'Timisoara, RO' },
-      tags: ['Bucătărie', 'CNC Custom', 'Vopsit 2K'],
-      isFeatured: true,
-      publishedAt: lastMonth,
-      coverMediaId: 'm-sculpted-1',
-      isPublished: true,
-      createdAt: lastMonth,
-      updatedAt: lastMonth,
-      metrics: {
-        duration: "50 Zile",
-        finish: "Vopsit Alb Mat",
-        materials: "MDF 25mm",
-        hardware: "Blum Movento",
-        services: ["Proiectare", "Frezare 3D"]
-      },
-      heroConfig: {
-        mode: 'image',
-        imageId: 'm-sculpted-hero',
-        overlay: { intensity: 20, vignette: false, grain: true }
-      },
-      techSpecs: [
-        { label: "Fronturi", value: "MDF 25mm Frezare 3D 'Dune'" },
-        { label: "Blat", value: "Compozit Cuarț 20mm" }
-      ]
-    },
-    {
-      id: 'proj-5',
-      slug: 'hotel-lobby-noir',
-      title: { ro: 'Hotel Lobby Noir', en: 'Hotel Lobby Noir' },
-      summary: { ro: 'Mobilier recepție și bar pentru un boutique hotel, marcat de eleganță sobră.', en: 'Reception furniture and bar for a boutique hotel, marked by sober elegance.' },
-      timelineDate: '2023-09-15',
-      projectType: 'Hotel',
-      location: { ro: 'Sibiu, RO', en: 'Sibiu, RO' },
-      tags: ['Hotel', 'Bar', 'Recepție', 'Lemn Masiv'],
-      isFeatured: false,
-      publishedAt: twoMonthsAgo,
-      coverMediaId: 'm-lobby-1',
-      isPublished: true,
-      createdAt: twoMonthsAgo,
-      updatedAt: twoMonthsAgo,
-      metrics: {
-        duration: "40 Zile",
-        finish: "Baiț Negru + Lac PU",
-        materials: "Stejar Masiv",
-        hardware: "Hettich",
-        services: ["Execuție", "Montaj"]
-      },
-      heroConfig: { mode: 'image', imageId: 'm-lobby-1', overlay: { intensity: 60, vignette: true, grain: true } },
-      techSpecs: [{ label: "Bar", value: "Structură Metalică + Stejar" }]
-    },
-    {
-      id: 'proj-6',
-      slug: 'restaurant-ember-oak',
-      title: { ro: 'Restaurant Ember Oak', en: 'Ember Oak Restaurant' },
-      summary: { ro: 'Mese și banchete custom din stejar ars și piele naturală.', en: 'Custom tables and banquettes made of burnt oak and natural leather.' },
-      timelineDate: '2023-07-20',
-      projectType: 'Restaurant',
-      location: { ro: 'Oradea, RO', en: 'Oradea, RO' },
-      tags: ['Restaurant', 'HoReCa', 'Stejar'],
-      isFeatured: false,
-      publishedAt: twoMonthsAgo,
-      coverMediaId: 'm-ember-1',
-      isPublished: true,
-      createdAt: twoMonthsAgo,
-      updatedAt: twoMonthsAgo,
-      metrics: { duration: "35 Zile", finish: "Ulei Natural", materials: "Stejar", hardware: "-", services: ["Productie Serie"] },
-      techSpecs: [{ label: "Blaturi", value: "Stejar 40mm Rustic" }]
-    },
-    {
-      id: 'proj-7',
-      slug: 'office-executive-walnut',
-      title: { ro: 'Office Executive Walnut', en: 'Office Executive Walnut' },
-      summary: { ro: 'Birouri executive și săli de consiliu placate cu nuc american.', en: 'Executive offices and boardrooms paneled in American walnut.' },
-      timelineDate: '2023-06-10',
-      projectType: 'Office',
-      location: { ro: 'București, RO', en: 'Bucharest, RO' },
-      tags: ['Office', 'Nuc American', 'Corporate'],
-      isFeatured: true,
-      publishedAt: twoMonthsAgo,
-      coverMediaId: 'm-office-1',
-      isPublished: true,
-      createdAt: twoMonthsAgo,
-      updatedAt: twoMonthsAgo,
-      metrics: { duration: "55 Zile", finish: "Lac Mat Open Pore", materials: "Furnir Nuc", hardware: "Blum", services: ["Fit-out"] },
-      techSpecs: [{ label: "Placări", value: "PAL Furniruit Nuc American" }]
-    },
-    {
-      id: 'proj-8',
-      slug: 'dressing-atelier',
-      title: { ro: 'Dressing Atelier', en: 'Atelier Walk-in Closet' },
-      summary: { ro: 'Sistem walk-in closet deschis, cu insulă centrală pentru accesorii și iluminare integrată.', en: 'Open walk-in closet system with central island for accessories and integrated lighting.' },
-      timelineDate: '2023-05-05',
-      projectType: 'Rezidențial',
-      location: { ro: 'Iași, RO', en: 'Iasi, RO' },
-      tags: ['Dressing', 'Organizare', 'Premium'],
-      isFeatured: false,
-      publishedAt: twoMonthsAgo,
-      coverMediaId: 'm-dressing-1',
-      isPublished: true,
-      createdAt: twoMonthsAgo,
-      updatedAt: twoMonthsAgo,
-      metrics: { duration: "30 Zile", finish: "Melaminat Premium", materials: "Egger", hardware: "Hafele", services: ["Proiectare", "Montaj"] },
-      techSpecs: [{ label: "Structură", value: "PAL Egger U963 ST9" }]
-    }
-  ],
-  media: [
-    // Hero & Covers
-    { id: 'm-azure-hero', projectId: 'proj-1', kind: 'image', url: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=2000', room: 'Bucătărie', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: 'Hero Azure', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-azure-1', projectId: 'proj-1', kind: 'image', url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200', room: 'Bucătărie', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: 'Vedere Generală', en: '' }, shotDate: today, orderInProject: 1, createdAt: today },
-    { id: 'm-obsidian-1', projectId: 'proj-2', kind: 'image', url: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1200', room: 'Living', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: 'Living Dark', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-showroom-1', projectId: 'proj-3', kind: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200', room: 'Office', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: 'Showroom', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-showroom-hero', projectId: 'proj-3', kind: 'image', url: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000', room: 'Office', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: 'Hero Showroom', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-sculpted-1', projectId: 'proj-4', kind: 'image', url: 'https://images.unsplash.com/photo-1556911223-e4524336297c?auto=format&fit=crop&q=80&w=1200', room: 'Bucătărie', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: 'Sculpted Fronts', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-sculpted-hero', projectId: 'proj-4', kind: 'image', url: 'https://images.unsplash.com/photo-1556911223-e4524336297c?auto=format&fit=crop&q=80&w=2000', room: 'Bucătărie', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: '', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-lobby-1', projectId: 'proj-5', kind: 'image', url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200', room: 'Lobby', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: '', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-ember-1', projectId: 'proj-6', kind: 'image', url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200', room: 'Restaurant', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: '', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-office-1', projectId: 'proj-7', kind: 'image', url: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=1200', room: 'Office', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: '', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    { id: 'm-dressing-1', projectId: 'proj-8', kind: 'image', url: 'https://images.unsplash.com/photo-1558603668-6570496b66f8?auto=format&fit=crop&q=80&w=1200', room: 'Dressing', stage: 'Final', pieceTypes: [], stars: 5, caption: { ro: '', en: '' }, shotDate: today, orderInProject: 0, createdAt: today },
-    
-    // Azure Stages
-    { id: 'm-azure-s1-1', projectId: 'proj-1', kind: 'image', url: 'https://images.unsplash.com/photo-1503387762-592dea58ef21?auto=format&fit=crop&q=80&w=800', room: 'Bucătărie', stage: 'Proiectare', pieceTypes: [], stars: 0, caption: { ro: 'Scanare', en: '' }, shotDate: today, orderInProject: 2, createdAt: today },
-    { id: 'm-azure-s1-2', projectId: 'proj-1', kind: 'image', url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800', room: 'Bucătărie', stage: 'Proiectare', pieceTypes: [], stars: 0, caption: { ro: 'Draft', en: '' }, shotDate: today, orderInProject: 3, createdAt: today },
-    { id: 'm-azure-s2-1', projectId: 'proj-1', kind: 'image', url: 'https://images.unsplash.com/photo-1513828583688-c52646db42da?auto=format&fit=crop&q=80&w=800', room: 'Atelier', stage: 'Execuție', pieceTypes: [], stars: 0, caption: { ro: 'CNC Detail', en: '' }, shotDate: today, orderInProject: 4, createdAt: today },
-    { id: 'm-azure-s2-2', projectId: 'proj-1', kind: 'image', url: 'https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=800', room: 'Atelier', stage: 'Execuție', pieceTypes: [], stars: 0, caption: { ro: 'Vopsire', en: '' }, shotDate: today, orderInProject: 5, createdAt: today },
-    { id: 'm-azure-s3-1', projectId: 'proj-1', kind: 'image', url: 'https://images.unsplash.com/photo-1556911223-e4524336297c?auto=format&fit=crop&q=80&w=800', room: 'Bucătărie', stage: 'Montaj', pieceTypes: [], stars: 0, caption: { ro: 'Montaj', en: '' }, shotDate: today, orderInProject: 6, createdAt: today },
-  ],
+  about: SEED_ABOUT,
+  reviews: SEED_REVIEWS,
+  contact: SEED_CONTACT,
+  services: SEED_SERVICES,
+  processSteps: SEED_PROCESS,
+  projects: SEED_PROJECTS,
+  media: SEED_MEDIA,
   pages: [],
   leads: []
 };
@@ -538,11 +428,34 @@ class DBService {
     if (stored) {
       try {
         this.db = JSON.parse(stored);
-        // Ensure services exist
-        if (this.db && (!this.db.services || this.db.services.length === 0)) {
-           this.db.services = [...SEED_DATA.services];
-           this.save();
+        
+        let needsSave = false;
+
+        // Auto-fix: If primary collections are empty, re-inject seed data
+        if (this.db && (!this.db.projects || this.db.projects.length === 0)) {
+           this.db.projects = [...SEED_PROJECTS];
+           needsSave = true;
         }
+        if (this.db && (!this.db.services || this.db.services.length === 0)) {
+           this.db.services = [...SEED_SERVICES];
+           needsSave = true;
+        }
+        if (this.db && (!this.db.processSteps || this.db.processSteps.length === 0)) {
+           this.db.processSteps = [...SEED_PROCESS];
+           needsSave = true;
+        }
+        if (this.db && (!this.db.media || this.db.media.length === 0)) {
+           this.db.media = [...SEED_MEDIA];
+           needsSave = true;
+        }
+        
+        // Ensure other mandatory sections exist
+        if (this.db && !this.db.contact) { this.db.contact = SEED_CONTACT; needsSave = true; }
+        if (this.db && !this.db.reviews) { this.db.reviews = SEED_REVIEWS; needsSave = true; }
+        if (this.db && !this.db.about) { this.db.about = SEED_ABOUT; needsSave = true; }
+
+        if (needsSave) this.save();
+
       } catch (e) {
         this.db = { ...SEED_DATA };
         this.save();
@@ -560,7 +473,7 @@ class DBService {
     }
   }
 
-  // ... (Settings, Projects, Media, Pages, Leads methods remain same) ...
+  // ... existing getters ...
   async getSettings(): Promise<Settings> {
     const db = await this.load();
     return db.settings;
@@ -570,114 +483,68 @@ class DBService {
     db.settings = settings;
     this.save();
   }
-  async getProjects(): Promise<Project[]> {
+  
+  async getContactData(): Promise<ContactPageData> {
     const db = await this.load();
-    return db.projects;
+    return db.contact;
   }
-  async getProject(id: string): Promise<Project | undefined> {
+  async updateContactData(data: ContactPageData): Promise<void> {
     const db = await this.load();
-    return db.projects.find(p => p.id === id);
-  }
-  async getProjectBySlug(slug: string): Promise<Project | undefined> {
-    const db = await this.load();
-    return db.projects.find(p => p.slug === slug || p.id === slug);
-  }
-  async upsertProject(project: Project): Promise<void> {
-    const db = await this.load();
-    const idx = db.projects.findIndex(p => p.id === project.id);
-    if (idx >= 0) db.projects[idx] = project;
-    else db.projects.push(project);
-    this.save();
-  }
-  async deleteProject(id: string): Promise<void> {
-    const db = await this.load();
-    db.projects = db.projects.filter(p => p.id !== id);
-    db.media = db.media.filter(m => m.projectId !== id);
-    this.save();
-  }
-  async getMedia(projectId?: string): Promise<Media[]> {
-    const db = await this.load();
-    if (projectId) return db.media.filter(m => m.projectId === projectId);
-    return db.media;
-  }
-  async getMediaById(id: string): Promise<Media | undefined> {
-    const db = await this.load();
-    return db.media.find(m => m.id === id);
-  }
-  async upsertMedia(media: Media): Promise<void> {
-    const db = await this.load();
-    const idx = db.media.findIndex(m => m.id === media.id);
-    if (idx >= 0) db.media[idx] = media;
-    else db.media.push(media);
-    this.save();
-  }
-  async deleteMedia(id: string): Promise<void> {
-    const db = await this.load();
-    db.media = db.media.filter(m => m.id !== id);
-    this.save();
-  }
-  async getPages(): Promise<Page[]> {
-    const db = await this.load();
-    return db.pages;
-  }
-  async getPageBySlug(slug: string): Promise<Page | undefined> {
-    const db = await this.load();
-    return db.pages.find(p => p.slug === slug);
-  }
-  async upsertPage(page: Page): Promise<void> {
-    const db = await this.load();
-    const idx = db.pages.findIndex(p => p.id === page.id);
-    if (idx >= 0) db.pages[idx] = page;
-    else db.pages.push(page);
-    this.save();
-  }
-  async deletePage(id: string): Promise<void> {
-    const db = await this.load();
-    db.pages = db.pages.filter(p => p.id !== id);
-    this.save();
-  }
-  async getLeads(): Promise<Lead[]> {
-    const db = await this.load();
-    return db.leads;
-  }
-  async addLead(lead: Lead): Promise<void> {
-    const db = await this.load();
-    db.leads.unshift(lead);
-    this.save();
-  }
-  async updateLeadStatus(id: string, status: Lead['status']): Promise<void> {
-    const db = await this.load();
-    const lead = db.leads.find(l => l.id === id);
-    if (lead) {
-      lead.status = status;
-      this.save();
-    }
-  }
-
-  // --- NEW SERVICE METHODS ---
-  async getServices(): Promise<ServicePage[]> {
-    const db = await this.load();
-    return db.services.sort((a,b) => a.order - b.order);
-  }
-
-  async getServiceBySlug(slug: string): Promise<ServicePage | undefined> {
-    const db = await this.load();
-    return db.services.find(s => s.slug === slug);
-  }
-
-  async upsertService(service: ServicePage): Promise<void> {
-    const db = await this.load();
-    const idx = db.services.findIndex(s => s.id === service.id);
-    if (idx >= 0) db.services[idx] = service;
-    else db.services.push(service);
+    db.contact = data;
     this.save();
   }
 
-  async deleteService(id: string): Promise<void> {
+  async getAboutData(): Promise<AboutPageData> {
     const db = await this.load();
-    db.services = db.services.filter(s => s.id !== id);
+    return db.about;
+  }
+  async updateAboutData(data: AboutPageData): Promise<void> {
+    const db = await this.load();
+    db.about = data;
     this.save();
   }
+
+  // --- REVIEW METHODS ---
+  async getReviews(): Promise<Review[]> {
+    const db = await this.load();
+    return db.reviews;
+  }
+  async upsertReview(review: Review): Promise<void> {
+    const db = await this.load();
+    const idx = db.reviews.findIndex(r => r.id === review.id);
+    if (idx >= 0) db.reviews[idx] = review;
+    else db.reviews.unshift(review);
+    this.save();
+  }
+  async deleteReview(id: string): Promise<void> {
+    const db = await this.load();
+    db.reviews = db.reviews.filter(r => r.id !== id);
+    this.save();
+  }
+
+  // ... (Projects, Media, Pages, Leads, Services, Process methods) ...
+  async getProjects(): Promise<Project[]> { const db = await this.load(); return db.projects; }
+  async getProject(id: string): Promise<Project | undefined> { const db = await this.load(); return db.projects.find(p => p.id === id); }
+  async getProjectBySlug(slug: string): Promise<Project | undefined> { const db = await this.load(); return db.projects.find(p => p.slug === slug || p.id === slug); }
+  async upsertProject(project: Project): Promise<void> { const db = await this.load(); const idx = db.projects.findIndex(p => p.id === project.id); if (idx >= 0) db.projects[idx] = project; else db.projects.push(project); this.save(); }
+  async deleteProject(id: string): Promise<void> { const db = await this.load(); db.projects = db.projects.filter(p => p.id !== id); db.media = db.media.filter(m => m.projectId !== id); this.save(); }
+  async getMedia(projectId?: string): Promise<Media[]> { const db = await this.load(); if (projectId) return db.media.filter(m => m.projectId === projectId); return db.media; }
+  async getMediaById(id: string): Promise<Media | undefined> { const db = await this.load(); return db.media.find(m => m.id === id); }
+  async upsertMedia(media: Media): Promise<void> { const db = await this.load(); const idx = db.media.findIndex(m => m.id === media.id); if (idx >= 0) db.media[idx] = media; else db.media.push(media); this.save(); }
+  async deleteMedia(id: string): Promise<void> { const db = await this.load(); db.media = db.media.filter(m => m.id !== id); this.save(); }
+  async getPages(): Promise<Page[]> { const db = await this.load(); return db.pages; }
+  async getPageBySlug(slug: string): Promise<Page | undefined> { const db = await this.load(); return db.pages.find(p => p.slug === slug); }
+  async upsertPage(page: Page): Promise<void> { const db = await this.load(); const idx = db.pages.findIndex(p => p.id === page.id); if (idx >= 0) db.pages[idx] = page; else db.pages.push(page); this.save(); }
+  async deletePage(id: string): Promise<void> { const db = await this.load(); db.pages = db.pages.filter(p => p.id !== id); this.save(); }
+  async getLeads(): Promise<Lead[]> { const db = await this.load(); return db.leads; }
+  async addLead(lead: Lead): Promise<void> { const db = await this.load(); db.leads.unshift(lead); this.save(); }
+  async updateLeadStatus(id: string, status: Lead['status']): Promise<void> { const db = await this.load(); const lead = db.leads.find(l => l.id === id); if (lead) { lead.status = status; this.save(); } }
+  async getServices(): Promise<ServicePage[]> { const db = await this.load(); return db.services.sort((a,b) => a.order - b.order); }
+  async getServiceBySlug(slug: string): Promise<ServicePage | undefined> { const db = await this.load(); return db.services.find(s => s.slug === slug); }
+  async upsertService(service: ServicePage): Promise<void> { const db = await this.load(); const idx = db.services.findIndex(s => s.id === service.id); if (idx >= 0) db.services[idx] = service; else db.services.push(service); this.save(); }
+  async deleteService(id: string): Promise<void> { const db = await this.load(); db.services = db.services.filter(s => s.id !== id); this.save(); }
+  async getProcessSteps(): Promise<ProcessStep[]> { const db = await this.load(); return db.processSteps.sort((a,b) => a.order - b.order); }
+  async upsertProcessStep(step: ProcessStep): Promise<void> { const db = await this.load(); const idx = db.processSteps.findIndex(s => s.id === step.id); if (idx >= 0) db.processSteps[idx] = step; else db.processSteps.push(step); this.save(); }
 
   async exportDB(): Promise<string> {
     const db = await this.load();

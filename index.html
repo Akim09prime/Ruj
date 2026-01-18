@@ -60,36 +60,30 @@
         }
       }
     </script>
-    <style>
-      :root { --background: #F5F0E8; --surface: #FFFFFF; --surface-2: #FAF6EF; --foreground: #1A1A1A; --muted: rgba(26, 26, 26, 0.68); --border: rgba(20, 20, 20, 0.10); --accent: #B8923B; --accent-2: #D6C08B; }
-      .dark { --background: #0B0D10; --surface: #121722; --surface-2: #161C28; --foreground: #F2F2EF; --muted: rgba(242, 242, 239, 0.72); --border: rgba(255, 255, 255, 0.08); --accent: #C9A24A; --accent-2: #E3D4A6; }
-      body { background-color: var(--background); color: var(--foreground); margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-      
-      .reveal-hidden { opacity: 0; transform: translateY(30px); }
-      .reveal-visible { animation: reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-      
-      .ease-out-expo { transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1); }
-    </style>
-    
-    <script type="importmap">
+  <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "react-router-dom": "https://esm.sh/react-router-dom@6.28.0?external=react,react-dom",
-    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
-    "react-helmet-async": "https://esm.sh/react-helmet-async@2.0.5?external=react,react-dom",
+    "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module">
-      import "./index.tsx";
-    </script>
+</head>
+  <body class="bg-[#0B0D10] text-[#F2F2EF]">
+    <div id="root" class="min-h-screen">
+      <div style="height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+        <div style="width: 40px; height: 40px; border: 2px solid #333; border-top: 2px solid #C9A24A; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        <div style="margin-top: 20px; font-family: 'Times New Roman', serif; letter-spacing: 0.2em; font-size: 12px; color: #666; text-transform: uppercase;">Carvello Loading</div>
+      </div>
+      <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      </style>
+    </div>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>

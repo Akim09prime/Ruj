@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface OptimizedImageProps {
   src: string;
@@ -15,6 +15,11 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   aspectRatio = 'aspect-square' 
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Reset loading state when src changes
+  useEffect(() => {
+    setIsLoaded(false);
+  }, [src]);
 
   // Adăugăm parametri de optimizare dacă sunt link-uri de Unsplash pentru a servi WebP/dimensiuni corecte
   const optimizedSrc = src.includes('unsplash.com') 

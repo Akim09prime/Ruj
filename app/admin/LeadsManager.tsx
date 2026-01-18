@@ -35,8 +35,12 @@ export const LeadsManager: React.FC = () => {
             <thead className="bg-surface-2 border-b border-border uppercase font-bold text-muted">
                <tr>
                   <th className="p-4">Data</th>
-                  <th className="p-4">Nume</th>
-                  {filterType === 'project-feedback' && <th className="p-4">Proiect / Rating</th>}
+                  <th className="p-4">Nume / Contact</th>
+                  {filterType === 'project-feedback' ? (
+                     <th className="p-4">Proiect / Rating</th>
+                  ) : (
+                     <th className="p-4">Tip / Buget</th>
+                  )}
                   <th className="p-4">Status</th>
                   <th className="p-4 text-right">Acțiuni</th>
                </tr>
@@ -44,16 +48,25 @@ export const LeadsManager: React.FC = () => {
             <tbody>
                {filtered.map(l => (
                   <tr key={l.id} className="border-b border-border hover:bg-surface-2">
-                     <td className="p-4">{new Date(l.createdAt).toLocaleDateString()}</td>
-                     <td className="p-4 font-bold">{l.name}</td>
-                     {filterType === 'project-feedback' && (
+                     <td className="p-4 w-32">{new Date(l.createdAt).toLocaleDateString()}</td>
+                     <td className="p-4">
+                        <div className="font-bold text-sm">{l.name}</div>
+                        <div className="text-muted">{l.email}</div>
+                        <div className="text-muted">{l.phone}</div>
+                     </td>
+                     {filterType === 'project-feedback' ? (
                         <td className="p-4">
                            <div className="font-bold">{l.projectRef?.title}</div>
                            <div className="text-accent">{'★'.repeat(l.rating || 0)}</div>
                         </td>
+                     ) : (
+                        <td className="p-4">
+                           <span className="block font-bold">{l.category || l.projectType}</span>
+                           <span className="text-muted">{l.budget || '-'}</span>
+                        </td>
                      )}
                      <td className="p-4">
-                        <span className={`px-2 py-1 rounded font-bold uppercase text-[9px] ${l.status === 'approved' ? 'bg-green-500 text-white' : l.status === 'new' ? 'bg-accent text-white' : 'bg-gray-200 text-black'}`}>
+                        <span className={`px-2 py-1 rounded font-bold uppercase text-[9px] ${l.status === 'approved' || l.status === 'won' ? 'bg-green-500 text-white' : l.status === 'new' ? 'bg-accent text-white' : 'bg-gray-200 text-black'}`}>
                            {l.status}
                         </span>
                      </td>
@@ -68,12 +81,42 @@ export const LeadsManager: React.FC = () => {
 
       {selected && (
          <div className="fixed inset-0 z-50 bg-black/80 flex justify-center items-center p-6" onClick={() => setSelected(null)}>
-            <div className="bg-background w-full max-w-lg p-10 border border-border shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="bg-background w-full max-w-lg p-10 border border-border shadow-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
                <h2 className="font-serif text-3xl mb-6">{selected.type === 'project-feedback' ? 'Moderare Feedback' : 'Detalii Cerere'}</h2>
                
-               <div className="bg-surface-2 p-6 mb-6">
-                  <p className="text-sm font-bold mb-2">{selected.name} <span className="font-normal text-muted">({selected.email})</span></p>
-                  <p className="italic text-muted text-lg">"{selected.message}"</p>
+               <div className="bg-surface-2 p-6 mb-6 space-y-4">
+                  <div>
+                     <p className="text-[10px] uppercase font-bold text-muted">Client</p>
+                     <p className="text-sm font-bold">{selected.name}</p>
+                     <p className="text-xs">{selected.email} • {selected.phone}</p>
+                     <p className="text-xs">{selected.city}</p>
+                  </div>
+                  
+                  {selected.type === 'general' && (
+                     <div className="grid grid-cols-2 gap-4 border-t border-border pt-4">
+                        <div>
+                           <p className="text-[10px] uppercase font-bold text-muted">Categorie</p>
+                           <p className="text-sm">{selected.category}</p>
+                        </div>
+                        <div>
+                           <p className="text-[10px] uppercase font-bold text-muted">Buget</p>
+                           <p className="text-sm">{selected.budget || 'Nespecificat'}</p>
+                        </div>
+                        <div>
+                           <p className="text-[10px] uppercase font-bold text-muted">Termen</p>
+                           <p className="text-sm">{selected.timeline || 'Nespecificat'}</p>
+                        </div>
+                        <div>
+                           <p className="text-[10px] uppercase font-bold text-muted">Tip</p>
+                           <p className="text-sm">{selected.projectType}</p>
+                        </div>
+                     </div>
+                  )}
+
+                  <div className="border-t border-border pt-4">
+                     <p className="text-[10px] uppercase font-bold text-muted mb-2">Mesaj</p>
+                     <p className="italic text-muted text-sm leading-relaxed p-3 bg-background border border-border">"{selected.message}"</p>
+                  </div>
                </div>
 
                <div className="flex gap-2">

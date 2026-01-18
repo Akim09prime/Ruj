@@ -17,7 +17,7 @@ const LeadForm = React.lazy(() => import('./app/public/LeadForm').then(m => ({ d
 const About = React.lazy(() => import('./app/public/About').then(m => ({ default: m.About })));
 const Contact = React.lazy(() => import('./app/public/Contact').then(m => ({ default: m.Contact })));
 const Services = React.lazy(() => import('./app/public/Services').then(m => ({ default: m.Services })));
-const ServiceDetail = React.lazy(() => import('./app/public/ServiceDetail').then(m => ({ default: m.ServiceDetail }))); // NEW
+const ServiceDetail = React.lazy(() => import('./app/public/ServiceDetail').then(m => ({ default: m.ServiceDetail }))); 
 const Reviews = React.lazy(() => import('./app/public/Reviews').then(m => ({ default: m.Reviews })));
 const Process = React.lazy(() => import('./app/public/Process').then(m => ({ default: m.Process })));
 const DynamicPage = React.lazy(() => import('./app/public/DynamicPage').then(m => ({ default: m.DynamicPage })));
@@ -30,14 +30,19 @@ const MediaManager = React.lazy(() => import('./app/admin/MediaManager').then(m 
 const LeadsManager = React.lazy(() => import('./app/admin/LeadsManager').then(m => ({ default: m.LeadsManager })));
 const SettingsManager = React.lazy(() => import('./app/admin/SettingsManager').then(m => ({ default: m.SettingsManager })));
 const PageManager = React.lazy(() => import('./app/admin/PageManager').then(m => ({ default: m.PageManager })));
-const ServiceManager = React.lazy(() => import('./app/admin/ServiceManager').then(m => ({ default: m.ServiceManager }))); // NEW
+const ServiceManager = React.lazy(() => import('./app/admin/ServiceManager').then(m => ({ default: m.ServiceManager })));
+const ProcessManager = React.lazy(() => import('./app/admin/ProcessManager').then(m => ({ default: m.ProcessManager })));
+const AboutManager = React.lazy(() => import('./app/admin/AboutManager').then(m => ({ default: m.AboutManager })));
+const ReviewsManager = React.lazy(() => import('./app/admin/ReviewsManager').then(m => ({ default: m.ReviewsManager })));
+const ContactPageManager = React.lazy(() => import('./app/admin/ContactPageManager').then(m => ({ default: m.ContactPageManager }))); 
 const ProjectMediaReorder = React.lazy(() => import('./app/admin/ProjectMediaReorder').then(m => ({ default: m.ProjectMediaReorder })));
 const HeroManager = React.lazy(() => import('./app/admin/HeroManager').then(m => ({ default: m.HeroManager })));
 
 // Loading Component
 const LoadingFallback = () => (
-  <div className="min-h-[50vh] flex items-center justify-center">
-    <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin"></div>
+  <div className="min-h-screen flex flex-col items-center justify-center bg-background">
+    <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin mb-4"></div>
+    <span className="text-[10px] uppercase tracking-widest text-muted">Loading Application...</span>
   </div>
 );
 
@@ -72,14 +77,18 @@ const AdminLayout: React.FC = () => {
           <Link to="/admin" className="text-[10px] uppercase font-bold tracking-widest hover:text-accent">Dashboard</Link>
           <div className="pt-4 border-t border-border/50">
              <Link to="/admin/projects" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Proiecte</Link>
-             <Link to="/admin/services" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4 text-accent">Servicii</Link>
+             <Link to="/admin/services" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Servicii</Link>
+             <Link to="/admin/process" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Proces</Link>
+             <Link to="/admin/about" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Despre</Link>
+             <Link to="/admin/contact-settings" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Contact Info</Link>
+             <Link to="/admin/reviews" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Recenzii</Link>
              <Link to="/admin/media" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Media</Link>
              <Link to="/admin/pages" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Pagini</Link>
-             <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Leads</Link>
+             <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4 text-accent">Mesaje & Leads</Link>
           </div>
           <div className="mt-auto space-y-4">
-            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent text-accent">Hero Manager</Link>
-            <Link to="/admin/settings" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent">Setări</Link>
+            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent">Hero Manager</Link>
+            <Link to="/admin/settings" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent">Setări Globale</Link>
             <button onClick={handleLogout} className="text-left text-[9px] uppercase font-bold text-red-500 hover:underline">Logout & Exit</button>
           </div>
         </nav>
@@ -121,13 +130,13 @@ const App: React.FC = () => {
   const [settings, setSettings] = useState<Settings>();
 
   useEffect(() => {
-    dbService.getSettings().then(setSettings);
+    dbService.getSettings().then(setSettings).catch(console.error);
   }, []);
 
   return (
     <ThemeProvider>
       <I18nProvider>
-        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <Router>
           <Routes>
             <Route path="/" element={<PublicLayout settings={settings} />}>
               <Route index element={<Home />} />
@@ -136,7 +145,7 @@ const App: React.FC = () => {
               <Route path="galerie-mobilier" element={<Gallery />} />
               
               <Route path="servicii" element={<Services />} />
-              <Route path="servicii/:slug" element={<ServiceDetail />} /> {/* NEW ROUTE */}
+              <Route path="servicii/:slug" element={<ServiceDetail />} />
               
               <Route path="proces-garantii" element={<Process />} />
               <Route path="recenzii" element={<Reviews />} />
@@ -156,7 +165,11 @@ const App: React.FC = () => {
               <Route index element={<Dashboard />} />
               <Route path="projects" element={<ProjectManager />} />
               <Route path="projects/:id/media" element={<ProjectMediaReorder />} />
-              <Route path="services" element={<ServiceManager />} /> {/* NEW ROUTE */}
+              <Route path="services" element={<ServiceManager />} />
+              <Route path="process" element={<ProcessManager />} />
+              <Route path="about" element={<AboutManager />} />
+              <Route path="contact-settings" element={<ContactPageManager />} /> 
+              <Route path="reviews" element={<ReviewsManager />} />
               <Route path="media" element={<MediaManager />} />
               <Route path="pages" element={<PageManager />} />
               <Route path="leads" element={<LeadsManager />} />

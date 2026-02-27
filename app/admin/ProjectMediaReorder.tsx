@@ -65,8 +65,9 @@ export const ProjectMediaReorder: React.FC = () => {
   if (!project) return <div className="p-8">Se încarcă...</div>;
 
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="flex justify-between items-center mb-8 pb-6 border-b border-border">
+    <>
+      <div className="p-8 animate-fade-in">
+        <div className="flex justify-between items-center mb-8 pb-6 border-b border-border">
         <div>
           <Link to="/admin/projects" className="text-[10px] uppercase font-bold text-accent mb-2 block hover:underline">← Înapoi la Proiecte</Link>
           <h1 className="font-serif text-3xl">Galerie Proiect: {project.title.ro}</h1>
@@ -102,6 +103,7 @@ export const ProjectMediaReorder: React.FC = () => {
         ))}
         {media.length === 0 && <div className="col-span-full py-20 text-center border-2 border-dashed border-border text-muted uppercase text-[10px] font-bold">Galeria este goală</div>}
       </div>
+      </div>
 
       {isAdding && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
@@ -127,6 +129,6 @@ export const ProjectMediaReorder: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

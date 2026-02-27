@@ -50,8 +50,9 @@ export const ProcessManager: React.FC = () => {
   };
 
   return (
-    <div className="p-8 animate-fade-in max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-12">
+    <>
+      <div className="p-8 animate-fade-in max-w-6xl mx-auto">
+        <div className="flex justify-between items-center mb-12">
         <div>
            <h1 className="font-serif text-4xl mb-2">Workflow Manager</h1>
            <p className="text-muted text-xs uppercase tracking-widest font-bold">Editează pașii din pagina Proces</p>
@@ -92,6 +93,7 @@ export const ProcessManager: React.FC = () => {
              </div>
           </div>
         ))}
+      </div>
       </div>
 
       {editing && (
@@ -163,6 +165,6 @@ export const ProcessManager: React.FC = () => {
            </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

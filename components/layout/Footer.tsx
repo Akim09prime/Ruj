@@ -8,8 +8,11 @@ interface FooterProps {
   settings?: Settings;
 }
 
+declare const __BUILD_VERSION__: string;
+
 export const Footer: React.FC<FooterProps> = ({ settings }) => {
   const { t, lang } = useI18n();
+  const version = typeof __BUILD_VERSION__ !== 'undefined' ? __BUILD_VERSION__ : 'DEV';
   
   if (!settings) return null;
 
@@ -58,9 +61,12 @@ export const Footer: React.FC<FooterProps> = ({ settings }) => {
         </div>
 
         <div className="pt-12 border-t border-border flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted/60">
-            {t(settings.footer.legal)}
-          </p>
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted/60">
+              {t(settings.footer.legal)}
+            </p>
+            <span className="text-[8px] text-muted/30 font-mono">v{version}</span>
+          </div>
           <div className="flex space-x-8 text-[10px] uppercase tracking-[0.2em] text-muted/60">
             <Link to="/contact" className="hover:text-foreground">Politica de Confidențialitate</Link>
             <Link to="/contact" className="hover:text-foreground">Termeni și Condiții</Link>

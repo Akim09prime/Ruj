@@ -83,10 +83,11 @@ export const Reviews: React.FC = () => {
   const featuredReviews = reviews.filter(r => r.isFeatured).slice(0, 3);
 
   return (
-    <div className="bg-background text-foreground animate-fade-in">
-      
-      {/* 1) CINEMATIC HERO */}
-      <section className="relative py-32 px-6 text-center bg-black overflow-hidden border-b border-white/10">
+    <>
+      <div className="bg-background text-foreground animate-fade-in">
+        
+        {/* 1) CINEMATIC HERO */}
+        <section className="relative py-32 px-6 text-center bg-black overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 z-0 opacity-40">
            <OptimizedImage 
              src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=2000" 
@@ -233,6 +234,7 @@ export const Reviews: React.FC = () => {
             </button>
          </div>
       </section>
+      </div>
 
       {/* 5) MODAL FORM */}
       {showForm && (
@@ -344,7 +346,6 @@ export const Reviews: React.FC = () => {
             </div>
          </div>
       )}
-
-    </div>
+    </>
   );
 };

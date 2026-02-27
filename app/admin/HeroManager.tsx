@@ -19,6 +19,16 @@ export const HeroManager: React.FC = () => {
 
   const handleSave = async () => {
     if (!settings || !hero) return;
+    
+    // Validation for Slider Mode
+    if (hero.mode === 'slider') {
+      const validSlides = hero.slides.filter(s => s.imageUrl && s.imageUrl.trim() !== '');
+      if (validSlides.length === 0) {
+        alert('Eroare: Modul Slider necesită cel puțin un slide valid (cu imagine)!');
+        return;
+      }
+    }
+
     setSaving(true);
     const updatedSettings = { ...settings, hero: hero };
     await dbService.updateSettings(updatedSettings);
@@ -27,20 +37,23 @@ export const HeroManager: React.FC = () => {
     alert('Configurație Hero salvată!');
   };
 
-  // Helper for File Upload to Base64
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'videoUrl' | 'posterUrl') => {
+  // Helper for File Upload to Server
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'videoUrl' | 'posterUrl') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = () => {
+    try {
+      const url = await dbService.uploadFile(file);
       if (hero) {
-        setHero({ ...hero, [field]: reader.result as string });
+        setHero({ ...hero, [field]: url });
       }
+    } catch (err) {
+      console.error(err);
+      alert("Eroare la încărcarea fișierului.");
+    } finally {
       setUploading(false);
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const updateSlide = (idx: number, field: keyof HeroSlide, val: any) => {
@@ -84,13 +97,42 @@ export const HeroManager: React.FC = () => {
           <h1 className="font-serif text-4xl mb-2">Hero System Manager</h1>
           <p className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold">Configurează aspectul primei secțiuni din Home Page</p>
         </div>
-        <button 
-          onClick={handleSave}
-          disabled={saving || uploading}
-          className="bg-accent text-white px-10 py-3 text-[10px] uppercase font-bold tracking-widest shadow-xl shadow-accent/20 hover:scale-105 transition-all disabled:opacity-50"
-        >
-          {saving ? 'Se salvează...' : 'Salvează Modificările'}
-        </button>
+        <div className="flex gap-4">
+          <button 
+            onClick={async () => {
+              if (confirm('Sigur vrei să resetezi Hero la setările implicite? Vei pierde modificările curente.')) {
+                const defaultHero: HeroConfig = {
+                  mode: 'slider', enabled: true, height: 'fullscreen', overlayStrength: 45, align: 'center',
+                  eyebrow: { ro: 'CARVELLO — Mobilier premium', en: 'CARVELLO — Premium furniture' },
+                  titleLine1: { ro: 'Mobilier la comandă.', en: 'Custom furniture.' },
+                  titleLine2: { ro: 'Executat milimetric.', en: 'Millimetrically executed.' },
+                  subtitle: { ro: 'Producție CNC și finisaje de lux.', en: 'CNC production and luxury finishes.' },
+                  microFeatures: ['3D', 'CNC', '2K Paint'],
+                  primaryCta: { label: { ro: 'Cere ofertă', en: 'Get Quote' }, href: '/cerere-oferta' },
+                  secondaryCta: { label: { ro: 'Portofoliu', en: 'Portfolio' }, href: '/portofoliu', visible: true },
+                  videoUrl: '', posterUrl: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=2000',
+                  muted: true, loop: true, showPlayButton: false, autoplay: true, interval: 6000, slides: []
+                };
+                setHero(defaultHero);
+                // Auto-save
+                if (settings) {
+                  await dbService.updateSettings({ ...settings, hero: defaultHero });
+                  alert('Hero resetat cu succes!');
+                }
+              }
+            }}
+            className="bg-red-500/10 text-red-500 border border-red-500/20 px-6 py-3 text-[10px] uppercase font-bold tracking-widest hover:bg-red-500 hover:text-white transition-all"
+          >
+            Reset Default
+          </button>
+          <button 
+            onClick={handleSave}
+            disabled={saving || uploading}
+            className="bg-accent text-white px-10 py-3 text-[10px] uppercase font-bold tracking-widest shadow-xl shadow-accent/20 hover:scale-105 transition-all disabled:opacity-50"
+          >
+            {saving ? 'Se salvează...' : 'Salvează Modificările'}
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-8 border-b border-border">
@@ -298,6 +340,14 @@ export const HeroManager: React.FC = () => {
                <div className="flex items-center space-x-2">
                   <input type="checkbox" checked={hero.loop} onChange={e => setHero({...hero, loop: e.target.checked})} />
                   <label className="text-xs">Loop</label>
+               </div>
+               <div className="flex items-center space-x-2">
+                  <input type="checkbox" checked={hero.autoplay} onChange={e => setHero({...hero, autoplay: e.target.checked})} />
+                  <label className="text-xs">Autoplay</label>
+               </div>
+               <div className="flex items-center space-x-2">
+                  <input type="checkbox" checked={hero.showPlayButton} onChange={e => setHero({...hero, showPlayButton: e.target.checked})} />
+                  <label className="text-xs">Show Play Button</label>
                </div>
             </div>
           </div>

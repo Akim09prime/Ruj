@@ -38,8 +38,9 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="flex justify-between items-center mb-16">
+    <>
+      <div className="p-8 animate-fade-in">
+        <div className="flex justify-between items-center mb-16">
         <div>
           <h1 className="font-serif text-4xl mb-2">Control Panel</h1>
           <p className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold italic">Bine ai revenit în inima digitală CARVELLO</p>
@@ -106,11 +107,12 @@ export const Dashboard: React.FC = () => {
           </div>
           <div className="p-10 grid grid-cols-2 gap-6">
              <Link to="/admin/settings" className="p-6 border border-border hover:bg-accent hover:text-white hover:border-accent transition-all text-center text-[10px] uppercase font-bold tracking-widest">Nomenclatoare</Link>
-             <Link to="/admin/pages" className="p-6 border border-border hover:bg-accent hover:text-white hover:border-accent transition-all text-center text-[10px] uppercase font-bold tracking-widest">Editor Pagini</Link>
+             <Link to="/admin/hero" className="p-6 border border-border hover:bg-accent hover:text-white hover:border-accent transition-all text-center text-[10px] uppercase font-bold tracking-widest">Editor Hero</Link>
              <Link to="/" className="p-6 border border-border hover:bg-accent hover:text-white hover:border-accent transition-all text-center text-[10px] uppercase font-bold tracking-widest">Vezi Site Public</Link>
              <button onClick={() => window.location.reload()} className="p-6 border border-border hover:bg-accent hover:text-white hover:border-accent transition-all text-center text-[10px] uppercase font-bold tracking-widest">Refresh App</button>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Reset System Modal */}
@@ -129,6 +131,6 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

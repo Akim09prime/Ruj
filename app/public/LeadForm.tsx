@@ -63,7 +63,7 @@ export const LeadForm: React.FC = () => {
       }
 
       // --- B: API Send ---
-      const res = await fetch("/api/lead-email", {
+      const res = await fetch("/api/contact.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

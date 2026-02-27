@@ -200,7 +200,7 @@ export const Services: React.FC = () => {
       {/* 5) FINAL CINEMATIC CTA */}
       <section className="relative py-32 px-6 text-center overflow-hidden bg-black">
          <div className="absolute inset-0 opacity-40">
-            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000" className="w-full h-full object-cover" alt="" />
+            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000" loading="lazy" className="w-full h-full object-cover" alt="" />
          </div>
          <div className="absolute inset-0 bg-black/60"></div>
          

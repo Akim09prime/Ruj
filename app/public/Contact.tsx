@@ -52,238 +52,274 @@ export const Contact: React.FC = () => {
       userAgent: navigator.userAgent
     };
 
-    try {
-      // 1. Save to Local DB (Best effort)
-      await dbService.addLead(lead);
-
-      // 2. Send Actual Email
-      const res = await fetch("/api/lead-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(lead),
-      });
-
-      if (!res.ok) {
-        console.warn('Email API returned non-200 status, but lead was saved locally.');
+      try {
+        // 1. Send to Server (Email + Save)
+        try {
+          const res = await fetch("/api/contact.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(lead),
+          });
+  
+          const json = await res.json();
+  
+          if (!res.ok || !json.ok) {
+            if (import.meta.env.DEV) {
+              console.warn('Email API Error:', json);
+            }
+            // If server fails, we can't save locally anymore as we moved to server-side DB.
+            // But we can try to save to localStorage as a temporary backup if we really wanted to, 
+            // but the requirement is to move away from localStorage.
+            // So we just handle the error.
+            throw new Error(json.error || 'Server error');
+          } else {
+            if (import.meta.env.DEV) {
+              console.log('Email sent/saved successfully:', json);
+            }
+          }
+        } catch (netErr) {
+          if (import.meta.env.DEV) {
+            console.error("Network error sending email:", netErr);
+          }
+          throw netErr; // Re-throw to trigger outer catch
+        }
+  
+        // 2. UI Success
+        setFormStatus('success');
+        setTimeout(() => {
+          setFormData({ 
+            name: '', email: '', phone: '', city: '', 
+            projectType: 'Rezidențial', category: 'Bucătărie', 
+            budget: '', timeline: 'Urgent', message: '', gdpr: false 
+          });
+          setFormStatus('idle');
+        }, 5000);
+  
+      } catch (err) {
+        if (import.meta.env.DEV) {
+          console.error("Submission failed completely", err);
+        }
+        setFormStatus('error');
+        alert("A apărut o eroare. Te rugăm să încerci din nou sau să ne suni.");
       }
-
-      // 3. UI Success
-      setFormStatus('success');
-      setTimeout(() => {
-        setFormData({ 
-          name: '', email: '', phone: '', city: '', 
-          projectType: 'Rezidențial', category: 'Bucătărie', 
-          budget: '', timeline: 'Urgent', message: '', gdpr: false 
-        });
-        setFormStatus('idle');
-      }, 5000);
-
-    } catch (err) {
-      console.error("Submission failed", err);
-      // Still show success if local DB worked, otherwise error
-      setFormStatus('success'); // Assume local save worked
-    }
-  };
-
-  if (loading) return <div className="h-screen flex items-center justify-center"><Skeleton className="w-16 h-16 rounded-full" /></div>;
-  if (!data) return null;
-
-  return (
-    <div className="bg-background text-foreground animate-fade-in">
-      
-      {/* 1) HERO CINEMATIC */}
-      <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <OptimizedImage 
-            src="https://images.unsplash.com/photo-1534349762913-92499696587a?auto=format&fit=crop&q=80&w=2000"
-            alt="Contact Atelier"
-            className="w-full h-full object-cover animate-slow-zoom"
-          />
-          <div className="absolute inset-0 bg-black/60"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
-        </div>
+    };
+  
+    if (loading) return <div className="h-screen flex items-center justify-center"><Skeleton className="w-16 h-16 rounded-full" /></div>;
+    if (!data) return null;
+  
+    // Helper to validate map URL
+    const isValidMapUrl = (url?: string) => url && url.startsWith('https://');
+  
+    return (
+      <div className="bg-background text-foreground animate-fade-in">
         
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
-          <h1 className="font-serif text-5xl md:text-7xl mb-6 animate-slide-up">
-            {t(data.hero.title)}
-          </h1>
-          <p className="text-lg md:text-xl font-light text-white/80 max-w-2xl mx-auto leading-relaxed mb-10 animate-slide-up-delayed">
-            {t(data.hero.subtitle)}
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-6 animate-slide-up-delayed">
-            <button 
-              onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-10 py-4 bg-accent text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-accent transition-all shadow-xl"
-            >
-              {t(data.hero.ctaPrimary)}
-            </button>
-            {data.info.whatsappLink && (
-              <a 
-                href={data.info.whatsappLink} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="px-10 py-4 border border-white/30 text-white font-bold uppercase tracking-widest text-xs hover:bg-[#25D366] hover:border-[#25D366] transition-all flex items-center justify-center gap-2"
-              >
-                <span>{t(data.hero.ctaSecondary)}</span>
-              </a>
-            )}
+        {/* 1) HERO CINEMATIC */}
+        <section className="relative h-[60vh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 z-0">
+            <OptimizedImage 
+              src="https://images.unsplash.com/photo-1534349762913-92499696587a?auto=format&fit=crop&q=80&w=2000"
+              alt="Contact Atelier"
+              className="w-full h-full object-cover animate-slow-zoom"
+            />
+            <div className="absolute inset-0 bg-black/60"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
           </div>
-        </div>
-      </section>
-
-      {/* 2) QUICK CONTACT CARDS */}
-      <section className="py-20 px-6 max-w-7xl mx-auto -mt-20 relative z-20">
-         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
-               <div className="text-accent text-3xl mb-4">📞</div>
-               <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Telefon</h3>
-               <a href={`tel:${data.info.phone}`} className="font-serif text-xl font-bold group-hover:text-accent transition-colors">{data.info.phone}</a>
+          
+          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
+            <h1 className="font-serif text-5xl md:text-7xl mb-6 animate-slide-up">
+              {t(data.hero.title)}
+            </h1>
+            <p className="text-lg md:text-xl font-light text-white/80 max-w-2xl mx-auto leading-relaxed mb-10 animate-slide-up-delayed">
+              {t(data.hero.subtitle)}
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-6 animate-slide-up-delayed">
+              <button 
+                onClick={() => document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-10 py-4 bg-accent text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-accent transition-all shadow-xl"
+              >
+                {t(data.hero.ctaPrimary)}
+              </button>
+              {data.info.whatsappLink && (
+                <a 
+                  href={data.info.whatsappLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="px-10 py-4 border border-white/30 text-white font-bold uppercase tracking-widest text-xs hover:bg-[#25D366] hover:border-[#25D366] transition-all flex items-center justify-center gap-2"
+                >
+                  <span>{t(data.hero.ctaSecondary)}</span>
+                </a>
+              )}
             </div>
-            <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
-               <div className="text-accent text-3xl mb-4">✉️</div>
-               <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Email</h3>
-               <a href={`mailto:${data.info.email}`} className="font-serif text-xl font-bold group-hover:text-accent transition-colors">{data.info.email}</a>
-            </div>
-            <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
-               <div className="text-accent text-3xl mb-4">📍</div>
-               <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Adresă</h3>
-               <p className="font-serif text-lg">{data.info.city}, {data.info.address}</p>
-            </div>
-            <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
-               <div className="text-accent text-3xl mb-4">⏱</div>
-               <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">{data.info.hours}</h3>
-               <p className="text-xs text-muted">{t(data.info.responseBuffer)}</p>
-            </div>
-         </div>
-      </section>
-
-      <section className="py-20 px-6 max-w-7xl mx-auto" id="contact-form">
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-            
-            {/* 3) PREMIUM FORM */}
-            <div>
-               <h2 className="font-serif text-4xl mb-8">Cere Ofertă</h2>
-               
-               {formStatus === 'success' ? (
-                  <div className="bg-surface-2 border border-accent/20 p-12 text-center animate-fade-in">
-                     <div className="text-6xl text-accent mb-6">✓</div>
-                     <h3 className="font-serif text-3xl mb-4">Mesaj Primit!</h3>
-                     <p className="text-muted leading-relaxed mb-8">
-                        Solicitarea ta a fost înregistrată. Un consultant Carvello va analiza detaliile și te va contacta în curând.
-                     </p>
-                     <Link to="/proces-garantii" className="inline-block px-8 py-3 bg-foreground text-background text-xs uppercase font-bold tracking-widest hover:bg-accent hover:text-white transition-all">
-                        Vezi cum lucrăm
-                     </Link>
-                  </div>
-               ) : (
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                     <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Nume</label>
-                           <input required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="Nume complet" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Telefon</label>
-                           <input required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="07xx xxx xxx" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
-                        </div>
-                     </div>
-                     
-                     <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Email</label>
-                           <input required type="email" className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="email@domeniu.ro" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Oraș</label>
-                           <input required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="Locație proiect" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Categorie</label>
-                           <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                              <option value="Bucătărie">Bucătărie</option>
-                              <option value="Dressing">Dressing</option>
-                              <option value="Living">Living</option>
-                              <option value="Baie">Baie</option>
-                              <option value="Comercial">Comercial</option>
-                              <option value="CNC">Servicii CNC</option>
-                              <option value="Altul">Altul</option>
-                           </select>
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Tip Proiect</label>
-                           <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.projectType} onChange={e => setFormData({...formData, projectType: e.target.value})}>
-                              <option value="Rezidențial">Rezidențial</option>
-                              <option value="Comercial">Comercial</option>
-                           </select>
-                        </div>
-                     </div>
-
-                     <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Buget Estimativ</label>
-                           <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.budget} onChange={e => setFormData({...formData, budget: e.target.value})}>
-                              <option value="">Alege interval...</option>
-                              <option value="< 5.000€">Sub 5.000€</option>
-                              <option value="5.000 - 10.000€">5.000 - 10.000€</option>
-                              <option value="10.000 - 20.000€">10.000 - 20.000€</option>
-                              <option value="> 20.000€">Peste 20.000€</option>
-                           </select>
-                        </div>
-                        <div className="space-y-2">
-                           <label className="text-[10px] uppercase font-bold text-muted">Termen Execuție</label>
-                           <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.timeline} onChange={e => setFormData({...formData, timeline: e.target.value})}>
-                              <option value="Urgent">Urgent (imposibil de obicei)</option>
-                              <option value="2-4 Săptămâni">2-4 Săptămâni</option>
-                              <option value="1-2 Luni">1-2 Luni</option>
-                              <option value="Flexibil">Flexibil</option>
-                           </select>
-                        </div>
-                     </div>
-
-                     <div className="space-y-2">
-                        <label className="text-[10px] uppercase font-bold text-muted">Mesaj Detaliat</label>
-                        <textarea required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent h-32 resize-none" placeholder="Descrie proiectul, materiale preferate, particularități..." value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} />
-                     </div>
-
-                     <div className="p-6 border-2 border-dashed border-border text-center hover:bg-surface-2 cursor-pointer transition-colors relative">
-                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
-                        <span className="text-2xl block mb-2">📎</span>
-                        <span className="text-[10px] uppercase font-bold text-muted">Adaugă Schiță / Imagine (Opțional)</span>
-                     </div>
-
-                     <div className="flex items-start gap-3">
-                        <input type="checkbox" required checked={formData.gdpr} onChange={e => setFormData({...formData, gdpr: e.target.checked})} className="mt-1 accent-accent" />
-                        <label className="text-[10px] text-muted">Sunt de acord cu prelucrarea datelor cu caracter personal în scopul ofertării, conform politicii de confidențialitate.</label>
-                     </div>
-
-                     <button disabled={formStatus === 'sending'} className="w-full py-5 bg-accent text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-accent border border-accent transition-all disabled:opacity-70 shadow-xl">
-                        {formStatus === 'sending' ? 'Se Trimite...' : 'Trimite Cererea'}
-                     </button>
-                  </form>
-               )}
-            </div>
-
-            {/* 4) SIDE INFO & MAP */}
-            <div className="space-y-12">
-               {/* Map */}
-               <div className="aspect-square bg-surface-2 border border-border relative group overflow-hidden">
-                  {data.info.mapEmbedUrl ? (
-                     <iframe src={data.info.mapEmbedUrl} className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700" loading="lazy"></iframe>
-                  ) : (
-                     <div className="w-full h-full relative">
-                        <OptimizedImage src="https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover grayscale opacity-50" alt="Atelier Location" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                           <span className="bg-black/80 text-white px-6 py-3 text-[10px] uppercase font-bold tracking-widest border border-white/20">Atelier Cluj-Napoca</span>
-                        </div>
-                     </div>
-                  )}
-               </div>
-
-               {/* Timeline */}
-               <div>
+          </div>
+        </section>
+  
+        {/* 2) QUICK CONTACT CARDS */}
+        <section className="py-20 px-6 max-w-7xl mx-auto -mt-20 relative z-20">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
+                 <div className="text-accent text-3xl mb-4">📞</div>
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Telefon</h3>
+                 <a href={`tel:${data.info.phone}`} className="font-serif text-xl font-bold group-hover:text-accent transition-colors">{data.info.phone}</a>
+              </div>
+              <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
+                 <div className="text-accent text-3xl mb-4">✉️</div>
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Email</h3>
+                 <a href={`mailto:${data.info.email}`} className="font-serif text-xl font-bold group-hover:text-accent transition-colors">{data.info.email}</a>
+              </div>
+              <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
+                 <div className="text-accent text-3xl mb-4">📍</div>
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">Adresă</h3>
+                 <p className="font-serif text-lg">{data.info.city}, {data.info.address}</p>
+              </div>
+              <div className="bg-surface border border-border p-8 shadow-2xl group hover:border-accent transition-all">
+                 <div className="text-accent text-3xl mb-4">⏱</div>
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-muted mb-2">{data.info.hours}</h3>
+                 <p className="text-xs text-muted">{t(data.info.responseBuffer)}</p>
+              </div>
+           </div>
+        </section>
+  
+        <section className="py-20 px-6 max-w-7xl mx-auto" id="contact-form">
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
+              
+              {/* 3) PREMIUM FORM */}
+              <div>
+                 <h2 className="font-serif text-4xl mb-8">Cere Ofertă</h2>
+                 
+                 {formStatus === 'success' ? (
+                    <div className="bg-surface-2 border border-accent/20 p-12 text-center animate-fade-in">
+                       <div className="text-6xl text-accent mb-6">✓</div>
+                       <h3 className="font-serif text-3xl mb-4">Mesaj Primit!</h3>
+                       <p className="text-muted leading-relaxed mb-8">
+                          Solicitarea ta a fost înregistrată. Un consultant Carvello va analiza detaliile și te va contacta în curând.
+                       </p>
+                       <Link to="/proces-garantii" className="inline-block px-8 py-3 bg-foreground text-background text-xs uppercase font-bold tracking-widest hover:bg-accent hover:text-white transition-all">
+                          Vezi cum lucrăm
+                       </Link>
+                    </div>
+                 ) : (
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                       <div className="grid grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Nume</label>
+                             <input required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="Nume complet" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Telefon</label>
+                             <input required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="07xx xxx xxx" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+                          </div>
+                       </div>
+                       
+                       <div className="grid grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Email</label>
+                             <input required type="email" className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="email@domeniu.ro" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Oraș</label>
+                             <input required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" placeholder="Locație proiect" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} />
+                          </div>
+                       </div>
+  
+                       <div className="grid grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Categorie</label>
+                             <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                                <option value="Bucătărie">Bucătărie</option>
+                                <option value="Dressing">Dressing</option>
+                                <option value="Living">Living</option>
+                                <option value="Baie">Baie</option>
+                                <option value="Comercial">Comercial</option>
+                                <option value="CNC">Servicii CNC</option>
+                                <option value="Altul">Altul</option>
+                             </select>
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Tip Proiect</label>
+                             <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.projectType} onChange={e => setFormData({...formData, projectType: e.target.value})}>
+                                <option value="Rezidențial">Rezidențial</option>
+                                <option value="Comercial">Comercial</option>
+                             </select>
+                          </div>
+                       </div>
+  
+                       <div className="grid grid-cols-2 gap-6">
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Buget Estimativ</label>
+                             <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.budget} onChange={e => setFormData({...formData, budget: e.target.value})}>
+                                <option value="">Alege interval...</option>
+                                <option value="< 5.000€">Sub 5.000€</option>
+                                <option value="5.000 - 10.000€">5.000 - 10.000€</option>
+                                <option value="10.000 - 20.000€">10.000 - 20.000€</option>
+                                <option value="> 20.000€">Peste 20.000€</option>
+                             </select>
+                          </div>
+                          <div className="space-y-2">
+                             <label className="text-[10px] uppercase font-bold text-muted">Termen Execuție</label>
+                             <select className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent" value={formData.timeline} onChange={e => setFormData({...formData, timeline: e.target.value})}>
+                                <option value="Urgent">Urgent (imposibil de obicei)</option>
+                                <option value="2-4 Săptămâni">2-4 Săptămâni</option>
+                                <option value="1-2 Luni">1-2 Luni</option>
+                                <option value="Flexibil">Flexibil</option>
+                             </select>
+                          </div>
+                       </div>
+  
+                       <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-bold text-muted">Mesaj Detaliat</label>
+                          <textarea required className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent h-32 resize-none" placeholder="Descrie proiectul, materiale preferate, particularități..." value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} />
+                       </div>
+  
+                       <div className="p-6 border-2 border-dashed border-border text-center hover:bg-surface-2 cursor-pointer transition-colors relative">
+                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                          <span className="text-2xl block mb-2">📎</span>
+                          <span className="text-[10px] uppercase font-bold text-muted">Adaugă Schiță / Imagine (Opțional)</span>
+                       </div>
+  
+                       <div className="flex items-start gap-3">
+                          <input type="checkbox" required checked={formData.gdpr} onChange={e => setFormData({...formData, gdpr: e.target.checked})} className="mt-1 accent-accent" />
+                          <label className="text-[10px] text-muted">Sunt de acord cu prelucrarea datelor cu caracter personal în scopul ofertării, conform politicii de confidențialitate.</label>
+                       </div>
+  
+                       <button disabled={formStatus === 'sending'} className="w-full py-5 bg-accent text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-accent border border-accent transition-all disabled:opacity-70 shadow-xl">
+                          {formStatus === 'sending' ? 'Se Trimite...' : 'Trimite Cererea'}
+                       </button>
+                    </form>
+                 )}
+              </div>
+  
+              {/* 4) SIDE INFO & MAP */}
+              <div className="space-y-12">
+                 {/* Map */}
+                 <div className="aspect-square bg-surface-2 border border-border relative group overflow-hidden">
+                    {isValidMapUrl(data.info.mapEmbedUrl) ? (
+                       <iframe 
+                         src={data.info.mapEmbedUrl} 
+                         className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700" 
+                         loading="lazy"
+                         referrerPolicy="no-referrer-when-downgrade"
+                         title="Carvello Location"
+                       ></iframe>
+                    ) : (
+                       <div className="w-full h-full relative">
+                          <OptimizedImage src="https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=1000" className="w-full h-full object-cover grayscale opacity-50" alt="Atelier Location" />
+                          <div className="absolute inset-0 flex items-center justify-center flex-col gap-4">
+                             <span className="bg-black/80 text-white px-6 py-3 text-[10px] uppercase font-bold tracking-widest border border-white/20">Atelier Cluj-Napoca</span>
+                             <a 
+                               href="https://www.google.com/maps/search/?api=1&query=Carvello+Cluj" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               className="bg-accent text-white px-6 py-3 text-[10px] uppercase font-bold tracking-widest hover:bg-white hover:text-accent transition-all"
+                             >
+                               Deschide Harta
+                             </a>
+                          </div>
+                       </div>
+                    )}
+                 </div>
+  
+                 {/* Timeline */}
+                 <div>
                   <h3 className="font-serif text-2xl mb-8">Ce urmează?</h3>
                   <div className="space-y-8 pl-4 border-l border-border">
                      {data.timeline.steps.map((step, i) => (

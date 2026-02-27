@@ -51,8 +51,9 @@ export const ServiceManager: React.FC = () => {
   // Implementing simplified version for Features only as example.
 
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="flex justify-between items-center mb-12">
+    <>
+      <div className="p-8 animate-fade-in">
+        <div className="flex justify-between items-center mb-12">
         <h1 className="font-serif text-4xl">Gestiune Servicii</h1>
         <button 
            onClick={() => setEditing({
@@ -87,6 +88,7 @@ export const ServiceManager: React.FC = () => {
             <button onClick={() => setEditing(s)} className="text-accent font-bold uppercase text-[10px] border border-accent/20 px-4 py-2 hover:bg-accent hover:text-white">Configurează</button>
           </div>
         ))}
+      </div>
       </div>
 
       {editing && (
@@ -157,6 +159,6 @@ export const ServiceManager: React.FC = () => {
            </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

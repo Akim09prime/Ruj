@@ -66,7 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center space-x-10">
+        <div className="hidden md:flex items-center space-x-12">
           {navItems.map(item => (
             <Link
               key={item.id}

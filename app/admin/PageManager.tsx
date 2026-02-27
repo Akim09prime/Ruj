@@ -48,8 +48,9 @@ export const PageManager: React.FC = () => {
   };
 
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="flex justify-between items-center mb-12">
+    <>
+      <div className="p-8 animate-fade-in">
+        <div className="flex justify-between items-center mb-12">
         <div>
           <h1 className="font-serif text-4xl mb-2 text-foreground">Pagini Dinamice (CMS)</h1>
           <p className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold">Arhitectură de conținut customizabilă</p>
@@ -87,6 +88,7 @@ export const PageManager: React.FC = () => {
             </div>
           </div>
         ))}
+      </div>
       </div>
 
       {/* Confirmation Modal */}
@@ -191,6 +193,6 @@ export const PageManager: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

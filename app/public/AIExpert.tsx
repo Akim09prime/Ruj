@@ -17,7 +17,7 @@ export const AIExpert: React.FC = () => {
     setSources([]);
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY as string });
       
       const res = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',

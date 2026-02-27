@@ -7,6 +7,58 @@ import { Project, Media, Lead } from '../../types';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { OptimizedImage } from '../../components/ui/OptimizedImage';
 
+// --- FALLBACK DATA ---
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    id: 'demo-1',
+    title: { ro: 'Penthouse Obsidian', en: 'Obsidian Penthouse' },
+    summary: { ro: 'Un proiect minimalist definit prin linii drepte și finisaj 2K negru mat profund.', en: 'Minimalist project defined by straight lines and deep matte black 2K finish.' },
+    projectType: 'REZIDENȚIAL',
+    location: { ro: 'București', en: 'Bucharest' },
+    isPublished: true,
+    isFeatured: true,
+    publishedAt: new Date().toISOString(),
+    slug: 'penthouse-obsidian',
+    coverMediaId: null,
+    tags: ['Minimalist', 'Black Matte', 'Luxury'],
+    description: { ro: 'Un penthouse modern în inima Bucureștiului.', en: 'A modern penthouse in the heart of Bucharest.' },
+    clientBrief: { ro: 'Clientul a dorit un spațiu masculin, dominat de tonuri închise și texturi mate.', en: 'The client wanted a masculine space, dominated by dark tones and matte textures.' },
+    ourSolution: { ro: 'Am utilizat MDF vopsit 2K Ultra Mat și inserții de metal vopsit electrostatic.', en: 'We used 2K Ultra Matte painted MDF and electrostatic painted metal inserts.' },
+    result: { ro: 'Un interior coerent, fluid și impunător.', en: 'A coherent, fluid and imposing interior.' },
+    gallery: []
+  },
+  {
+    id: 'demo-2',
+    title: { ro: 'Showroom Luxury', en: 'Luxury Showroom' },
+    summary: { ro: 'Panotări CNC complexe pentru un spațiu expozițional auto de lux.', en: 'Complex CNC wall panels for a luxury automotive exhibition space.' },
+    projectType: 'COMERCIAL',
+    location: { ro: 'Cluj-Napoca', en: 'Cluj-Napoca' },
+    isPublished: true,
+    isFeatured: true,
+    publishedAt: new Date().toISOString(),
+    slug: 'showroom-luxury',
+    coverMediaId: null,
+    tags: ['CNC', 'Commercial', 'Showroom'],
+    description: { ro: '', en: '' },
+    gallery: []
+  },
+  {
+    id: 'demo-3',
+    title: { ro: 'Villa Azure', en: 'Villa Azure' },
+    summary: { ro: 'Bucătărie și dressing-uri custom cu inserții de bronz și piatră naturală.', en: 'Custom kitchen and walk-in closets with bronze inserts and natural stone.' },
+    projectType: 'REZIDENȚIAL',
+    location: { ro: 'Brașov', en: 'Brasov' },
+    isPublished: true,
+    isFeatured: true,
+    publishedAt: new Date().toISOString(),
+    slug: 'villa-azure',
+    coverMediaId: null,
+    tags: ['Bronze', 'Natural Stone', 'Kitchen'],
+    description: { ro: '', en: '' },
+    gallery: []
+  }
+];
+
 export const ProjectDetail: React.FC = () => {
   const { id } = useParams(); // slug or id
   const { t, lang } = useI18n();
@@ -28,23 +80,53 @@ export const ProjectDetail: React.FC = () => {
   useEffect(() => {
     const load = async () => {
       if (!id) return;
-      let p = await dbService.getProjectBySlug(id);
-      if (!p) p = await dbService.getProject(id);
+      
+      try {
+        let p = await dbService.getProjectBySlug(id);
+        if (!p) p = await dbService.getProject(id);
 
-      if (p) {
-        setProject(p);
-        const m = await dbService.getMedia(p.id);
-        setProjectMedia(m);
-        if (p.stages && p.stages.length > 0) setActiveStageId(p.stages[0].id);
-        
-        // Filter main gallery images (kind=image, and usually Stage=Final or high stars)
-        setGalleryImages(m.filter(x => x.kind === 'image' && x.stage === 'Final'));
+        // Fallback check
+        if (!p) {
+          p = FALLBACK_PROJECTS.find(fp => fp.id === id || fp.slug === id);
+        }
 
-        const allLeads = await dbService.getLeads();
-        const approved = allLeads.filter(l => l.type === 'project-feedback' && l.projectRef?.id === p.id && l.status === 'approved');
-        setFeedbacks(approved);
+        if (p) {
+          setProject(p);
+          
+          let m: Media[] = [];
+          // If real project, fetch media
+          if (!FALLBACK_PROJECTS.find(fp => fp.id === p?.id)) {
+             m = await dbService.getMedia(p.id);
+          } else {
+             // Mock media for fallback
+             const coverUrl = 
+               p.id === 'demo-1' ? 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1200' :
+               p.id === 'demo-2' ? 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200' :
+               'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200';
+             
+             m = [
+               { id: 'm1', projectId: p.id, url: coverUrl, kind: 'image', stage: 'Final', caption: { ro: 'Vedere Generală', en: 'Overview' } },
+               { id: 'm2', projectId: p.id, url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200', kind: 'image', stage: 'Final', caption: { ro: 'Detaliu', en: 'Detail' } },
+               { id: 'm3', projectId: p.id, url: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=1200', kind: 'image', stage: 'Final', caption: { ro: 'Living', en: 'Living Room' } }
+             ];
+          }
+
+          setProjectMedia(m);
+          if (p.stages && p.stages.length > 0) setActiveStageId(p.stages[0].id);
+          
+          // Filter main gallery images (kind=image, and usually Stage=Final or high stars)
+          // For fallback, just show all images
+          setGalleryImages(m.filter(x => x.kind === 'image'));
+
+          const allLeads = await dbService.getLeads();
+          const approved = allLeads.filter(l => l.type === 'project-feedback' && l.projectRef?.id === p.id && l.status === 'approved');
+          setFeedbacks(approved);
+        }
+      } catch (e) {
+        console.error("Error loading project", e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     load();
   }, [id]);
@@ -85,10 +167,11 @@ export const ProjectDetail: React.FC = () => {
   const metrics = project.metrics || { duration: '-', finish: '-', materials: '-', hardware: '-', services: [] };
 
   return (
-    <div className="pt-0 bg-background text-foreground animate-fade-in">
-      
-      {/* 1) CINEMATIC HERO */}
-      <section className="relative h-screen w-full overflow-hidden">
+    <>
+      <div className="pt-0 bg-background text-foreground animate-fade-in">
+        
+        {/* 1) CINEMATIC HERO */}
+        <section className="relative h-screen w-full overflow-hidden">
         {project.heroConfig?.mode === 'video' && project.heroConfig.videoId ? (
            <video 
              autoPlay muted loop playsInline 
@@ -325,6 +408,8 @@ export const ProjectDetail: React.FC = () => {
          </div>
       </section>
 
+      </div>
+
       {/* LIGHTBOX */}
       {lightboxIndex !== null && lightboxMedia[lightboxIndex] && (
         <div className="fixed inset-0 z-[100] bg-black/98 flex flex-col justify-center animate-fade-in" onKeyDown={(e) => { if(e.key==='Escape') setLightboxIndex(null); }} tabIndex={0}>
@@ -350,7 +435,6 @@ export const ProjectDetail: React.FC = () => {
            </div>
         </div>
       )}
-
-    </div>
+    </>
   );
 };

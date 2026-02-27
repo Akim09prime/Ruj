@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './lib/theme';
 import { I18nProvider } from './lib/i18n';
 import { Navbar } from './components/layout/Navbar';
@@ -8,7 +8,7 @@ import { Footer } from './components/layout/Footer';
 import { dbService } from './services/db';
 import { Settings } from './types';
 
-// Lazy load Public pages
+// Public
 const Home = React.lazy(() => import('./app/public/Home').then(m => ({ default: m.Home })));
 const Portfolio = React.lazy(() => import('./app/public/Portfolio').then(m => ({ default: m.Portfolio })));
 const ProjectDetail = React.lazy(() => import('./app/public/ProjectDetail').then(m => ({ default: m.ProjectDetail })));
@@ -20,65 +20,42 @@ const Services = React.lazy(() => import('./app/public/Services').then(m => ({ d
 const ServiceDetail = React.lazy(() => import('./app/public/ServiceDetail').then(m => ({ default: m.ServiceDetail }))); 
 const Reviews = React.lazy(() => import('./app/public/Reviews').then(m => ({ default: m.Reviews })));
 const Process = React.lazy(() => import('./app/public/Process').then(m => ({ default: m.Process })));
-const DynamicPage = React.lazy(() => import('./app/public/DynamicPage').then(m => ({ default: m.DynamicPage })));
 const Maintenance = React.lazy(() => import('./app/public/Maintenance').then(m => ({ default: m.Maintenance })));
 
-// Lazy load Admin pages
+// Admin
 const Login = React.lazy(() => import('./app/admin/Login').then(m => ({ default: m.Login })));
 const Dashboard = React.lazy(() => import('./app/admin/Dashboard').then(m => ({ default: m.Dashboard })));
 const ProjectManager = React.lazy(() => import('./app/admin/ProjectManager').then(m => ({ default: m.ProjectManager })));
 const MediaManager = React.lazy(() => import('./app/admin/MediaManager').then(m => ({ default: m.MediaManager })));
 const LeadsManager = React.lazy(() => import('./app/admin/LeadsManager').then(m => ({ default: m.LeadsManager })));
 const SettingsManager = React.lazy(() => import('./app/admin/SettingsManager').then(m => ({ default: m.SettingsManager })));
-const PageManager = React.lazy(() => import('./app/admin/PageManager').then(m => ({ default: m.PageManager })));
 const ServiceManager = React.lazy(() => import('./app/admin/ServiceManager').then(m => ({ default: m.ServiceManager })));
 const ProcessManager = React.lazy(() => import('./app/admin/ProcessManager').then(m => ({ default: m.ProcessManager })));
-const AboutManager = React.lazy(() => import('./app/admin/AboutManager').then(m => ({ default: m.AboutManager })));
-const ReviewsManager = React.lazy(() => import('./app/admin/ReviewsManager').then(m => ({ default: m.ReviewsManager })));
-const ContactPageManager = React.lazy(() => import('./app/admin/ContactPageManager').then(m => ({ default: m.ContactPageManager }))); 
-const ProjectMediaReorder = React.lazy(() => import('./app/admin/ProjectMediaReorder').then(m => ({ default: m.ProjectMediaReorder })));
 const HeroManager = React.lazy(() => import('./app/admin/HeroManager').then(m => ({ default: m.HeroManager })));
 
-// Loading Component
 const LoadingFallback = () => (
-  <div className="min-h-screen flex flex-col items-center justify-center bg-background">
-    <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin mb-4"></div>
-    <span className="text-[10px] uppercase tracking-widest text-muted">Loading Application...</span>
+  <div className="min-h-screen flex flex-col items-center justify-center bg-[#0B0D10] text-white">
+    <div className="w-8 h-8 border-2 border-[#C9A24A]/30 border-t-[#C9A24A] rounded-full animate-spin mb-4"></div>
+    <div className="font-serif text-xs tracking-widest uppercase text-white/50">Carvello Loading</div>
   </div>
 );
 
 const PublicLayout: React.FC<{ settings?: Settings }> = ({ settings }) => {
   const location = useLocation();
-
-  // Maintenance Guard
-  if (settings?.maintenanceMode) {
-    // If not in maintenance page and not in admin, redirect
-    if (location.pathname !== '/maintenance' && !location.pathname.startsWith('/admin')) {
-      return <Navigate to="/maintenance" replace />;
-    }
-  } else {
-    // If maintenance mode is OFF, but user is on maintenance page, go home
-    if (location.pathname === '/maintenance') {
-      return <Navigate to="/" replace />;
-    }
+  if (settings?.maintenanceMode && location.pathname !== '/maintenance' && !location.pathname.startsWith('/admin')) {
+    return <Navigate to="/maintenance" replace />;
   }
-
-  // If in maintenance mode and on /maintenance route, show only Maintenance page (no navbar/footer)
+  if (!settings?.maintenanceMode && location.pathname === '/maintenance') {
+    return <Navigate to="/" replace />;
+  }
   if (settings?.maintenanceMode && location.pathname === '/maintenance') {
-    return (
-      <Suspense fallback={<LoadingFallback />}>
-        <Outlet />
-      </Suspense>
-    );
+    return <Suspense fallback={<LoadingFallback />}><Outlet /></Suspense>;
   }
-
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar settings={settings} />
-      <main className="flex-grow">
-        <Suspense fallback={<LoadingFallback />}>
-          <Outlet />
-        </Suspense>
+      <main className="flex-grow pt-24">
+        <Suspense fallback={<LoadingFallback />}><Outlet /></Suspense>
       </main>
       <Footer settings={settings} />
     </div>
@@ -87,78 +64,80 @@ const PublicLayout: React.FC<{ settings?: Settings }> = ({ settings }) => {
 
 const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
-  
-  const handleLogout = () => {
-    localStorage.removeItem('carvello_admin_session');
-    navigate('/', { replace: true });
-  };
-
   return (
     <div className="min-h-screen bg-surface-2 flex">
       <aside className="w-64 bg-background border-r border-border p-8 flex flex-col sticky top-0 h-screen shadow-xl z-20">
-        <div className="mb-16">
-          <span className="font-serif text-2xl tracking-[0.2em] font-bold text-accent">CARVELLO</span>
-          <div className="text-[9px] uppercase font-bold tracking-[0.4em] text-muted mt-2">CMS Management</div>
-        </div>
+        <div className="mb-12"><span className="font-serif text-2xl tracking-widest font-bold text-accent">CARVELLO</span></div>
         <nav className="flex flex-col space-y-6 flex-grow overflow-y-auto">
-          <Link to="/admin" className="text-[10px] uppercase font-bold tracking-widest hover:text-accent">Dashboard</Link>
+          <Link to="/admin" className="text-[10px] uppercase font-bold tracking-widest">Dashboard</Link>
           <div className="pt-4 border-t border-border/50">
-             <Link to="/admin/projects" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Proiecte</Link>
-             <Link to="/admin/services" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Servicii</Link>
-             <Link to="/admin/process" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Proces</Link>
-             <Link to="/admin/about" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Despre</Link>
-             <Link to="/admin/contact-settings" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Contact Info</Link>
-             <Link to="/admin/reviews" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Recenzii</Link>
-             <Link to="/admin/media" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Media</Link>
-             <Link to="/admin/pages" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4">Pagini</Link>
-             <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent mb-4 text-accent">Mesaje & Leads</Link>
+             <Link to="/admin/projects" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Proiecte</Link>
+             <Link to="/admin/services" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Servicii</Link>
+             <Link to="/admin/process" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Proces</Link>
+             <Link to="/admin/media" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Media</Link>
+             <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest mb-4 text-accent">Leads</Link>
           </div>
-          <div className="mt-auto space-y-4">
-            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent">Hero Manager</Link>
-            <Link to="/admin/settings" className="block text-[10px] uppercase font-bold tracking-widest hover:text-accent">Setări Globale</Link>
-            <button onClick={handleLogout} className="text-left text-[9px] uppercase font-bold text-red-500 hover:underline">Logout & Exit</button>
+          <div className="mt-auto pt-4 border-t border-border/50">
+            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Hero</Link>
+            <Link to="/admin/settings" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Setări</Link>
+            <button onClick={async () => { await dbService.logout(); navigate('/'); }} className="text-left text-[9px] uppercase font-bold text-red-500">Ieșire</button>
           </div>
         </nav>
       </aside>
-      <main className="flex-grow p-4 md:p-8 overflow-x-hidden">
-        <Suspense fallback={<LoadingFallback />}>
-          <Outlet />
-        </Suspense>
-      </main>
+      <main className="flex-grow p-8"><Suspense fallback={<LoadingFallback />}><Outlet /></Suspense></main>
     </div>
   );
 };
 
 const AdminGuard: React.FC = () => {
-  const sessionStr = localStorage.getItem('carvello_admin_session');
-  
-  if (!sessionStr) {
-    return <Navigate to="/admin/login" replace />;
-  }
+  const [auth, setAuth] = useState<boolean | null>(null);
+  const navigate = useNavigate();
 
-  try {
-    const session = JSON.parse(sessionStr);
-    const now = Date.now();
-    const isValid = session.active && (now - session.createdAt < 12 * 60 * 60 * 1000); // 12 hours
+  useEffect(() => {
+    dbService.checkAuth().then(isAuthenticated => {
+      setAuth(isAuthenticated);
+      if (!isAuthenticated) {
+        navigate('/admin/login', { replace: true });
+      }
+    });
+  }, [navigate]);
 
-    if (!isValid) {
-      localStorage.removeItem('carvello_admin_session');
-      return <Navigate to="/admin/login" replace />;
-    }
-  } catch (e) {
-    localStorage.removeItem('carvello_admin_session');
-    return <Navigate to="/admin/login" replace />;
-  }
+  if (auth === null) return <LoadingFallback />;
+  if (auth === false) return null;
 
   return <AdminLayout />;
 };
 
 const App: React.FC = () => {
-  const [settings, setSettings] = useState<Settings>();
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    dbService.getSettings().then(setSettings).catch(console.error);
+  useEffect(() => { 
+    dbService.getSettings()
+      .then(s => {
+        if (s) setSettings(s);
+        else setError("Failed to load settings");
+      })
+      .catch(err => {
+        console.error("App init error:", err);
+        setError("Application initialization failed. Please try refreshing.");
+      }); 
   }, []);
+
+  if (error) return (
+    <div className="min-h-screen flex items-center justify-center bg-black text-white p-4">
+      <div className="text-center max-w-md">
+        <h1 className="text-xl font-bold mb-4 text-red-500">System Error</h1>
+        <p className="mb-6 text-gray-400">{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="px-6 py-2 bg-white/10 rounded hover:bg-white/20 transition-colors uppercase text-xs tracking-widest font-bold"
+        >
+          Reload Application
+        </button>
+      </div>
+    </div>
+  );
 
   if (!settings) return <LoadingFallback />;
 
@@ -172,41 +151,26 @@ const App: React.FC = () => {
               <Route path="portofoliu" element={<Portfolio />} />
               <Route path="proiect/:id" element={<ProjectDetail />} />
               <Route path="galerie-mobilier" element={<Gallery />} />
-              
               <Route path="servicii" element={<Services />} />
               <Route path="servicii/:slug" element={<ServiceDetail />} />
-              
               <Route path="proces-garantii" element={<Process />} />
               <Route path="recenzii" element={<Reviews />} />
               <Route path="cerere-oferta" element={<LeadForm />} />
               <Route path="despre" element={<About />} />
               <Route path="contact" element={<Contact />} />
-              <Route path="p/:slug" element={<DynamicPage />} />
               <Route path="maintenance" element={<Maintenance />} />
             </Route>
-            
-            <Route path="/admin/login" element={
-              <Suspense fallback={<LoadingFallback />}>
-                <Login />
-              </Suspense>
-            } />
-
+            <Route path="/admin/login" element={<Suspense fallback={<LoadingFallback />}><Login /></Suspense>} />
             <Route path="/admin" element={<AdminGuard />}>
               <Route index element={<Dashboard />} />
               <Route path="projects" element={<ProjectManager />} />
-              <Route path="projects/:id/media" element={<ProjectMediaReorder />} />
               <Route path="services" element={<ServiceManager />} />
               <Route path="process" element={<ProcessManager />} />
-              <Route path="about" element={<AboutManager />} />
-              <Route path="contact-settings" element={<ContactPageManager />} /> 
-              <Route path="reviews" element={<ReviewsManager />} />
               <Route path="media" element={<MediaManager />} />
-              <Route path="pages" element={<PageManager />} />
               <Route path="leads" element={<LeadsManager />} />
               <Route path="settings" element={<SettingsManager />} />
               <Route path="hero" element={<HeroManager />} />
             </Route>
-
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Router>

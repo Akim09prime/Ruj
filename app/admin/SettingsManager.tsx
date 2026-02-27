@@ -16,240 +16,130 @@ export const SettingsManager: React.FC = () => {
     if (settings) {
       await dbService.updateSettings(settings);
       setTheme(settings.activeTheme);
-      alert('Setările globale și tema au fost salvate cu succes! Refresh-ul paginii ar putea fi necesar pentru aplicarea completă.');
+      alert('Setările au fost salvate!');
       window.location.reload();
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'dark' | 'light') => {
-    const file = e.target.files?.[0];
-    if (!file || !settings) return;
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setSettings({
-        ...settings,
-        brand: {
-          ...settings.brand,
-          [type === 'dark' ? 'logoDarkUrl' : 'logoLightUrl']: reader.result as string
-        }
-      });
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const updateNavItem = (id: string, updates: Partial<NavItem>) => {
-    if (!settings) return;
-    const newNav = settings.nav.map(item => item.id === id ? { ...item, ...updates } : item);
-    setSettings({ ...settings, nav: newNav });
-  };
-
   const themePresets: { id: Theme; label: string; colors: string[] }[] = [
-    { id: 'dark', label: 'Dark Default', colors: ['#0B0D10', '#C9A24A'] },
-    { id: 'light', label: 'Classic Ivory', colors: ['#F5F0E8', '#B8923B'] },
-    { id: 'obsidian', label: 'Obsidian Gold', colors: ['#050505', '#9C7B2E'] },
-    { id: 'champagne', label: 'Champagne Minimal', colors: ['#FDFCF0', '#A68D7B'] },
-    { id: 'marble', label: 'Architect Marble', colors: ['#F7F7F7', '#333333'] },
-    { id: 'navy', label: 'Royal Navy', colors: ['#0A1128', '#B08D57'] },
-    { id: 'emerald', label: 'Emerald Velvet', colors: ['#062C21', '#CD7F32'] },
-    { id: 'desert', label: 'Desert Modern', colors: ['#EAE2D6', '#A0522D'] },
-    { id: 'industrial', label: 'Industrial Loft', colors: ['#2B2D2F', '#E67E22'] },
-    { id: 'nordic', label: 'Nordic Pine', colors: ['#F0F4F7', '#2C3E50'] },
-    { id: 'rose', label: 'Rose Copper', colors: ['#FFF5F5', '#E5989B'] },
+    { id: 'dark', label: 'Dark', colors: ['#0B0D10', '#C9A24A'] },
+    { id: 'light', label: 'Light', colors: ['#F5F0E8', '#B8923B'] },
+    { id: 'obsidian', label: 'Obsidian', colors: ['#050505', '#9C7B2E'] },
   ];
 
-  if (!settings) return <div className="p-8 text-muted uppercase text-[10px] animate-pulse">Se încarcă configurația...</div>;
+  if (!settings) return <div className="p-8">Se încarcă...</div>;
 
   return (
-    <div className="p-8 max-w-7xl animate-fade-in">
-      <div className="flex justify-between items-end mb-12 border-b border-border pb-8">
-        <div>
-          <h1 className="font-serif text-4xl mb-2">Configurare Platformă</h1>
-          <p className="text-muted text-xs uppercase tracking-widest font-bold">Control vizual și tehnic global</p>
-        </div>
-        <button 
-          onClick={handleSave}
-          className="bg-accent text-white px-12 py-3 text-[10px] uppercase font-bold tracking-widest shadow-xl shadow-accent/20 hover:scale-105 transition-all"
-        >
-          Salvează Tot
-        </button>
+    <div className="p-8 animate-fade-in max-w-5xl">
+      <div className="flex justify-between items-center mb-12">
+        <h1 className="font-serif text-4xl">Setări Sistem</h1>
+        <button onClick={handleSave} className="bg-accent text-white px-10 py-3 text-[10px] font-bold uppercase tracking-widest">Salvează Tot</button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-10">
-          
-          {/* CONTACT GLOBAL */}
-          <section className="bg-surface p-8 border border-border shadow-sm relative overflow-hidden group">
-             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-                <span className="text-6xl">📞</span>
-             </div>
-             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Date Contact Globale (Footer)</h2>
-             
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                   <label className="text-[10px] uppercase font-bold text-muted">Telefon Afișat</label>
-                   <input 
-                     className="w-full bg-surface-2 border border-border p-3 text-xs focus:border-accent outline-none" 
-                     value={settings.footer.contact.phone} 
-                     onChange={e => setSettings({...settings, footer: {...settings.footer, contact: {...settings.footer.contact, phone: e.target.value}}})} 
-                   />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* MAINTENANCE TOGGLE */}
+        <section className="bg-surface p-8 border border-border shadow-sm">
+          <h2 className="text-xs uppercase font-bold text-accent mb-6">Status Site</h2>
+          <div className={`p-6 border ${settings.maintenanceMode ? 'bg-red-500/10 border-red-500/50' : 'bg-green-500/10 border-green-500/50'}`}>
+             <div className="flex items-center justify-between">
+                <div>
+                   <span className="block font-serif text-xl">{settings.maintenanceMode ? 'Mod Mentenanță ACTIV' : 'Site Online'}</span>
+                   <p className="text-[10px] text-muted mt-1 uppercase tracking-widest">{settings.maintenanceMode ? 'Vizitatorii văd pagina de construcție' : 'Site-ul este public'}</p>
                 </div>
-                <div className="space-y-4">
-                   <label className="text-[10px] uppercase font-bold text-muted">Email Oficial</label>
-                   <input 
-                     className="w-full bg-surface-2 border border-border p-3 text-xs focus:border-accent outline-none" 
-                     value={settings.footer.contact.email} 
-                     onChange={e => setSettings({...settings, footer: {...settings.footer, contact: {...settings.footer.contact, email: e.target.value}}})} 
-                   />
-                </div>
-                <div className="space-y-4 md:col-span-2">
-                   <label className="text-[10px] uppercase font-bold text-muted">Adresă Fizică</label>
-                   <input 
-                     className="w-full bg-surface-2 border border-border p-3 text-xs focus:border-accent outline-none" 
-                     value={settings.footer.contact.address} 
-                     onChange={e => setSettings({...settings, footer: {...settings.footer, contact: {...settings.footer.contact, address: e.target.value}}})} 
-                   />
-                </div>
-             </div>
-          </section>
-
-          <section className="bg-surface p-8 border border-border shadow-sm">
-             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Branding & Identity</h2>
-             
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                <div className="space-y-4">
-                   <label className="text-[10px] uppercase font-bold text-muted">Nume Brand (Text Logo)</label>
-                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" value={settings.brand.brandName} onChange={e => setSettings({...settings, brand: {...settings.brand, brandName: e.target.value}})} />
-                </div>
-                <div className="space-y-4">
-                   <label className="text-[10px] uppercase font-bold text-muted">Slogan</label>
-                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" value={settings.brand.brandSlogan} onChange={e => setSettings({...settings, brand: {...settings.brand, brandSlogan: e.target.value}})} />
-                </div>
-             </div>
-
-             <div className="flex items-center space-x-4 mb-8 p-4 border border-border bg-surface-2">
-                <input 
-                  type="checkbox" 
-                  checked={settings.brand.useTextLogo} 
-                  onChange={e => setSettings({...settings, brand: {...settings.brand, useTextLogo: e.target.checked}})} 
-                  className="w-4 h-4 accent-accent"
-                />
-                <label className="text-xs font-bold uppercase tracking-widest">Forțează Logo Text (Ignoră Imaginile)</label>
-             </div>
-
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <label className="text-[10px] uppercase font-bold text-muted block">Logo Dark Theme (PNG/SVG)</label>
-                <div className="h-24 bg-black flex items-center justify-center border border-border relative group">
-                  {settings.brand.logoDarkUrl ? <img src={settings.brand.logoDarkUrl} className="max-h-16" alt="Dark" /> : <span className="text-white/50 text-xs">Upload</span>}
-                  <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleLogoUpload(e, 'dark')} />
-                </div>
-              </div>
-              <div className="space-y-4">
-                <label className="text-[10px] uppercase font-bold text-muted block">Logo Light Theme (PNG/SVG)</label>
-                <div className="h-24 bg-white flex items-center justify-center border border-border relative group">
-                  {settings.brand.logoLightUrl ? <img src={settings.brand.logoLightUrl} className="max-h-16" alt="Light" /> : <span className="text-black/50 text-xs">Upload</span>}
-                  <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={e => handleLogoUpload(e, 'light')} />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="bg-surface p-8 border border-border shadow-sm">
-            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Theme Engine (Luxury Presets)</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {themePresets.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setSettings({...settings, activeTheme: t.id})}
-                  className={`relative p-4 border transition-all text-left group flex flex-col justify-between ${settings.activeTheme === t.id ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/40'}`}
+                <div 
+                  onClick={() => setSettings({...settings, maintenanceMode: !settings.maintenanceMode})}
+                  className={`w-14 h-7 rounded-full p-1 cursor-pointer transition-colors ${settings.maintenanceMode ? 'bg-red-500' : 'bg-green-500'}`}
                 >
-                  <div>
-                    <div className="flex space-x-1 mb-3">
-                      {t.colors.map((c, i) => (
-                        <div key={i} className="w-4 h-4 rounded-full border border-black/10 shadow-sm" style={{ backgroundColor: c }}></div>
-                      ))}
-                    </div>
-                    <span className={`text-[9px] uppercase font-bold tracking-widest leading-tight ${settings.activeTheme === t.id ? 'text-accent' : 'text-muted'}`}>{t.label}</span>
-                  </div>
-                  {settings.activeTheme === t.id && <span className="absolute top-2 right-2 text-[10px]">✔</span>}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="bg-surface p-8 border border-border shadow-sm">
-             <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-8 border-b border-border pb-4">Securitate CMS</h2>
-             <div className="space-y-2">
-                <label className="text-[10px] uppercase font-bold text-muted block">Parolă Administrator</label>
-                <input 
-                  type="text"
-                  className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent font-mono"
-                  value={settings.adminPassword}
-                  onChange={e => setSettings({...settings, adminPassword: e.target.value})}
-                />
-             </div>
-          </section>
-        </div>
-
-        <div className="space-y-10">
-          
-          {/* SYSTEM STATUS / MAINTENANCE - NEW SECTION */}
-          <section className="bg-surface p-8 border border-border shadow-sm relative overflow-hidden">
-            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-6">Status Sistem</h2>
-            <div className={`p-6 border transition-colors ${settings.maintenanceMode ? 'bg-accent text-white border-accent' : 'bg-surface-2 border-border'}`}>
-               <div className="flex items-center justify-between mb-4">
-                  <span className="font-serif text-xl">Mod Mentenanță</span>
-                  <div 
-                    onClick={() => setSettings({...settings, maintenanceMode: !settings.maintenanceMode})}
-                    className={`w-12 h-6 rounded-full p-1 cursor-pointer transition-colors ${settings.maintenanceMode ? 'bg-white' : 'bg-gray-600'}`}
-                  >
-                     <div className={`w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${settings.maintenanceMode ? 'translate-x-6 bg-accent' : 'translate-x-0 bg-white'}`}></div>
-                  </div>
-               </div>
-               <p className={`text-xs leading-relaxed ${settings.maintenanceMode ? 'text-white/90' : 'text-muted'}`}>
-                  {settings.maintenanceMode 
-                    ? 'SITE BLOCAT. Vizitatorii văd pagina "În Construcție". Tu poți naviga în Admin.' 
-                    : 'SITE ONLINE. Platforma este vizibilă publicului.'}
-               </p>
-            </div>
-          </section>
-
-          <section className="bg-surface p-8 border border-border shadow-sm">
-            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-accent mb-6">Navigație Website</h2>
-            <div className="space-y-2">
-              {settings.nav.sort((a,b) => a.order - b.order).map((item) => (
-                <div key={item.id} className="flex items-center space-x-3 p-3 bg-surface-2 border border-border group hover:border-accent transition-colors">
-                  <div className="flex-grow">
-                    <input 
-                      className="bg-transparent text-xs font-bold w-full outline-none"
-                      value={item.label.ro}
-                      onChange={e => updateNavItem(item.id, { label: { ro: e.target.value, en: item.label.en } })}
-                    />
-                    <div className="text-[8px] text-muted font-mono">{item.href}</div>
-                  </div>
-                  <button 
-                    onClick={() => updateNavItem(item.id, { visible: !item.visible })}
-                    className={`px-2 py-1 text-[8px] uppercase font-bold rounded ${item.visible ? 'bg-accent text-white' : 'bg-border text-muted'}`}
-                  >
-                    {item.visible ? 'On' : 'Off'}
-                  </button>
+                   <div className={`w-5 h-5 bg-white rounded-full shadow-md transform transition-transform ${settings.maintenanceMode ? 'translate-x-7' : 'translate-x-0'}`}></div>
                 </div>
-              ))}
-            </div>
-          </section>
+             </div>
+          </div>
+        </section>
 
-          <section className="bg-surface p-8 border border-border shadow-sm">
-            <h2 className="text-xs uppercase tracking-[0.2em] font-bold text-red-500 mb-6 uppercase">Zonă Periculoasă</h2>
-            <div className="space-y-4">
-               <button 
-                 onClick={() => { if(confirm('Resetăm baza de date? Toate modificările vor fi pierdute.')) dbService.resetToSeed().then(() => window.location.reload()); }}
-                 className="w-full p-4 border border-red-500/20 text-red-500 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all"
-               >
-                 Resetează la Seed (Factory Reset)
-               </button>
+        {/* ADMIN PASSWORD */}
+        <section className="bg-surface p-8 border border-border shadow-sm">
+          <h2 className="text-xs uppercase font-bold text-accent mb-6">Securitate</h2>
+          <label className="text-[10px] uppercase font-bold text-muted block mb-2">Parolă Admin</label>
+          <input className="w-full bg-surface-2 border border-border p-3 text-xs font-mono" value={settings.adminPassword} onChange={e => setSettings({...settings, adminPassword: e.target.value})} />
+        </section>
+
+        {/* THEMES */}
+        <section className="bg-surface p-8 border border-border shadow-sm md:col-span-2">
+          <h2 className="text-xs uppercase font-bold text-accent mb-6">Teme Vizuale</h2>
+          <div className="grid grid-cols-3 gap-4">
+            {themePresets.map(t => (
+              <button key={t.id} onClick={() => setSettings({...settings, activeTheme: t.id})} className={`p-4 border text-left ${settings.activeTheme === t.id ? 'border-accent bg-accent/5' : 'border-border'}`}>
+                <div className="flex gap-1 mb-2">
+                  {t.colors.map(c => <div key={c} className="w-3 h-3 rounded-full" style={{backgroundColor: c}}></div>)}
+                </div>
+                <span className="text-[10px] uppercase font-bold">{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* DATA MANAGEMENT */}
+        <section className="bg-surface p-8 border border-border shadow-sm md:col-span-2">
+          <h2 className="text-xs uppercase font-bold text-accent mb-6">Management Date</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-4 border border-border">
+              <h3 className="text-[10px] uppercase font-bold mb-2">Exportă Baza de Date</h3>
+              <p className="text-xs text-muted mb-4">Descarcă o copie completă a tuturor datelor (proiecte, setări, texte).</p>
+              <button 
+                onClick={() => dbService.exportDB()}
+                className="w-full py-3 bg-surface-2 border border-border hover:bg-accent hover:text-white text-[10px] uppercase font-bold transition-colors"
+              >
+                Descarcă Backup JSON
+              </button>
             </div>
-          </section>
-        </div>
+
+            <div className="p-4 border border-border">
+              <h3 className="text-[10px] uppercase font-bold mb-2">Importă Baza de Date</h3>
+              <p className="text-xs text-muted mb-4">Restaurează date dintr-un fișier JSON anterior.</p>
+              <label className="block w-full py-3 bg-surface-2 border border-border hover:bg-accent hover:text-white text-[10px] uppercase font-bold transition-colors text-center cursor-pointer">
+                Selectează Fișier
+                <input 
+                  type="file" 
+                  accept=".json" 
+                  className="hidden" 
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = async (ev) => {
+                      try {
+                        const content = ev.target?.result as string;
+                        if (confirm('Ești sigur? Această acțiune va înlocui TOATE datele curente.')) {
+                          await dbService.importDB(content);
+                        }
+                      } catch (err) {
+                        alert('Eroare la import: Fișier invalid.');
+                      }
+                    };
+                    reader.readAsText(file);
+                  }}
+                />
+              </label>
+            </div>
+
+            <div className="p-4 border border-red-500/20 bg-red-500/5">
+              <h3 className="text-[10px] uppercase font-bold mb-2 text-red-500">Resetare Totală</h3>
+              <p className="text-xs text-muted mb-4">Șterge toate datele și revine la setările din fabrică.</p>
+              <button 
+                onClick={async () => {
+                  if (confirm('ATENȚIE! Această acțiune este ireversibilă. Toate datele vor fi șterse. Continui?')) {
+                    if (confirm('Sigur? Confirmă a doua oară.')) {
+                      await dbService.resetToSeed();
+                    }
+                  }
+                }}
+                className="w-full py-3 bg-red-500 text-white text-[10px] uppercase font-bold hover:bg-red-600 transition-colors"
+              >
+                Resetare la Default
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

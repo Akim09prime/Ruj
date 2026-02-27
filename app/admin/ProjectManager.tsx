@@ -10,6 +10,7 @@ export const ProjectManager: React.FC = () => {
   const [editing, setEditing] = useState<Partial<Project> | null>(null);
   const [activeTab, setActiveTab] = useState<'basic' | 'hero' | 'story' | 'stages' | 'tech'>('basic');
   const [mediaPickerOpen, setMediaPickerOpen] = useState<{ field: string, multiple: boolean, context?: any } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const loadData = async () => {
     setProjects(await dbService.getProjects());
@@ -17,6 +18,116 @@ export const ProjectManager: React.FC = () => {
   };
 
   useEffect(() => { loadData(); }, []);
+
+  const handleQuickUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+        const url = await dbService.uploadFile(file);
+        const newMedia: Media = {
+            id: Math.random().toString(36).substr(2, 9),
+            url,
+            kind: file.type.startsWith('video') ? 'video' : 'image',
+            projectId: editing?.id || '',
+            createdAt: new Date().toISOString(),
+            stars: 0,
+            orderInProject: 0,
+            pieceTypes: [],
+            caption: { ro: '', en: '' }
+        };
+        await dbService.upsertMedia(newMedia);
+        setAllMedia(prev => [newMedia, ...prev]);
+        handleMediaSelect(newMedia.id);
+    } catch (err) {
+        console.error(err);
+        alert("Eroare la upload. Verifică permisiunile folderului uploads.");
+    } finally {
+        setIsUploading(false);
+        e.target.value = '';
+    }
+  };
+
+  const handleDirectUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: string) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+        const url = await dbService.uploadFile(file);
+        const newMedia: Media = {
+            id: Math.random().toString(36).substr(2, 9),
+            url,
+            kind: file.type.startsWith('video') ? 'video' : 'image',
+            projectId: editing?.id || '',
+            createdAt: new Date().toISOString(),
+            stars: 0,
+            orderInProject: 0,
+            pieceTypes: [],
+            caption: { ro: '', en: '' },
+            room: '',
+            stage: '',
+            shotDate: new Date().toISOString()
+        };
+        await dbService.upsertMedia(newMedia);
+        setAllMedia(prev => [newMedia, ...prev]);
+        
+        if (targetField === 'coverMediaId') {
+            setEditing(prev => ({ ...prev!, coverMediaId: newMedia.id }));
+        } else if (targetField.startsWith('hero.')) {
+            const subField = targetField.split('.')[1];
+            setEditing(prev => ({
+                ...prev!,
+                heroConfig: { ...prev!.heroConfig!, [subField]: newMedia.id }
+            }));
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Eroare la upload. Verifică permisiunile folderului uploads.");
+    } finally {
+        setIsUploading(false);
+        e.target.value = '';
+    }
+  };
+
+  const generateTestProjects = async () => {
+      const testProjects: Project[] = Array.from({length: 3}).map((_, i) => ({
+          id: `test-${Date.now()}-${i}`,
+          title: { ro: `Proiect Test ${i+1}`, en: `Test Project ${i+1}` },
+          slug: `test-project-${i+1}`,
+          type: 'Rezidențial', // Legacy field support
+          year: 2024,
+          shortDescription: { ro: 'Descriere scurtă test.', en: 'Short test description.' },
+          description: { ro: 'Descriere lungă pentru proiectul de test.', en: 'Long description for test project.' },
+          coverMediaId: allMedia[0]?.id || null,
+          heroImageId: allMedia[0]?.id || null,
+          galleryIds: [],
+          featured: false,
+          visible: true,
+          order: 10 + i,
+          stats: [],
+          publishedAt: new Date().toISOString(),
+          timelineDate: new Date().toISOString().split('T')[0],
+          isPublished: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          projectType: 'Rezidențial',
+          stages: [],
+          techSpecs: [],
+          tags: ['Test'],
+          summary: { ro: 'Sumar test', en: 'Test summary' },
+          location: { ro: 'Cluj-Napoca', en: 'Cluj-Napoca' },
+          heroConfig: { mode: 'image', overlay: { intensity: 40, vignette: true, grain: false } }
+      }));
+      
+      for (const p of testProjects) {
+          // @ts-ignore
+          await dbService.upsertProject(p);
+      }
+      loadData();
+      alert('Proiecte de test generate!');
+  };
 
   const handleSave = async () => {
     if (!editing?.id) return;
@@ -124,22 +235,28 @@ export const ProjectManager: React.FC = () => {
   };
 
   return (
-    <div className="p-8 animate-fade-in relative">
-      <div className="flex justify-between items-center mb-12">
+    <>
+      <div className="p-8 animate-fade-in relative">
+        <div className="flex justify-between items-center mb-12">
         <h1 className="font-serif text-4xl mb-2">Editor Proiecte</h1>
-        <button 
-          onClick={() => setEditing({ 
-            id: Math.random().toString(36).substr(2, 9), 
-            title: { ro: '', en: '' }, summary: { ro: '', en: '' }, location: { ro: '', en: '' }, 
-            publishedAt: new Date().toISOString(), timelineDate: new Date().toISOString().split('T')[0],
-            isPublished: true, createdAt: new Date().toISOString(), projectType: 'Rezidențial', 
-            coverMediaId: null, stages: [], techSpecs: [], tags: [],
-            heroConfig: { mode: 'image', overlay: { intensity: 40, vignette: true, grain: false } }
-          })}
-          className="bg-accent text-white px-8 py-3 text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-all"
-        >
-          Proiect Nou
-        </button>
+        <div className="flex gap-4">
+          <button onClick={generateTestProjects} className="bg-surface-2 border border-border px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all">
+             Generează Proiecte Test
+          </button>
+          <button 
+            onClick={() => setEditing({ 
+              id: Math.random().toString(36).substr(2, 9), 
+              title: { ro: '', en: '' }, summary: { ro: '', en: '' }, location: { ro: '', en: '' }, 
+              publishedAt: new Date().toISOString(), timelineDate: new Date().toISOString().split('T')[0],
+              isPublished: true, createdAt: new Date().toISOString(), projectType: 'Rezidențial', 
+              coverMediaId: null, stages: [], techSpecs: [], tags: [],
+              heroConfig: { mode: 'image', overlay: { intensity: 40, vignette: true, grain: false } }
+            })}
+            className="bg-accent text-white px-8 py-3 text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-all"
+          >
+            Proiect Nou
+          </button>
+        </div>
       </div>
 
       {/* LIST */}
@@ -173,10 +290,11 @@ export const ProjectManager: React.FC = () => {
           </div>
         )})}
       </div>
+      </div>
 
       {/* EDITOR MODAL */}
       {editing && (
-        <div className="fixed inset-0 z-40 bg-black/95 flex justify-center p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[100] bg-black/95 flex justify-center p-6 overflow-hidden">
            <div className="bg-background w-full max-w-6xl h-full flex flex-col border border-border shadow-2xl">
               {/* Header */}
               <div className="p-6 border-b border-border flex justify-between items-center bg-surface">
@@ -209,7 +327,13 @@ export const ProjectManager: React.FC = () => {
                              <input type="checkbox" checked={editing.isFeatured} onChange={e => setEditing({...editing, isFeatured: e.target.checked})} />
                              <span className="text-xs uppercase font-bold">Featured Project</span>
                           </div>
-                          <label className="text-xs font-bold uppercase mt-4 block">Cover Image</label>
+                          <div className="flex justify-between items-center mt-4 mb-1">
+                              <label className="text-xs font-bold uppercase">Cover Image</label>
+                              <label className="text-[9px] uppercase font-bold text-accent cursor-pointer hover:underline">
+                                  + Upload New
+                                  <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDirectUpload(e, 'coverMediaId')} />
+                              </label>
+                          </div>
                           <div className="w-32 h-20 bg-surface-2 border border-border cursor-pointer hover:border-accent" onClick={() => openMediaPicker('coverMediaId', false)}>
                                 {editing.coverMediaId ? <img src={allMedia.find(m => m.id === editing.coverMediaId)?.url} className="w-full h-full object-cover" /> : <div className="flex items-center justify-center h-full text-xs text-muted">+ Select</div>}
                           </div>
@@ -245,7 +369,13 @@ export const ProjectManager: React.FC = () => {
                        </div>
                        <div className="grid grid-cols-2 gap-8">
                           <div>
-                             <label className="text-xs font-bold uppercase block mb-2">Media</label>
+                             <div className="flex justify-between items-center mb-2">
+                                 <label className="text-xs font-bold uppercase">Media</label>
+                                 <label className="text-[9px] uppercase font-bold text-accent cursor-pointer hover:underline">
+                                     + Upload New
+                                     <input type="file" className="hidden" accept={editing.heroConfig?.mode === 'image' ? "image/*" : "video/*"} onChange={(e) => handleDirectUpload(e, editing.heroConfig?.mode === 'image' ? 'hero.imageId' : 'hero.videoId')} />
+                                 </label>
+                             </div>
                              {editing.heroConfig?.mode === 'image' ? (
                                 <div className="border border-border p-4 text-center cursor-pointer hover:bg-surface-2 h-40 flex items-center justify-center" onClick={() => openMediaPicker('hero.imageId', false)}>
                                    {editing.heroConfig.imageId ? <img src={allMedia.find(m => m.id === editing.heroConfig?.imageId)?.url} className="h-full w-full object-cover"/> : <span className="text-accent">+ Select Image</span>}
@@ -331,26 +461,39 @@ export const ProjectManager: React.FC = () => {
 
               </div>
            </div>
-
-           {/* MEDIA PICKER OVERLAY */}
-           {mediaPickerOpen && (
-              <div className="absolute inset-0 z-50 bg-surface flex flex-col p-8 animate-fade-in">
-                 <div className="flex justify-between items-center mb-6">
-                    <h3 className="font-serif text-3xl">Alege Media</h3>
-                    <button onClick={() => setMediaPickerOpen(null)} className="text-3xl">×</button>
-                 </div>
-                 <div className="grid grid-cols-6 gap-4 overflow-y-auto">
-                    {allMedia.map(m => (
-                       <div key={m.id} className="aspect-square bg-surface-2 border border-border hover:border-accent cursor-pointer relative group" onClick={() => handleMediaSelect(m.id)}>
-                          <img src={m.url} className="w-full h-full object-cover" />
-                          {m.kind === 'video' && <span className="absolute bottom-2 right-2 bg-black text-white text-[9px] px-1">VIDEO</span>}
-                       </div>
-                    ))}
-                 </div>
-              </div>
-           )}
         </div>
       )}
-    </div>
+
+      {/* MEDIA PICKER OVERLAY */}
+      {mediaPickerOpen && (
+         <div className="fixed inset-0 z-50 bg-surface flex flex-col p-8 animate-fade-in">
+            <div className="flex justify-between items-center mb-6">
+               <h3 className="font-serif text-3xl">Alege Media</h3>
+               <button onClick={() => setMediaPickerOpen(null)} className="text-3xl">×</button>
+            </div>
+            <div className="grid grid-cols-6 gap-4 overflow-y-auto">
+               {/* Quick Upload Button */}
+               <label className="aspect-square bg-surface-2 border-2 border-dashed border-border hover:border-accent cursor-pointer flex flex-col items-center justify-center text-center p-2 group transition-all">
+                  <input type="file" className="hidden" onChange={handleQuickUpload} accept="image/*,video/*" />
+                  {isUploading ? (
+                      <div className="animate-spin w-6 h-6 border-2 border-accent border-t-transparent rounded-full mb-2"></div>
+                  ) : (
+                      <span className="text-3xl mb-2 text-muted group-hover:text-accent transition-colors">+</span>
+                  )}
+                  <span className="text-[9px] uppercase font-bold text-muted group-hover:text-accent transition-colors">
+                      {isUploading ? 'Uploading...' : 'Upload New'}
+                  </span>
+               </label>
+
+               {allMedia.map(m => (
+                  <div key={m.id} className="aspect-square bg-surface-2 border border-border hover:border-accent cursor-pointer relative group" onClick={() => handleMediaSelect(m.id)}>
+                     <img src={m.url} className="w-full h-full object-cover" />
+                     {m.kind === 'video' && <span className="absolute bottom-2 right-2 bg-black text-white text-[9px] px-1">VIDEO</span>}
+                  </div>
+               ))}
+            </div>
+         </div>
+      )}
+    </>
   );
 };

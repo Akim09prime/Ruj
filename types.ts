@@ -7,7 +7,6 @@ export interface I18nString {
   en: string;
 }
 
-// Global Hero (Home Page)
 export interface HeroSlide {
   id: string;
   imageUrl: string;
@@ -21,7 +20,7 @@ export interface HeroConfig {
   mode: 'video' | 'slider' | 'image';
   enabled: boolean;
   height: 'fullscreen' | 'large' | 'medium';
-  overlayStrength: number; // 0-100
+  overlayStrength: number;
   align: 'left' | 'center';
   eyebrow: I18nString;
   titleLine1: I18nString;
@@ -40,12 +39,6 @@ export interface HeroConfig {
   slides: HeroSlide[];
 }
 
-// --- CONTACT PAGE TYPES ---
-export interface ContactFAQ {
-  question: I18nString;
-  answer: I18nString;
-}
-
 export interface ContactPageData {
   hero: {
     title: I18nString;
@@ -61,44 +54,30 @@ export interface ContactPageData {
     city: string;
     country: string;
     hours: string;
-    responseBuffer: I18nString; // e.g. "Max 24h"
+    responseBuffer: I18nString;
     whatsappLink: string;
     mapEmbedUrl: string;
   };
   timeline: {
     steps: { title: I18nString; desc: I18nString }[];
   };
-  faq: ContactFAQ[];
+  faq: { question: I18nString; answer: I18nString }[];
 }
 
-// --- REVIEW SYSTEM TYPES ---
 export interface Review {
   id: string;
   status: 'pending' | 'approved' | 'hidden';
-  consentPublic: boolean; // Must be true to be approved
-  rating: number; // 1-5
+  consentPublic: boolean;
+  rating: number;
   text: string;
-  clientNameDisplay: string; // e.g. "Andrei P."
+  clientNameDisplay: string;
   city: string;
   projectType: 'Rezidențial' | 'Comercial';
-  projectLabel: string; // e.g. "Bucătărie + Living"
-  avatarMediaId?: string; // Optional linked media
+  projectLabel: string;
+  avatarMediaId?: string;
   createdAt: string;
   isFeatured: boolean;
   source: 'internal' | 'google' | 'instagram';
-}
-
-// --- ABOUT PAGE TYPES ---
-export interface AboutPillar {
-  title: I18nString;
-  desc: I18nString;
-  bullets: I18nString[];
-}
-
-export interface AboutTimelineStep {
-  year: string; // Used as step number
-  title: I18nString;
-  desc: I18nString;
 }
 
 export interface AboutPageData {
@@ -113,13 +92,21 @@ export interface AboutPageData {
     text: I18nString;
     bullets: I18nString[];
   };
-  pillars: AboutPillar[];
+  pillars: {
+    title: I18nString;
+    desc: I18nString;
+    bullets: I18nString[];
+  }[];
   quality: {
     title: I18nString;
     bullets: I18nString[];
-    images: string[]; // Media IDs
+    images: string[];
   };
-  timeline: AboutTimelineStep[];
+  timeline: {
+    year: string;
+    title: I18nString;
+    desc: I18nString;
+  }[];
   clients: {
     resTitle: I18nString;
     resDesc: I18nString;
@@ -134,7 +121,7 @@ export interface AboutPageData {
 
 export interface Settings {
   id: 'global';
-  maintenanceMode: boolean; // NEW: Maintenance Toggle
+  maintenanceMode: boolean;
   projectTypes: string[];
   rooms: string[];
   stages: string[];
@@ -154,8 +141,8 @@ export interface Settings {
   brand: {
     logoDarkUrl: string;
     logoLightUrl: string;
-    brandName: string; // Default: CARVELLO
-    brandSlogan: string; // Default: Executat milimetric.
+    brandName: string;
+    brandSlogan: string;
     useTextLogo: boolean;
   };
   adminPassword: string;
@@ -170,47 +157,23 @@ export interface NavItem {
   order: number;
 }
 
-// --- SERVICE TYPES ---
-export interface ServiceFeature {
-  title: I18nString;
-  desc: I18nString;
-  icon: string; // Emoji or simple string identifier
-}
-
-export interface ServiceProcessStep {
-  title: I18nString;
-  desc: I18nString;
-}
-
-export interface ServiceFAQ {
-  question: I18nString;
-  answer: I18nString;
-}
-
 export interface ServicePage {
   id: string;
   slug: string;
   title: I18nString;
   subtitle: I18nString;
-  shortDescription: I18nString; // For the Hub
-  fullDescription: I18nString; // For the Detail Page hero
-  
-  heroMediaId: string | null; // Image or Video
-  
-  bullets: I18nString[]; // For the Hub
-  
-  // Detail Page Content
-  features: ServiceFeature[]; // "What you get" cards
-  processSteps: ServiceProcessStep[];
-  faq: ServiceFAQ[];
-  
-  relatedProjectTags: string[]; // To filter portfolio gallery
-  
+  shortDescription: I18nString;
+  fullDescription: I18nString;
+  heroMediaId: string | null;
+  bullets: I18nString[];
+  features: { title: I18nString; desc: I18nString; icon: string; }[];
+  processSteps: { title: I18nString; desc: I18nString; }[];
+  faq: { question: I18nString; answer: I18nString; }[];
+  relatedProjectTags: string[];
   isPublished: boolean;
   order: number;
 }
 
-// --- PROCESS PAGE TYPES ---
 export interface ProcessStep {
   id: string;
   order: number;
@@ -222,86 +185,42 @@ export interface ProcessStep {
   isVisible: boolean;
 }
 
-
-// --- PROJECT SPECIFIC TYPES ---
-
-export interface ProjectHeroConfig {
-  mode: 'image' | 'video';
-  imageId?: string; // Media ID
-  videoId?: string; // Media ID
-  posterId?: string; // Media ID (fallback for video)
-  overlay: {
-    intensity: number; // 0-100
-    vignette: boolean;
-    grain: boolean;
-  };
-}
-
-export interface StageMedia {
-  coverId?: string;
-  galleryIds: string[];
-  videoId?: string;
-  posterId?: string;
-}
-
+/**
+ * Interface for individual project stages.
+ */
 export interface ProjectStage {
   id: string;
   title: I18nString;
   subtitle?: I18nString;
-  dateLabel?: string; // e.g. "Week 1", "Ziua 10"
+  dateLabel?: string;
   description: I18nString;
   highlights: string[];
-  media: StageMedia;
-}
-
-export interface Album {
-  id: string;
-  title: I18nString;
-  description?: I18nString;
-  mediaIds: string[];
-}
-
-export interface ProjectMetrics {
-  duration: string;
-  finish: string;
-  materials: string;
-  hardware: string;
-  services: string[];
+  media: {
+    coverId?: string;
+    galleryIds: string[];
+    videoId?: string;
+    posterId?: string;
+  };
 }
 
 export interface Project {
   id: string;
   slug?: string;
   title: I18nString;
-  summary: I18nString; // Short summary for card
-  
-  // Timeline Sorting
-  timelineDate: string; // ISO Date for sorting on portfolio page
-  
-  // Executive Summary (Case Study)
-  clientBrief?: I18nString; // "Challenge"
-  ourSolution?: I18nString; // "Solution"
-  result?: I18nString; // "Result"
-
-  metrics?: ProjectMetrics;
-  
-  // Cinematic Hero Per Project
-  heroConfig?: ProjectHeroConfig;
-
-  // Detailed Process Timeline
+  summary: I18nString;
+  timelineDate: string;
+  clientBrief?: I18nString;
+  ourSolution?: I18nString;
+  result?: I18nString;
+  metrics?: { duration: string; finish: string; materials: string; hardware: string; services: string[]; };
+  heroConfig?: { mode: 'image' | 'video'; imageId?: string; videoId?: string; posterId?: string; overlay: { intensity: number; vignette: boolean; grain: boolean; }; };
   stages?: ProjectStage[];
-  
-  // Organized Albums (Optional)
-  albums?: Album[];
-
-  // Tech Specs (Key-Value)
+  albums?: { id: string; title: I18nString; description?: I18nString; mediaIds: string[]; }[];
   techSpecs?: { label: string; value: string }[];
-
-  projectType: string; // "Rezidențial", "Comercial", etc.
+  projectType: string;
   location: I18nString;
-  tags?: string[]; // New: For filtering tags like "CNC", "MDF"
-  isFeatured?: boolean; // New: For "Featured" sort
-
+  tags?: string[];
+  isFeatured?: boolean;
   publishedAt: string;
   coverMediaId: string | null;
   isPublished: boolean;
@@ -313,7 +232,7 @@ export interface Media {
   id: string;
   projectId: string;
   kind: 'image' | 'video';
-  url: string; // Base64 or URL
+  url: string;
   room: string;
   stage: string;
   pieceTypes: string[];
@@ -339,20 +258,15 @@ export interface Page {
     overlayStrength: number;
   };
   sections: SectionBlock[];
-  seo: {
-    title: I18nString;
-    description: I18nString;
-  };
+  seo: { title: I18nString; description: I18nString; };
   isPublished: boolean;
   order: number;
   updatedAt: string;
 }
 
-export type SectionType = 'text' | 'imageText' | 'cards' | 'steps' | 'cta' | 'galleryStrip' | 'faq' | 'testimonials';
-
 export interface SectionBlock {
   id: string;
-  type: SectionType;
+  type: 'text' | 'imageText' | 'cards' | 'steps' | 'cta' | 'galleryStrip' | 'faq' | 'testimonials';
   content: any;
   order: number;
 }
@@ -360,30 +274,25 @@ export interface SectionBlock {
 export interface Lead {
   id: string;
   type: 'general' | 'project-feedback';
-  projectRef?: { id: string; title: string }; // If feedback
-  rating?: number; // If feedback
+  projectRef?: { id: string; title: string };
+  rating?: number;
   name: string;
   email: string;
   phone: string;
   city: string;
-  
-  // New Fields for Contact Form
   projectType: string; 
-  category?: string; // e.g. Kitchen, CNC
-  budget?: string; // e.g. 5-10k
-  timeline?: string; // e.g. Urgent
-  attachments?: string[]; // Base64 strings (fake handling)
-  
+  category?: string;
+  budget?: string;
+  timeline?: string;
   message: string;
   createdAt: string;
   status: 'new' | 'contacted' | 'won' | 'lost' | 'approved' | 'archived'; 
-  company?: string; // Honeypot
   userAgent?: string;
   currentUrl?: string;
 }
 
 export interface AppDB {
-  version?: number; // Added for migration control
+  version?: number;
   settings: Settings;
   about: AboutPageData;
   contact: ContactPageData;

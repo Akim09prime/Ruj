@@ -24,8 +24,9 @@ export const LeadsManager: React.FC = () => {
   const filtered = leads.filter(l => (filterType === 'general' ? l.type !== 'project-feedback' : l.type === 'project-feedback'));
 
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="flex gap-4 mb-8 border-b border-border pb-4">
+    <>
+      <div className="p-8 animate-fade-in">
+        <div className="flex gap-4 mb-8 border-b border-border pb-4">
          <button onClick={() => setFilterType('general')} className={`text-xl font-serif ${filterType === 'general' ? 'text-accent' : 'text-muted'}`}>Cereri Ofertă</button>
          <button onClick={() => setFilterType('project-feedback')} className={`text-xl font-serif ${filterType === 'project-feedback' ? 'text-accent' : 'text-muted'}`}>Recenzii & Feedback</button>
       </div>
@@ -77,6 +78,7 @@ export const LeadsManager: React.FC = () => {
                ))}
             </tbody>
          </table>
+      </div>
       </div>
 
       {selected && (
@@ -135,6 +137,6 @@ export const LeadsManager: React.FC = () => {
             </div>
          </div>
       )}
-    </div>
+    </>
   );
 };

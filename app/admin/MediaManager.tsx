@@ -29,22 +29,21 @@ export const MediaManager: React.FC = () => {
     loadData();
   }, []);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setEditing(prev => prev ? { ...prev, url: base64String } : null);
+    try {
+      const url = await dbService.uploadFile(file);
+      setEditing(prev => prev ? { ...prev, url } : null);
+    } catch (err) {
+      console.error(err);
+      alert("Eroare la încărcarea fișierului.");
+    } finally {
       setIsUploading(false);
-    };
-    reader.onerror = () => {
-      alert("Eroare la citirea fișierului.");
-      setIsUploading(false);
-    };
-    reader.readAsDataURL(file);
+      e.target.value = '';
+    }
   };
 
   const handleSave = async () => {
@@ -86,8 +85,9 @@ export const MediaManager: React.FC = () => {
   });
 
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
+    <>
+      <div className="p-8 animate-fade-in">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-4">
         <div>
           <h1 className="font-serif text-4xl mb-2">Gestiune Media Globală</h1>
           <p className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold">Total resurse arhivate: {media.length}</p>
@@ -167,6 +167,7 @@ export const MediaManager: React.FC = () => {
           </div>
         ))}
       </div>
+      </div>
 
       {/* Confirmation Modal */}
       {confirmDelete && (
@@ -194,9 +195,8 @@ export const MediaManager: React.FC = () => {
               <div className="space-y-4">
                 <label className="text-[10px] uppercase font-bold tracking-widest text-muted block">Sursă Fişier</label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div 
+                  <label 
                     className="border-2 border-dashed border-border hover:border-accent transition-all relative h-48 flex flex-col items-center justify-center bg-surface-2 cursor-pointer"
-                    onClick={() => document.getElementById('file-upload-input')?.click()}
                   >
                     {editing.url ? (
                       <img src={editing.url} className="absolute inset-0 w-full h-full object-contain p-2" alt="Preview" />
@@ -206,8 +206,8 @@ export const MediaManager: React.FC = () => {
                         <span className="text-[9px] uppercase font-bold tracking-widest text-muted italic">Alege de pe disc</span>
                       </div>
                     )}
-                    <input id="file-upload-input" type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-                  </div>
+                    <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileUpload} />
+                  </label>
                   <div className="space-y-2">
                     <label className="text-[9px] uppercase font-bold tracking-widest text-muted">Link Manual</label>
                     <textarea className="w-full h-48 bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent font-mono resize-none leading-relaxed" placeholder="https://..." value={editing.url || ''} onChange={e => setEditing({...editing, url: e.target.value})} />
@@ -250,6 +250,6 @@ export const MediaManager: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

@@ -7,6 +7,55 @@ import { dbService } from '../../services/db';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { OptimizedImage } from '../../components/ui/OptimizedImage';
 
+// --- FALLBACK DATA ---
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    id: 'demo-1',
+    title: { ro: 'Penthouse Obsidian', en: 'Obsidian Penthouse' },
+    summary: { ro: 'Un proiect minimalist definit prin linii drepte și finisaj 2K negru mat profund.', en: 'Minimalist project defined by straight lines and deep matte black 2K finish.' },
+    projectType: 'REZIDENȚIAL',
+    location: { ro: 'București', en: 'Bucharest' },
+    isPublished: true,
+    isFeatured: true,
+    publishedAt: new Date().toISOString(),
+    slug: 'penthouse-obsidian',
+    coverMediaId: null,
+    tags: ['Minimalist', 'Black Matte', 'Luxury'],
+    description: { ro: '', en: '' },
+    gallery: []
+  },
+  {
+    id: 'demo-2',
+    title: { ro: 'Showroom Luxury', en: 'Luxury Showroom' },
+    summary: { ro: 'Panotări CNC complexe pentru un spațiu expozițional auto de lux.', en: 'Complex CNC wall panels for a luxury automotive exhibition space.' },
+    projectType: 'COMERCIAL',
+    location: { ro: 'Cluj-Napoca', en: 'Cluj-Napoca' },
+    isPublished: true,
+    isFeatured: true,
+    publishedAt: new Date().toISOString(),
+    slug: 'showroom-luxury',
+    coverMediaId: null,
+    tags: ['CNC', 'Commercial', 'Showroom'],
+    description: { ro: '', en: '' },
+    gallery: []
+  },
+  {
+    id: 'demo-3',
+    title: { ro: 'Villa Azure', en: 'Villa Azure' },
+    summary: { ro: 'Bucătărie și dressing-uri custom cu inserții de bronz și piatră naturală.', en: 'Custom kitchen and walk-in closets with bronze inserts and natural stone.' },
+    projectType: 'REZIDENȚIAL',
+    location: { ro: 'Brașov', en: 'Brasov' },
+    isPublished: true,
+    isFeatured: true,
+    publishedAt: new Date().toISOString(),
+    slug: 'villa-azure',
+    coverMediaId: null,
+    tags: ['Bronze', 'Natural Stone', 'Kitchen'],
+    description: { ro: '', en: '' },
+    gallery: []
+  }
+];
+
 export const Portfolio: React.FC = () => {
   const { t, lang } = useI18n();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -23,11 +72,26 @@ export const Portfolio: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const p = await dbService.getProjects();
-      const m = await dbService.getMedia();
-      setProjects(p.filter(proj => proj.isPublished));
-      setMedia(m);
-      setLoading(false);
+      try {
+        const p = await dbService.getProjects();
+        const m = await dbService.getMedia();
+        
+        const published = p.filter(proj => proj.isPublished);
+        
+        if (published.length > 0) {
+          setProjects(published);
+        } else {
+          // Use fallback if no real projects exist
+          setProjects(FALLBACK_PROJECTS);
+        }
+        
+        setMedia(m);
+      } catch (e) {
+        console.error("Failed to load projects", e);
+        setProjects(FALLBACK_PROJECTS);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
@@ -37,6 +101,11 @@ export const Portfolio: React.FC = () => {
       const found = media.find(m => m.id === coverId);
       if (found) return found.url;
     }
+    // Fallback images for demo projects
+    if (projectId === 'demo-1') return 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=1200';
+    if (projectId === 'demo-2') return 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200';
+    if (projectId === 'demo-3') return 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200';
+
     const first = media.find(m => m.projectId === projectId);
     return first ? first.url : 'https://images.unsplash.com/photo-1581092160607-ee22621dd758';
   };

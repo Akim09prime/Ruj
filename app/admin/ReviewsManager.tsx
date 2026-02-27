@@ -36,8 +36,9 @@ export const ReviewsManager: React.FC = () => {
   const filtered = reviews.filter(r => filterStatus === 'all' || r.status === filterStatus);
 
   return (
-    <div className="p-8 animate-fade-in">
-      <div className="flex justify-between items-center mb-10 pb-6 border-b border-border">
+    <>
+      <div className="p-8 animate-fade-in">
+        <div className="flex justify-between items-center mb-10 pb-6 border-b border-border">
         <div>
           <h1 className="font-serif text-4xl mb-2">Recenzii Clienți</h1>
           <p className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold">Aprobare și Moderare Feedback</p>
@@ -95,6 +96,7 @@ export const ReviewsManager: React.FC = () => {
          ))}
          {filtered.length === 0 && <p className="text-center py-10 text-muted italic">Nicio recenzie găsită.</p>}
       </div>
+      </div>
 
       {/* Edit Modal */}
       {editing && (
@@ -136,6 +138,6 @@ export const ReviewsManager: React.FC = () => {
             </div>
          </div>
       )}
-    </div>
+    </>
   );
 };

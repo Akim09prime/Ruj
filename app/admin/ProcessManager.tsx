@@ -54,7 +54,7 @@ export const ProcessManager: React.FC = () => {
       <div className="p-8 animate-fade-in max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-12">
         <div>
-           <h1 className="font-serif text-4xl mb-2">Workflow Manager</h1>
+           <h1 className="font-serif text-4xl mb-2">Administrator Proces</h1>
            <p className="text-muted text-xs uppercase tracking-widest font-bold">Editează pașii din pagina Proces</p>
         </div>
         <button 
@@ -144,7 +144,7 @@ export const ProcessManager: React.FC = () => {
                  <div className="space-y-2">
                     <label className="text-[10px] uppercase font-bold text-muted">Imagine (Media ID)</label>
                     <select className="w-full bg-surface-2 border border-border p-3 text-xs" value={editing.mediaId || ''} onChange={e => setEditing({...editing, mediaId: e.target.value})}>
-                       <option value="">Select Media...</option>
+                       <option value="">Selectează Media...</option>
                        {media.filter(m => m.kind === 'image').map(m => <option key={m.id} value={m.id}>Image: {m.id}</option>)}
                     </select>
                     {editing.mediaId && <img src={media.find(m => m.id === editing.mediaId)?.url} className="h-20 object-cover border border-border mt-2" />}
@@ -152,11 +152,11 @@ export const ProcessManager: React.FC = () => {
 
                  <div className="grid grid-cols-2 gap-6 bg-surface-2 p-4 border border-border">
                     <div className="space-y-2">
-                       <label className="text-[10px] uppercase font-bold text-muted">CTA Label (RO)</label>
+                       <label className="text-[10px] uppercase font-bold text-muted">Etichetă Buton (RO)</label>
                        <input className="w-full bg-background border border-border p-2 text-xs" value={editing.cta.label.ro} onChange={e => setEditing({...editing, cta: {...editing.cta, label: {...editing.cta.label, ro: e.target.value}}})} />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] uppercase font-bold text-muted">CTA Link</label>
+                       <label className="text-[10px] uppercase font-bold text-muted">Link Buton</label>
                        <input className="w-full bg-background border border-border p-2 text-xs" value={editing.cta.href} onChange={e => setEditing({...editing, cta: {...editing.cta, href: e.target.value}})} />
                     </div>
                  </div>

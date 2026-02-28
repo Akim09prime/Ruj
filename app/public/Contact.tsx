@@ -29,13 +29,27 @@ export const Contact: React.FC = () => {
     });
   }, [lang]);
 
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      alert(lang === 'ro' ? 'Fișierul este prea mare (max 10MB).' : 'File too large (max 10MB).');
+      return;
+    }
+
+    setFile(selectedFile);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.gdpr) return alert('Te rugăm să accepți politica GDPR.');
     
     setFormStatus('sending');
     
-    const lead: Lead = {
+    const lead = {
       id: Math.random().toString(36).substr(2, 9),
       type: 'general',
       name: formData.name,
@@ -55,10 +69,17 @@ export const Contact: React.FC = () => {
       try {
         // 1. Send to Server (Email + Save)
         try {
+          const formPayload = new FormData();
+          Object.entries(lead).forEach(([key, value]) => {
+            formPayload.append(key, value);
+          });
+          if (file) {
+            formPayload.append('file', file);
+          }
+
           const res = await fetch("/api/contact.php", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(lead),
+            body: formPayload,
           });
   
           const json = await res.json();
@@ -271,9 +292,11 @@ export const Contact: React.FC = () => {
                        </div>
   
                        <div className="p-6 border-2 border-dashed border-border text-center hover:bg-surface-2 cursor-pointer transition-colors relative">
-                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" />
+                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleFileUpload} accept="image/*,.pdf,.doc,.docx" disabled={formStatus === 'sending'} />
                           <span className="text-2xl block mb-2">📎</span>
-                          <span className="text-[10px] uppercase font-bold text-muted">Adaugă Schiță / Imagine (Opțional)</span>
+                          <span className="text-[10px] uppercase font-bold text-muted">
+                            {file ? file.name : 'Adaugă Schiță / Imagine (Opțional)'}
+                          </span>
                        </div>
   
                        <div className="flex items-start gap-3">

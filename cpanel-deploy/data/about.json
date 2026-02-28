@@ -1,0 +1,7 @@
+{
+    "hero": { "title": {"ro":"Despre","en":"About"}, "subtitle": {"ro":"Precizie","en":"Precision"}, "text": {"ro":"Atelier premium.","en":"Premium workshop."}, "mediaId": null },
+    "manifesto": { "title": {"ro":"Manifest","en":"Manifesto"}, "text": {"ro":"Calitate.","en":"Quality."}, "bullets": [] },
+    "pillars": [], "quality": { "title": {"ro":"Calitate","en":"Quality"}, "bullets": [], "images": [] }, "timeline": [],
+    "clients": { "resTitle": {"ro":"","en":""}, "resDesc": {"ro":"","en":""}, "comTitle": {"ro":"","en":""}, "comDesc": {"ro":"","en":""}},
+    "cta": { "title": {"ro":"","en":""}, "trustLine": {"ro":"","en":""}}
+}

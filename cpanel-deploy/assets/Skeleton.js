@@ -1,0 +1,1 @@
+import{j as s}from"./index.js";const o=({className:e=""})=>s.jsxDEV("div",{className:`animate-pulse bg-surface-2 rounded ${e}`},void 0,!1,{fileName:"/app/applet/components/ui/Skeleton.tsx",lineNumber:5,columnNumber:3},void 0);export{o as S};

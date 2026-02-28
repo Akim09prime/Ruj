@@ -1,23 +1,30 @@
+Options -Indexes
+
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
   
-  # API requests should not be rewritten to index.html
+  # Prevent access to dotfiles (except .well-known)
+  RewriteRule ^\.(?!well-known).* - [F]
+
+  # API requests - let them pass through to the PHP files
   RewriteRule ^api/ - [L]
   
-  # Assets should be served directly
+  # Assets - let them pass through
   RewriteRule ^assets/ - [L]
+  RewriteRule ^uploads/ - [L]
+  RewriteRule ^version\.html$ - [L]
 
-  # All other requests go to index.html
+  # Everything else -> index.html (SPA Routing)
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteRule . /index.html [L]
 </IfModule>
 
-# Security Headers
-<IfModule mod_headers.c>
-  Header set X-Content-Type-Options "nosniff"
-  Header set X-Frame-Options "SAMEORIGIN"
-  Header set X-XSS-Protection "1; mode=block"
-</IfModule>
+# Cache Control for HTML
+<FilesMatch "\.(html|htm)$">
+  Header set Cache-Control "max-age=0, no-cache, no-store, must-revalidate"
+  Header set Pragma "no-cache"
+  Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
+</FilesMatch>

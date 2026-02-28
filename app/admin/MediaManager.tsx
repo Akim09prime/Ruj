@@ -160,8 +160,8 @@ export const MediaManager: React.FC = () => {
                 {'★'.repeat(m.stars)}{'☆'.repeat(5 - m.stars)}
               </div>
               <div className="flex flex-col space-y-2 w-full">
-                <button onClick={() => setEditing(m)} className="w-full text-[9px] bg-white text-black py-2 uppercase font-bold hover:bg-accent hover:text-white transition-all">Edit</button>
-                <button onClick={() => setConfirmDelete(m.id)} className="w-full text-[9px] bg-red-600/20 text-red-500 py-2 uppercase font-bold hover:bg-red-500 hover:text-white transition-all">Delete</button>
+                <button onClick={() => setEditing(m)} className="w-full text-[9px] bg-white text-black py-2 uppercase font-bold hover:bg-accent hover:text-white transition-all">Editează</button>
+                <button onClick={() => setConfirmDelete(m.id)} className="w-full text-[9px] bg-red-600/20 text-red-500 py-2 uppercase font-bold hover:bg-red-500 hover:text-white transition-all">Șterge</button>
               </div>
             </div>
           </div>

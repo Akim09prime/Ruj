@@ -74,11 +74,11 @@ const AdminLayout: React.FC = () => {
              <Link to="/admin/projects" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Proiecte</Link>
              <Link to="/admin/services" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Servicii</Link>
              <Link to="/admin/process" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Proces</Link>
-             <Link to="/admin/media" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Media</Link>
-             <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest mb-4 text-accent">Leads</Link>
+             <Link to="/admin/media" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Media / Fișiere</Link>
+             <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest mb-4 text-accent">Cereri / Leads</Link>
           </div>
           <div className="mt-auto pt-4 border-t border-border/50">
-            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Hero</Link>
+            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Hero / Homepage</Link>
             <Link to="/admin/settings" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Setări</Link>
             <button onClick={async () => { await dbService.logout(); navigate('/'); }} className="text-left text-[9px] uppercase font-bold text-red-500">Ieșire</button>
           </div>
@@ -111,17 +111,38 @@ const AdminGuard: React.FC = () => {
 const App: React.FC = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
-  useEffect(() => { 
+  useEffect(() => {
+    // Check if running in preview mode (PHP not executing)
+    fetch('/api/auth.php?action=session')
+      .then(res => res.text())
+      .then(text => {
+        if (text.trim().startsWith('<?php')) {
+          setIsPreviewMode(true);
+          console.warn("Running in Preview Mode: PHP backend is simulated.");
+        }
+      })
+      .catch(() => {});
+
+    // Failsafe timeout in case dbService hangs
+    const timeoutId = setTimeout(() => {
+        setError("Connection timed out. Please check your network or server configuration.");
+    }, 5000);
+
     dbService.getSettings()
       .then(s => {
+        clearTimeout(timeoutId);
         if (s) setSettings(s);
         else setError("Failed to load settings");
       })
       .catch(err => {
+        clearTimeout(timeoutId);
         console.error("App init error:", err);
         setError("Application initialization failed. Please try refreshing.");
       }); 
+      
+    return () => clearTimeout(timeoutId);
   }, []);
 
   if (error) return (
@@ -144,6 +165,11 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <I18nProvider>
+        {isPreviewMode && (
+          <div className="fixed top-0 left-0 w-full bg-yellow-500 text-black text-[10px] font-bold uppercase tracking-widest text-center py-1 z-50">
+            Preview Mode — PHP Backend Simulated (Deploy to cPanel for full functionality)
+          </div>
+        )}
         <Router>
           <Routes>
             <Route path="/" element={<PublicLayout settings={settings} />}>

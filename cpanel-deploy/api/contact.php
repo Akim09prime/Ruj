@@ -1,84 +1,119 @@
 <?php
-// /public/api/contact.php
+// api/contact.php
 require_once 'utils.php';
 
-// CORS headers are already handled in config.php (included via utils.php)
-// But if config.php sets them, we don't need to set them again here if we include utils.php
-// However, config.php sets them.
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $isMultipart = strpos($_SERVER['CONTENT_TYPE'] ?? '', 'multipart/form-data') !== false;
+    
+    if ($isMultipart) {
+        $name = $_POST['name'] ?? '';
+        $email = $_POST['email'] ?? '';
+        $phone = $_POST['phone'] ?? '';
+        $message = $_POST['message'] ?? '';
+        $city = $_POST['city'] ?? '';
+        $projectType = $_POST['projectType'] ?? '';
+        $category = $_POST['category'] ?? '';
+        $budget = $_POST['budget'] ?? '';
+        $timeline = $_POST['timeline'] ?? '';
+        $source = $_POST['source'] ?? '';
+        $userAgent = $_POST['userAgent'] ?? '';
+        $createdAt = $_POST['createdAt'] ?? date('c');
+        $filePath = '';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    error_response('Method Not Allowed', 405);
-}
+        if (isset($_FILES['file']) && $_FILES['file']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = UPLOAD_DIR;
+            if (!file_exists($uploadDir)) {
+                mkdir($uploadDir, 0755, true);
+            }
+            $fileName = uniqid() . '_' . basename($_FILES['file']['name']);
+            $targetPath = $uploadDir . $fileName;
+            
+            if (move_uploaded_file($_FILES['file']['tmp_name'], $targetPath)) {
+                $filePath = '/uploads/' . $fileName;
+            }
+        }
+    } else {
+        $input = getJsonInput();
+        $name = $input['name'] ?? '';
+        $email = $input['email'] ?? '';
+        $phone = $input['phone'] ?? '';
+        $message = $input['message'] ?? '';
+        $city = $input['city'] ?? '';
+        $projectType = $input['projectType'] ?? '';
+        $category = $input['category'] ?? '';
+        $budget = $input['budget'] ?? '';
+        $timeline = $input['timeline'] ?? '';
+        $filePath = $input['filePath'] ?? '';
+        $source = $input['source'] ?? '';
+        $userAgent = $input['userAgent'] ?? '';
+        $createdAt = $input['createdAt'] ?? date('c');
+    }
 
-$input = get_json_input();
+    if (!$name || !$email || !$phone) {
+        errorResponse('Missing required fields');
+    }
 
-if (!$input) {
-    error_response('Invalid JSON', 400);
-}
+    $lead = [
+        'id' => uniqid(),
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'city' => $city,
+        'projectType' => $projectType,
+        'category' => $category,
+        'budget' => $budget,
+        'timeline' => $timeline,
+        'message' => $message,
+        'filePath' => $filePath,
+        'status' => 'new',
+        'source' => $source,
+        'userAgent' => $userAgent,
+        'created_at' => $createdAt
+    ];
 
-// Basic validation
-$name = htmlspecialchars(strip_tags($input['name'] ?? ''));
-$email = filter_var($input['email'] ?? '', FILTER_SANITIZE_EMAIL);
-$phone = htmlspecialchars(strip_tags($input['phone'] ?? ''));
-$message_text = htmlspecialchars(strip_tags($input['message'] ?? '')); // Rename to avoid conflict with $message in error_response if used
-$type = htmlspecialchars(strip_tags($input['type'] ?? 'general'));
+    // 1. Save to JSON
+    $leadsFile = DATA_DIR . 'leads.json';
+    $leads = [];
+    if (file_exists($leadsFile)) {
+        $leads = json_decode(file_get_contents($leadsFile), true) ?? [];
+    }
+    
+    array_unshift($leads, $lead);
+    
+    if (!file_put_contents($leadsFile, json_encode($leads, JSON_PRETTY_PRINT))) {
+        errorResponse('Failed to save lead', 500);
+    }
 
-if (empty($name) || empty($email) || empty($message_text)) {
-    error_response('Missing required fields', 400);
-}
+    // 2. Send Email
+    $to = 'office@carvello.ro';
+    $subject = "Lead Nou CARVELLO: $name ($projectType)";
+    
+    $emailBody = "Lead Nou de pe Site:\n\n";
+    $emailBody .= "Nume: $name\n";
+    $emailBody .= "Email: $email\n";
+    $emailBody .= "Telefon: $phone\n";
+    $emailBody .= "Oras: $city\n";
+    $emailBody .= "Tip Proiect: $projectType\n";
+    $emailBody .= "Mesaj:\n$message\n\n";
+    if ($filePath) {
+        $emailBody .= "Fisier atasat: " . $_SERVER['HTTP_HOST'] . $filePath . "\n";
+    }
+    $emailBody .= "Data: $createdAt\n";
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    error_response('Invalid email format', 400);
-}
+    $headers = "From: no-reply@carvello.ro\r\n";
+    $headers .= "Reply-To: $email\r\n";
+    $headers .= "X-Mailer: PHP/" . phpversion();
 
-// Save to leads.json
-$lead = [
-    'id' => uniqid(),
-    'type' => $type,
-    'name' => $name,
-    'email' => $email,
-    'phone' => $phone,
-    'city' => htmlspecialchars(strip_tags($input['city'] ?? '')),
-    'projectType' => htmlspecialchars(strip_tags($input['projectType'] ?? '')),
-    'category' => htmlspecialchars(strip_tags($input['category'] ?? '')),
-    'budget' => htmlspecialchars(strip_tags($input['budget'] ?? '')),
-    'timeline' => htmlspecialchars(strip_tags($input['timeline'] ?? '')),
-    'message' => $message_text,
-    'createdAt' => date('c'),
-    'status' => 'new',
-    'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? ''
-];
+    $mailSent = mail($to, $subject, $emailBody, $headers);
 
-$leads = get_data_file('leads');
-array_unshift($leads, $lead);
-save_data_file('leads', $leads);
+    if ($mailSent) {
+        jsonResponse(['ok' => true, 'message' => 'Solicitarea a fost trimisă cu succes.']);
+    } else {
+        // Lead saved but email failed
+        jsonResponse(['ok' => true, 'message' => 'Solicitarea a fost salvată, dar notificarea email nu a putut fi trimisă momentan. Te vom contacta.']);
+    }
 
-// Email Configuration
-$to = "office@carvello.ro"; 
-$subject = "New Contact Request: " . $type . " from " . $name;
-$headers = "From: no-reply@" . $_SERVER['HTTP_HOST'] . "\r\n";
-$headers .= "Reply-To: " . $email . "\r\n";
-$headers .= "MIME-Version: 1.0\r\n";
-$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
-
-$body = "<h2>New Contact Request</h2>";
-$body .= "<p><strong>Name:</strong> " . $name . "</p>";
-$body .= "<p><strong>Email:</strong> " . $email . "</p>";
-$body .= "<p><strong>Phone:</strong> " . $phone . "</p>";
-$body .= "<p><strong>Type:</strong> " . $type . "</p>";
-$body .= "<p><strong>Message:</strong><br/>" . nl2br($message_text) . "</p>";
-
-// Send email
-$mailSent = @mail($to, $subject, $body, $headers);
-
-if ($mailSent) {
-    json_response(["ok" => true, "message" => "Email sent successfully"]);
 } else {
-    // Even if email fails, we saved the lead, so we can return success or partial success
-    // But frontend expects "ok": false to show warning
-    // However, user requirement says "Mesajul a fost salvat local, dar serverul de email nu a răspuns"
-    // Since we saved it to server, we can say ok=true but maybe log error
-    // For now, let's return ok=true because the data is safe in CMS.
-    json_response(["ok" => true, "message" => "Lead saved, but email sending failed."]);
+    errorResponse('Method not allowed', 405);
 }
 ?>

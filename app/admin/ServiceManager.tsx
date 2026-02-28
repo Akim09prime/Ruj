@@ -110,7 +110,7 @@ export const ServiceManager: React.FC = () => {
                        <input className="w-full bg-surface-2 border border-border p-3 text-xs" value={editing.slug} onChange={e => setEditing({...editing, slug: e.target.value})} />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] uppercase font-bold text-muted">Order</label>
+                       <label className="text-[10px] uppercase font-bold text-muted">Ordine</label>
                        <input type="number" className="w-full bg-surface-2 border border-border p-3 text-xs" value={editing.order} onChange={e => setEditing({...editing, order: parseInt(e.target.value)})} />
                     </div>
                  </div>
@@ -127,7 +127,7 @@ export const ServiceManager: React.FC = () => {
                  </div>
                  
                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold text-muted">Full Description (RO) - Hero</label>
+                    <label className="text-[10px] uppercase font-bold text-muted">Descriere Completă (RO) - Hero</label>
                     <textarea className="w-full bg-surface-2 border border-border p-3 text-xs h-24" value={editing.fullDescription.ro} onChange={e => updateNested('fullDescription', 'ro', e.target.value)} />
                  </div>
 
@@ -140,14 +140,14 @@ export const ServiceManager: React.FC = () => {
                           <button onClick={() => removeArrayItem(i, 'bullets')} className="text-red-500">×</button>
                        </div>
                     ))}
-                    <button onClick={() => addArrayItem('bullets')} className="text-[9px] uppercase font-bold text-muted">+ Add Bullet</button>
+                    <button onClick={() => addArrayItem('bullets')} className="text-[9px] uppercase font-bold text-muted">+ Adaugă Punct</button>
                  </div>
                  
                  {/* Hero Image */}
                  <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-bold text-muted">Hero Media ID</label>
+                    <label className="text-[10px] uppercase font-bold text-muted">Imagine Hero (ID)</label>
                     <select className="w-full bg-surface-2 border border-border p-3 text-xs" value={editing.heroMediaId || ''} onChange={e => setEditing({...editing, heroMediaId: e.target.value})}>
-                       <option value="">Select Media...</option>
+                       <option value="">Selectează Media...</option>
                        {media.map(m => <option key={m.id} value={m.id}>Image: {m.id}</option>)}
                     </select>
                  </div>

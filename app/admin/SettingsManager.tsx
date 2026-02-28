@@ -56,13 +56,6 @@ export const SettingsManager: React.FC = () => {
           </div>
         </section>
 
-        {/* ADMIN PASSWORD */}
-        <section className="bg-surface p-8 border border-border shadow-sm">
-          <h2 className="text-xs uppercase font-bold text-accent mb-6">Securitate</h2>
-          <label className="text-[10px] uppercase font-bold text-muted block mb-2">Parolă Admin</label>
-          <input className="w-full bg-surface-2 border border-border p-3 text-xs font-mono" value={settings.adminPassword} onChange={e => setSettings({...settings, adminPassword: e.target.value})} />
-        </section>
-
         {/* THEMES */}
         <section className="bg-surface p-8 border border-border shadow-sm md:col-span-2">
           <h2 className="text-xs uppercase font-bold text-accent mb-6">Teme Vizuale</h2>

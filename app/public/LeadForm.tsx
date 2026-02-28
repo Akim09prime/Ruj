@@ -8,13 +8,29 @@ export const LeadForm: React.FC = () => {
   
   // Input State
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', city: '', projectType: 'Rezidențial', message: '', company: '' // Company is honeypot
+    name: '', email: '', phone: '', city: '', projectType: 'Rezidențial', message: '', company: '', filePath: ''
   });
   
   // UX State
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [localSaved, setLocalSaved] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    // Validate size (max 10MB)
+    if (selectedFile.size > 10 * 1024 * 1024) {
+      alert(lang === 'ro' ? 'Fișierul este prea mare (max 10MB).' : 'File too large (max 10MB).');
+      return;
+    }
+
+    setFile(selectedFile);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +48,7 @@ export const LeadForm: React.FC = () => {
 
     // Timeout Controller
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased timeout for email sending
 
     try {
       const now = new Date().toISOString();
@@ -46,7 +62,8 @@ export const LeadForm: React.FC = () => {
         company: formData.company,
         createdAt: now,
         userAgent: navigator.userAgent,
-        currentUrl: window.location.href
+        currentUrl: window.location.href,
+        source: 'contact-form'
       };
 
       // --- A: Local Save (Best Effort) ---
@@ -63,10 +80,17 @@ export const LeadForm: React.FC = () => {
       }
 
       // --- B: API Send ---
+      const formPayload = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        formPayload.append(key, value);
+      });
+      if (file) {
+        formPayload.append('file', file);
+      }
+
       const res = await fetch("/api/contact.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: formPayload,
         signal: controller.signal,
       });
 
@@ -81,7 +105,7 @@ export const LeadForm: React.FC = () => {
         if (data.code === 'RATE_LIMIT') {
           throw new Error(lang === 'ro' ? 'Prea multe cereri. Vă rugăm așteptați 10 minute.' : 'Too many requests. Please wait 10 minutes.');
         } else {
-          throw new Error(data.error || 'Server error');
+          throw new Error(data.message || data.error || 'Server error');
         }
       }
 
@@ -111,7 +135,7 @@ export const LeadForm: React.FC = () => {
   const handleReset = () => {
     setStatus('idle');
     setFormData({
-      name: '', email: '', phone: '', city: '', projectType: 'Rezidențial', message: '', company: ''
+      name: '', email: '', phone: '', city: '', projectType: 'Rezidențial', message: '', company: '', filePath: ''
     });
   };
 
@@ -186,6 +210,24 @@ export const LeadForm: React.FC = () => {
           <label className="text-xs uppercase tracking-widest font-bold">Mesaj / Detalii Proiect *</label>
           <textarea required rows={4} className="bg-transparent border border-border p-4 focus:border-accent outline-none resize-none transition-colors" 
             value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} disabled={status === 'loading'} />
+        </div>
+
+        <div className="flex flex-col space-y-2 md:col-span-2">
+           <label className="text-xs uppercase tracking-widest font-bold">
+              {lang === 'ro' ? 'Atașează Schiță / Poză (Opțional)' : 'Attach Sketch / Photo (Optional)'}
+           </label>
+           <div className="flex items-center gap-4">
+              <label className="cursor-pointer bg-surface-2 border border-border px-4 py-3 hover:border-accent transition-colors flex items-center gap-2">
+                  <span className="text-xs font-bold uppercase">{isUploading ? 'Uploading...' : (lang === 'ro' ? 'Alege Fișier' : 'Choose File')}</span>
+                  <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,.pdf,.doc,.docx" disabled={status === 'loading' || isUploading} />
+              </label>
+              {formData.filePath && (
+                  <span className="text-xs text-accent">
+                      {lang === 'ro' ? 'Fișier atașat ✓' : 'File attached ✓'}
+                  </span>
+              )}
+           </div>
+           <p className="text-[9px] text-muted uppercase">Max 10MB. JPG, PNG, PDF.</p>
         </div>
         
         {status === 'error' && (

@@ -1,60 +1,57 @@
 <?php
+// api/content.php
 require_once 'utils.php';
 
-$type = $_GET['type'] ?? '';
-$action = $_GET['action'] ?? 'read';
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $file = $_GET['file'] ?? '';
+    if (!$file) {
+        errorResponse('File parameter missing');
+    }
+    
+    // Security check: allow only alphanumeric, dashes, underscores, and .json extension
+    if (!preg_match('/^[a-z0-9_\-]+\.json$/i', $file)) {
+        errorResponse('Invalid filename');
+    }
 
-// Allowed content types
-$allowed_types = [
-    'hero', 'services', 'portfolio', 'gallery', 'process', 
-    'reviews', 'about', 'contact', 'settings', 'timeline', 'faq'
-];
-
-if (!in_array($type, $allowed_types)) {
-    error_response('Invalid content type', 400);
-}
-
-$filename = $type;
-$data = get_data_file($filename);
-
-switch ($_SERVER['REQUEST_METHOD']) {
-    case 'GET':
-        json_response($data);
-        break;
-
-    case 'POST':
-    case 'PUT':
-        check_auth(); // Ensure user is logged in
-        
-        $input = get_json_input();
-        
-        // Validate input if necessary
-        if (empty($input)) {
-            error_response('No data provided', 400);
+    $path = DATA_DIR . $file;
+    if (file_exists($path)) {
+        $content = file_get_contents($path);
+        // Validate JSON
+        $json = json_decode($content);
+        if ($json === null) {
+             jsonResponse([]); // Return empty if invalid
         }
-        
-        // Save data
-        if (save_data_file($filename, $input)) {
-            json_response(['success' => true, 'data' => $input]);
-        } else {
-            error_response('Failed to save data', 500);
-        }
-        break;
-        
-    case 'DELETE':
-        check_auth(); // Ensure user is logged in
-        
-        // Handle specific item deletion if needed, or clear section
-        // For now, we'll just clear the file content or reset to default
-        if ($action === 'clear') {
-            save_data_file($filename, []);
-            json_response(['success' => true]);
-        } else {
-            error_response('Delete action not supported for this type', 400);
-        }
-        break;
+        header('Content-Type: application/json');
+        echo $content;
+        exit;
+    } else {
+        // Return empty object/array if not found, or 404?
+        // Frontend expects fallback if 404.
+        http_response_code(404);
+        echo json_encode(['error' => 'File not found']);
+        exit;
+    }
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    requireAuth();
+    $input = getJsonInput();
+    $file = $input['file'] ?? '';
+    $data = $input['data'] ?? null;
 
-    default:
-        error_response('Method not allowed', 405);
+    if (!$file || $data === null) {
+        errorResponse('Missing file or data');
+    }
+
+    if (!preg_match('/^[a-z0-9_\-]+\.json$/i', $file)) {
+        errorResponse('Invalid filename');
+    }
+
+    $path = DATA_DIR . $file;
+    if (file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE))) {
+        jsonResponse(['success' => true]);
+    } else {
+        errorResponse('Failed to write file', 500);
+    }
+} else {
+    errorResponse('Method not allowed', 405);
 }
 ?>

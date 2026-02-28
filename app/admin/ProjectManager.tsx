@@ -91,42 +91,13 @@ export const ProjectManager: React.FC = () => {
     }
   };
 
-  const generateTestProjects = async () => {
-      const testProjects: Project[] = Array.from({length: 3}).map((_, i) => ({
-          id: `test-${Date.now()}-${i}`,
-          title: { ro: `Proiect Test ${i+1}`, en: `Test Project ${i+1}` },
-          slug: `test-project-${i+1}`,
-          type: 'Rezidențial', // Legacy field support
-          year: 2024,
-          shortDescription: { ro: 'Descriere scurtă test.', en: 'Short test description.' },
-          description: { ro: 'Descriere lungă pentru proiectul de test.', en: 'Long description for test project.' },
-          coverMediaId: allMedia[0]?.id || null,
-          heroImageId: allMedia[0]?.id || null,
-          galleryIds: [],
-          featured: false,
-          visible: true,
-          order: 10 + i,
-          stats: [],
-          publishedAt: new Date().toISOString(),
-          timelineDate: new Date().toISOString().split('T')[0],
-          isPublished: true,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          projectType: 'Rezidențial',
-          stages: [],
-          techSpecs: [],
-          tags: ['Test'],
-          summary: { ro: 'Sumar test', en: 'Test summary' },
-          location: { ro: 'Cluj-Napoca', en: 'Cluj-Napoca' },
-          heroConfig: { mode: 'image', overlay: { intensity: 40, vignette: true, grain: false } }
-      }));
-      
-      for (const p of testProjects) {
-          // @ts-ignore
-          await dbService.upsertProject(p);
+
+
+  const handleDelete = async (id: string) => {
+      if (confirm('Ștergi acest proiect? Această acțiune nu poate fi anulată.')) {
+          await dbService.deleteProject(id);
+          loadData();
       }
-      loadData();
-      alert('Proiecte de test generate!');
   };
 
   const handleSave = async () => {
@@ -240,9 +211,6 @@ export const ProjectManager: React.FC = () => {
         <div className="flex justify-between items-center mb-12">
         <h1 className="font-serif text-4xl mb-2">Editor Proiecte</h1>
         <div className="flex gap-4">
-          <button onClick={generateTestProjects} className="bg-surface-2 border border-border px-6 py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-accent hover:text-white transition-all">
-             Generează Proiecte Test
-          </button>
           <button 
             onClick={() => setEditing({ 
               id: Math.random().toString(36).substr(2, 9), 
@@ -279,13 +247,30 @@ export const ProjectManager: React.FC = () => {
                 </div>
              </div>
              <div className="flex items-center gap-6">
+                <div className="flex flex-col gap-2 mr-4">
+                    <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer select-none">
+                        <input type="checkbox" checked={p.isPublished} onChange={async (e) => { await dbService.upsertProject({...p, isPublished: e.target.checked}); loadData(); }} />
+                        Publicat
+                    </label>
+                    <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer select-none">
+                        <input type="checkbox" checked={p.isVisible} onChange={async (e) => { await dbService.upsertProject({...p, isVisible: e.target.checked}); loadData(); }} />
+                        Vizibil
+                    </label>
+                    <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer select-none">
+                        <input type="checkbox" checked={p.isFeatured} onChange={async (e) => { await dbService.upsertProject({...p, isFeatured: e.target.checked}); loadData(); }} />
+                        Evidențiat
+                    </label>
+                </div>
                 <div className="text-right">
-                    <span className="block text-[9px] font-bold uppercase text-muted">Completeness</span>
+                    <span className="block text-[9px] font-bold uppercase text-muted">Completare</span>
                     <div className="w-24 h-1 bg-surface-2 mt-1">
                         <div className={`h-full ${score > 80 ? 'bg-green-500' : score > 50 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{ width: `${score}%` }}></div>
                     </div>
                 </div>
-                <button onClick={() => setEditing(p)} className="px-6 py-2 border border-border hover:bg-accent hover:text-white transition-colors text-xs uppercase font-bold">Editează</button>
+                <div className="flex gap-2">
+                    <button onClick={() => setEditing(p)} className="px-4 py-2 border border-border hover:bg-accent hover:text-white transition-colors text-xs uppercase font-bold">Editează</button>
+                    <button onClick={() => handleDelete(p.id)} className="px-4 py-2 border border-red-500 text-red-500 hover:bg-red-500/10 transition-colors text-xs uppercase font-bold">Șterge</button>
+                </div>
              </div>
           </div>
         )})}
@@ -321,29 +306,29 @@ export const ProjectManager: React.FC = () => {
                        <div className="space-y-4">
                           <label className="text-xs font-bold uppercase">Titlu (RO)</label>
                           <input className="w-full bg-surface-2 border border-border p-3" value={editing.title?.ro} onChange={e => setEditing({...editing, title: {...editing.title!, ro: e.target.value}})} />
-                          <label className="text-xs font-bold uppercase">Tags (virgulă)</label>
+                          <label className="text-xs font-bold uppercase">Etichete (virgulă)</label>
                           <input className="w-full bg-surface-2 border border-border p-3" value={editing.tags?.join(', ')} onChange={e => setEditing({...editing, tags: e.target.value.split(',').map(s=>s.trim())})} />
                           <div className="flex items-center gap-2 mt-2">
                              <input type="checkbox" checked={editing.isFeatured} onChange={e => setEditing({...editing, isFeatured: e.target.checked})} />
-                             <span className="text-xs uppercase font-bold">Featured Project</span>
+                             <span className="text-xs uppercase font-bold">Proiect Evidențiat (Featured)</span>
                           </div>
                           <div className="flex justify-between items-center mt-4 mb-1">
-                              <label className="text-xs font-bold uppercase">Cover Image</label>
+                              <label className="text-xs font-bold uppercase">Imagine Copertă</label>
                               <label className="text-[9px] uppercase font-bold text-accent cursor-pointer hover:underline">
-                                  + Upload New
+                                  + Upload Nou
                                   <input type="file" className="hidden" accept="image/*" onChange={(e) => handleDirectUpload(e, 'coverMediaId')} />
                               </label>
                           </div>
                           <div className="w-32 h-20 bg-surface-2 border border-border cursor-pointer hover:border-accent" onClick={() => openMediaPicker('coverMediaId', false)}>
-                                {editing.coverMediaId ? <img src={allMedia.find(m => m.id === editing.coverMediaId)?.url} className="w-full h-full object-cover" /> : <div className="flex items-center justify-center h-full text-xs text-muted">+ Select</div>}
+                                {editing.coverMediaId ? <img src={allMedia.find(m => m.id === editing.coverMediaId)?.url} className="w-full h-full object-cover" /> : <div className="flex items-center justify-center h-full text-xs text-muted">+ Selectează</div>}
                           </div>
                        </div>
                        <div className="space-y-4">
-                          <label className="text-xs font-bold uppercase">Summary</label>
+                          <label className="text-xs font-bold uppercase">Sumar</label>
                           <textarea className="w-full bg-surface-2 border border-border p-3 h-32" value={editing.summary?.ro} onChange={e => setEditing({...editing, summary: {...editing.summary!, ro: e.target.value}})} />
                           <div className="grid grid-cols-2 gap-4">
                              <div>
-                                <label className="text-xs font-bold uppercase">Tip</label>
+                                <label className="text-xs font-bold uppercase">Tip Proiect</label>
                                 <select className="w-full bg-surface-2 border border-border p-3 text-xs" value={editing.projectType} onChange={e => setEditing({...editing, projectType: e.target.value})}>
                                    {['Rezidențial', 'Comercial', 'Hotel', 'Restaurant', 'Office'].map(t => <option key={t} value={t}>{t}</option>)}
                                 </select>
@@ -351,7 +336,7 @@ export const ProjectManager: React.FC = () => {
                              
                              {/* TIMELINE DATE - PROMINENT */}
                              <div className="bg-accent/5 border border-accent/20 p-2">
-                                <label className="text-xs font-bold uppercase text-accent block mb-1">Data Timeline (Afisare)</label>
+                                <label className="text-xs font-bold uppercase text-accent block mb-1">Data Proiect (Ordine)</label>
                                 <input type="date" className="w-full bg-surface-2 border border-border p-2 text-sm font-bold" value={editing.timelineDate || editing.publishedAt?.split('T')[0]} onChange={e => setEditing({...editing, timelineDate: e.target.value})} />
                                 <span className="text-[9px] text-muted italic">Determină ordinea în Portofoliu.</span>
                              </div>
@@ -372,7 +357,7 @@ export const ProjectManager: React.FC = () => {
                              <div className="flex justify-between items-center mb-2">
                                  <label className="text-xs font-bold uppercase">Media</label>
                                  <label className="text-[9px] uppercase font-bold text-accent cursor-pointer hover:underline">
-                                     + Upload New
+                                     + Upload Nou
                                      <input type="file" className="hidden" accept={editing.heroConfig?.mode === 'image' ? "image/*" : "video/*"} onChange={(e) => handleDirectUpload(e, editing.heroConfig?.mode === 'image' ? 'hero.imageId' : 'hero.videoId')} />
                                  </label>
                              </div>
@@ -445,15 +430,15 @@ export const ProjectManager: React.FC = () => {
                  {activeTab === 'story' && (
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-accent">1. Challenge</label>
+                            <label className="text-xs font-bold uppercase text-accent">1. Provocarea (Challenge)</label>
                             <textarea className="w-full h-24 bg-surface-2 border border-border p-3 text-sm" value={editing.clientBrief?.ro} onChange={e => setEditing({...editing, clientBrief: {...editing.clientBrief!, ro: e.target.value}})} />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-accent">2. Solution</label>
+                            <label className="text-xs font-bold uppercase text-accent">2. Soluția Noastră (Solution)</label>
                             <textarea className="w-full h-24 bg-surface-2 border border-border p-3 text-sm" value={editing.ourSolution?.ro} onChange={e => setEditing({...editing, ourSolution: {...editing.ourSolution!, ro: e.target.value}})} />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-xs font-bold uppercase text-accent">3. Result</label>
+                            <label className="text-xs font-bold uppercase text-accent">3. Rezultatul (Result)</label>
                             <textarea className="w-full h-24 bg-surface-2 border border-border p-3 text-sm" value={editing.result?.ro} onChange={e => setEditing({...editing, result: {...editing.result!, ro: e.target.value}})} />
                         </div>
                     </div>

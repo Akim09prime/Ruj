@@ -94,7 +94,7 @@ export const HeroManager: React.FC = () => {
     <div className="p-8 animate-fade-in max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-10 pb-6 border-b border-border">
         <div>
-          <h1 className="font-serif text-4xl mb-2">Hero System Manager</h1>
+          <h1 className="font-serif text-4xl mb-2">Administrator Hero</h1>
           <p className="text-[10px] uppercase tracking-[0.3em] text-muted font-bold">Configurează aspectul primei secțiuni din Home Page</p>
         </div>
         <div className="flex gap-4">
@@ -123,7 +123,7 @@ export const HeroManager: React.FC = () => {
             }}
             className="bg-red-500/10 text-red-500 border border-red-500/20 px-6 py-3 text-[10px] uppercase font-bold tracking-widest hover:bg-red-500 hover:text-white transition-all"
           >
-            Reset Default
+            Resetare Implicit
           </button>
           <button 
             onClick={handleSave}
@@ -142,7 +142,7 @@ export const HeroManager: React.FC = () => {
             onClick={() => setActiveTab(tab as any)}
             className={`px-6 py-3 text-[10px] uppercase font-bold tracking-widest transition-all ${activeTab === tab ? 'bg-accent text-white' : 'text-muted hover:bg-surface-2'}`}
           >
-            {tab}
+            {tab === 'general' ? 'General' : tab === 'content' ? 'Conținut' : tab === 'media' ? 'Media' : 'Slider'}
           </button>
         ))}
       </div>
@@ -154,7 +154,7 @@ export const HeroManager: React.FC = () => {
           <div className="space-y-8 max-w-3xl">
             <div className="grid grid-cols-2 gap-8">
                <div className="space-y-4">
-                  <label className="text-[10px] uppercase font-bold text-muted">Hero Mode</label>
+                  <label className="text-[10px] uppercase font-bold text-muted">Mod Hero</label>
                   <select 
                     className="w-full bg-surface-2 border border-border p-4 text-xs outline-none focus:border-accent"
                     value={hero.mode}
@@ -175,7 +175,7 @@ export const HeroManager: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              <label className="text-[10px] uppercase font-bold text-muted">Overlay Opacity ({hero.overlayStrength}%)</label>
+              <label className="text-[10px] uppercase font-bold text-muted">Opacitate Overlay ({hero.overlayStrength}%)</label>
               <input 
                 type="range" 
                 min="0" 
@@ -226,7 +226,7 @@ export const HeroManager: React.FC = () => {
                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" placeholder="EN" value={hero.eyebrow.en} onChange={e => setHero({...hero, eyebrow: {...hero.eyebrow, en: e.target.value}})} />
                </div>
                <div className="space-y-4">
-                  <label className="text-[10px] uppercase font-bold text-muted">Subtitle</label>
+                  <label className="text-[10px] uppercase font-bold text-muted">Subtitlu</label>
                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" placeholder="RO" value={hero.subtitle.ro} onChange={e => setHero({...hero, subtitle: {...hero.subtitle, ro: e.target.value}})} />
                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" placeholder="EN" value={hero.subtitle.en} onChange={e => setHero({...hero, subtitle: {...hero.subtitle, en: e.target.value}})} />
                </div>
@@ -257,12 +257,12 @@ export const HeroManager: React.FC = () => {
 
             <div className="border-t border-border pt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <label className="text-[10px] uppercase font-bold text-muted">Primary CTA</label>
+                  <label className="text-[10px] uppercase font-bold text-muted">Buton Principal (CTA)</label>
                   <input className="w-full bg-surface-2 border border-border p-3 text-xs mb-2" placeholder="Label RO" value={hero.primaryCta.label.ro} onChange={e => setHero({...hero, primaryCta: {...hero.primaryCta, label: {...hero.primaryCta.label, ro: e.target.value}}})} />
                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" placeholder="Link (ex: /contact)" value={hero.primaryCta.href} onChange={e => setHero({...hero, primaryCta: {...hero.primaryCta, href: e.target.value}})} />
                 </div>
                 <div className="space-y-4">
-                  <label className="text-[10px] uppercase font-bold text-muted">Secondary CTA</label>
+                  <label className="text-[10px] uppercase font-bold text-muted">Buton Secundar (CTA)</label>
                   <input className="w-full bg-surface-2 border border-border p-3 text-xs mb-2" placeholder="Label RO" value={hero.secondaryCta.label.ro} onChange={e => setHero({...hero, secondaryCta: {...hero.secondaryCta, label: {...hero.secondaryCta.label, ro: e.target.value}}})} />
                   <input className="w-full bg-surface-2 border border-border p-3 text-xs" placeholder="Link (ex: /portofoliu)" value={hero.secondaryCta.href} onChange={e => setHero({...hero, secondaryCta: {...hero.secondaryCta, href: e.target.value}})} />
                   <div className="flex items-center space-x-2 mt-2">
@@ -335,19 +335,19 @@ export const HeroManager: React.FC = () => {
             <div className="flex space-x-8">
                <div className="flex items-center space-x-2">
                   <input type="checkbox" checked={hero.muted} onChange={e => setHero({...hero, muted: e.target.checked})} />
-                  <label className="text-xs">Muted</label>
+                  <label className="text-xs">Fără Sunet</label>
                </div>
                <div className="flex items-center space-x-2">
                   <input type="checkbox" checked={hero.loop} onChange={e => setHero({...hero, loop: e.target.checked})} />
-                  <label className="text-xs">Loop</label>
+                  <label className="text-xs">Buclă (Loop)</label>
                </div>
                <div className="flex items-center space-x-2">
                   <input type="checkbox" checked={hero.autoplay} onChange={e => setHero({...hero, autoplay: e.target.checked})} />
-                  <label className="text-xs">Autoplay</label>
+                  <label className="text-xs">Redare Automată</label>
                </div>
                <div className="flex items-center space-x-2">
                   <input type="checkbox" checked={hero.showPlayButton} onChange={e => setHero({...hero, showPlayButton: e.target.checked})} />
-                  <label className="text-xs">Show Play Button</label>
+                  <label className="text-xs">Arată Buton Play</label>
                </div>
             </div>
           </div>

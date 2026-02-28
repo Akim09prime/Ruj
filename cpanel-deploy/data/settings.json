@@ -17,24 +17,24 @@
       { "id": "8", "label": { "ro": "Contact", "en": "Contact" }, "href": "/contact", "visible": true, "order": 7 }
   ],
   "footer": {
-      "contact": { "address": "Strada Industriei Nr. 10, Cluj-Napoca", "email": "office@carvello.ro", "phone": "0729 728 880" },
-      "socials": [{ "platform": "Instagram", "url": "#" }, { "platform": "Facebook", "url": "#" }],
-      "legal": { "ro": "© 2024 CARVELLO. Toate drepturile rezervate.", "en": "© 2024 CARVELLO. All rights reserved." }
+      "contact": { "address": "Strada Victoriei Nr. 10, București", "email": "contact@studioulmeu.ro", "phone": "+40 722 123 456" },
+      "socials": [{ "platform": "Instagram", "url": "https://instagram.com" }, { "platform": "Facebook", "url": "https://facebook.com" }, { "platform": "LinkedIn", "url": "https://linkedin.com" }],
+      "legal": { "ro": "© 2024 Studioul Meu. Toate drepturile rezervate.", "en": "© 2024 My Studio. All rights reserved." }
   },
   "activeTheme": "obsidian",
   "featuredStarsThreshold": 4,
-  "brand": { "logoDarkUrl": "", "logoLightUrl": "", "brandName": "CARVELLO", "brandSlogan": "Executat milimetric.", "useTextLogo": true },
+  "brand": { "logoDarkUrl": "", "logoLightUrl": "", "brandName": "STUDIOUL MEU", "brandSlogan": "Design Interior Premium", "useTextLogo": true },
   "adminPassword": "",
   "hero": {
       "mode": "slider", "enabled": true, "height": "fullscreen", "overlayStrength": 45, "align": "center",
-      "eyebrow": { "ro": "CARVELLO — Mobilier premium", "en": "CARVELLO — Premium furniture" },
-      "titleLine1": { "ro": "Mobilier la comandă.", "en": "Custom furniture." },
-      "titleLine2": { "ro": "Executat milimetric.", "en": "Millimetrically executed." },
-      "subtitle": { "ro": "Producție CNC și finisaje de lux.", "en": "CNC production and luxury finishes." },
-      "microFeatures": ["3D", "CNC", "2K Paint"],
-      "primaryCta": { "label": { "ro": "Cere ofertă", "en": "Get Quote" }, "href": "/cerere-oferta" },
+      "eyebrow": { "ro": "STUDIOUL MEU — Design Interior", "en": "MY STUDIO — Interior Design" },
+      "titleLine1": { "ro": "Design Interior.", "en": "Interior Design." },
+      "titleLine2": { "ro": "Creat pentru tine.", "en": "Created for you." },
+      "subtitle": { "ro": "Transformăm spațiile în experiențe.", "en": "We transform spaces into experiences." },
+      "microFeatures": ["3D", "Concept", "Execuție"],
+      "primaryCta": { "label": { "ro": "Cere ofertă", "en": "Get Quote" }, "href": "/contact" },
       "secondaryCta": { "label": { "ro": "Portofoliu", "en": "Portfolio" }, "href": "/portofoliu", "visible": true },
-      "videoUrl": "", "posterUrl": "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=2000",
+      "videoUrl": "", "posterUrl": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
       "muted": true, "loop": true, "showPlayButton": false, "autoplay": true, "interval": 6000, "slides": []
   }
 }

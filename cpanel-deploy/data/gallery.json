@@ -1,1 +1,86 @@
-[]
+[
+  {
+    "id": "1",
+    "projectId": "apartament-modern-bucuresti",
+    "kind": "image",
+    "url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "room": "Living",
+    "stage": "Finisaj",
+    "pieceTypes": [],
+    "stars": 5,
+    "caption": { "ro": "Living Room Modern", "en": "Modern Living Room" },
+    "shotDate": "2023-01-01T00:00:00Z",
+    "orderInProject": 1,
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "2",
+    "projectId": "apartament-modern-bucuresti",
+    "kind": "image",
+    "url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "room": "Bucătărie",
+    "stage": "Finisaj",
+    "pieceTypes": [],
+    "stars": 4,
+    "caption": { "ro": "Bucătărie Open Space", "en": "Open Space Kitchen" },
+    "shotDate": "2023-01-01T00:00:00Z",
+    "orderInProject": 2,
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "3",
+    "projectId": "cafenea-boutique-cluj",
+    "kind": "image",
+    "url": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "room": "Cafenea",
+    "stage": "Finisaj",
+    "pieceTypes": [],
+    "stars": 5,
+    "caption": { "ro": "Cafenea Design", "en": "Design Cafe" },
+    "shotDate": "2023-01-01T00:00:00Z",
+    "orderInProject": 1,
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "4",
+    "projectId": "casa-minimalista-ilfov",
+    "kind": "image",
+    "url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "room": "Dormitor",
+    "stage": "Finisaj",
+    "pieceTypes": [],
+    "stars": 4,
+    "caption": { "ro": "Dormitor Minimalist", "en": "Minimalist Bedroom" },
+    "shotDate": "2023-01-01T00:00:00Z",
+    "orderInProject": 1,
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "5",
+    "projectId": "cafenea-boutique-cluj",
+    "kind": "image",
+    "url": "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "room": "Spațiu Comercial",
+    "stage": "Finisaj",
+    "pieceTypes": [],
+    "stars": 4,
+    "caption": { "ro": "Spațiu Comercial", "en": "Commercial Space" },
+    "shotDate": "2023-01-01T00:00:00Z",
+    "orderInProject": 2,
+    "createdAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "6",
+    "projectId": "apartament-modern-bucuresti",
+    "kind": "image",
+    "url": "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+    "room": "Baie",
+    "stage": "Finisaj",
+    "pieceTypes": [],
+    "stars": 4,
+    "caption": { "ro": "Baie Modernă", "en": "Modern Bathroom" },
+    "shotDate": "2023-01-01T00:00:00Z",
+    "orderInProject": 3,
+    "createdAt": "2023-01-01T00:00:00Z"
+  }
+]

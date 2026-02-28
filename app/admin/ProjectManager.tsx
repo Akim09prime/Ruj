@@ -363,12 +363,12 @@ export const ProjectManager: React.FC = () => {
                              </div>
                              {editing.heroConfig?.mode === 'image' ? (
                                 <div className="border border-border p-4 text-center cursor-pointer hover:bg-surface-2 h-40 flex items-center justify-center" onClick={() => openMediaPicker('hero.imageId', false)}>
-                                   {editing.heroConfig.imageId ? <img src={allMedia.find(m => m.id === editing.heroConfig?.imageId)?.url} className="h-full w-full object-cover"/> : <span className="text-accent">+ Select Image</span>}
+                                   {editing.heroConfig.imageId ? <img src={allMedia.find(m => m.id === editing.heroConfig?.imageId)?.url} className="h-full w-full object-cover"/> : <span className="text-accent">+ Selectează Imagine</span>}
                                 </div>
                              ) : (
                                 <div className="space-y-4">
-                                   <button onClick={() => openMediaPicker('hero.videoId', false)} className="w-full p-3 border border-border text-xs text-left">Video: {editing.heroConfig?.videoId || 'Select...'}</button>
-                                   <button onClick={() => openMediaPicker('hero.posterId', false)} className="w-full p-3 border border-border text-xs text-left">Poster: {editing.heroConfig?.posterId || 'Select...'}</button>
+                                   <button onClick={() => openMediaPicker('hero.videoId', false)} className="w-full p-3 border border-border text-xs text-left">Video: {editing.heroConfig?.videoId || 'Selectează...'}</button>
+                                   <button onClick={() => openMediaPicker('hero.posterId', false)} className="w-full p-3 border border-border text-xs text-left">Poster: {editing.heroConfig?.posterId || 'Selectează...'}</button>
                                 </div>
                              )}
                           </div>
@@ -389,7 +389,7 @@ export const ProjectManager: React.FC = () => {
                              <div className="absolute top-2 right-2 flex gap-2">
                                 <button onClick={() => moveStage(idx, 'up')} className="text-xs px-2 border border-border">↑</button>
                                 <button onClick={() => moveStage(idx, 'down')} className="text-xs px-2 border border-border">↓</button>
-                                <button onClick={() => { const s = [...editing.stages!]; s.splice(idx,1); setEditing({...editing, stages: s}); }} className="text-red-500 text-xs px-2 border border-red-500">DEL</button>
+                                <button onClick={() => { const s = [...editing.stages!]; s.splice(idx,1); setEditing({...editing, stages: s}); }} className="text-red-500 text-xs px-2 border border-red-500">ȘTERGE</button>
                              </div>
                              <div className="grid grid-cols-12 gap-6">
                                 <div className="col-span-2 flex flex-col items-center">
@@ -422,7 +422,7 @@ export const ProjectManager: React.FC = () => {
                              <button onClick={() => removeSpec(i)} className="text-red-500 px-2">×</button>
                           </div>
                        ))}
-                       <button onClick={addSpec} className="text-accent text-xs uppercase font-bold tracking-widest">+ Add Spec Row</button>
+                       <button onClick={addSpec} className="text-accent text-xs uppercase font-bold tracking-widest">+ Adaugă Specificație</button>
                     </div>
                  )}
 
@@ -466,7 +466,7 @@ export const ProjectManager: React.FC = () => {
                       <span className="text-3xl mb-2 text-muted group-hover:text-accent transition-colors">+</span>
                   )}
                   <span className="text-[9px] uppercase font-bold text-muted group-hover:text-accent transition-colors">
-                      {isUploading ? 'Uploading...' : 'Upload New'}
+                      {isUploading ? 'Se încarcă...' : 'Upload Nou'}
                   </span>
                </label>
 

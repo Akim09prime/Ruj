@@ -1,1 +1,177 @@
-[]
+[
+  {
+    "id": "apartament-modern-bucuresti",
+    "slug": "apartament-modern-bucuresti",
+    "title": {
+      "ro": "Apartament Modern București",
+      "en": "Modern Apartment Bucharest"
+    },
+    "summary": {
+      "ro": "Un apartament cu 3 camere, amenajat într-un stil modern și minimalist, cu accente calde de lemn.",
+      "en": "A 3-room apartment, designed in a modern and minimalist style, with warm wood accents."
+    },
+    "timelineDate": "2023",
+    "clientBrief": {
+      "ro": "Crearea unui spațiu luminos, aerisit și funcțional.",
+      "en": "Creating a bright, airy, and functional space."
+    },
+    "ourSolution": {
+      "ro": "Am optat pentru o paletă cromatică neutră, cu nuanțe de alb, gri și bej, completată de texturi naturale și elemente de mobilier custom-made.",
+      "en": "We opted for a neutral color palette, with shades of white, gray, and beige, complemented by natural textures and custom-made furniture elements."
+    },
+    "result": {
+      "ro": "Un spațiu perfect adaptat nevoilor unei tinere familii.",
+      "en": "A space perfectly adapted to the needs of a young family."
+    },
+    "metrics": {
+      "duration": "3 luni",
+      "finish": "Premium",
+      "materials": "Lemn, MDF, Piatră",
+      "hardware": "Blum",
+      "services": ["Design Interior", "Management de Proiect"]
+    },
+    "heroConfig": {
+      "mode": "image",
+      "imageId": "1",
+      "overlay": { "intensity": 30, "vignette": true, "grain": false }
+    },
+    "stages": [
+      {
+        "id": "stage-1",
+        "title": { "ro": "Concept", "en": "Concept" },
+        "description": { "ro": "Am început prin a defini stilul și a crea moodboard-uri pentru fiecare încăpere.", "en": "We started by defining the style and creating moodboards for each room." },
+        "highlights": ["Moodboard", "Paletă cromatică"],
+        "media": { "galleryIds": ["1", "2"] }
+      },
+      {
+        "id": "stage-2",
+        "title": { "ro": "Proiectare 3D", "en": "3D Design" },
+        "description": { "ro": "Am realizat randări fotorealiste pentru a vizualiza rezultatul final.", "en": "We created photorealistic renderings to visualize the final result." },
+        "highlights": ["Randări fotorealiste", "Planuri 2D"],
+        "media": { "galleryIds": ["6"] }
+      },
+      {
+        "id": "stage-3",
+        "title": { "ro": "Implementare", "en": "Implementation" },
+        "description": { "ro": "Am coordonat echipele de execuție și am supervizat lucrările pe șantier.", "en": "We coordinated the execution teams and supervised the works on site." },
+        "highlights": ["Supervizare", "Recepție"],
+        "media": { "galleryIds": [] }
+      }
+    ],
+    "albums": [],
+    "techSpecs": [
+      { "label": "Suprafață", "value": "80 mp" }
+    ],
+    "projectType": "Rezidențial",
+    "location": { "ro": "București, România", "en": "Bucharest, Romania" },
+    "tags": ["Modern", "Minimalist"],
+    "isFeatured": true,
+    "publishedAt": "2023-01-01T00:00:00Z",
+    "coverMediaId": "1",
+    "isPublished": true,
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z"
+  },
+  {
+    "id": "cafenea-boutique-cluj",
+    "slug": "cafenea-boutique-cluj",
+    "title": {
+      "ro": "Cafenea Boutique Cluj",
+      "en": "Boutique Cafe Cluj"
+    },
+    "summary": {
+      "ro": "Un spațiu primitor și instagramabil, cu un design eclectic și accente vintage.",
+      "en": "A welcoming and instagrammable space, with an eclectic design and vintage accents."
+    },
+    "timelineDate": "2022",
+    "clientBrief": {
+      "ro": "Crearea unui spațiu unic, plin de personalitate.",
+      "en": "Creating a unique space, full of personality."
+    },
+    "ourSolution": {
+      "ro": "Am creat un concept de design care să îmbine elemente industriale cu detalii vintage și accente de culoare vibrante.",
+      "en": "We created a design concept that combines industrial elements with vintage details and vibrant color accents."
+    },
+    "result": {
+      "ro": "Un spațiu care atrage atât prin estetică, cât și prin atmosfera relaxantă.",
+      "en": "A space that attracts both through its aesthetics and its relaxing atmosphere."
+    },
+    "metrics": {
+      "duration": "2 luni",
+      "finish": "Premium",
+      "materials": "Metal, Cărămidă, Lemn",
+      "hardware": "Custom",
+      "services": ["Design Interior", "Consultanță"]
+    },
+    "heroConfig": {
+      "mode": "image",
+      "imageId": "3",
+      "overlay": { "intensity": 30, "vignette": true, "grain": false }
+    },
+    "stages": [],
+    "albums": [],
+    "techSpecs": [
+      { "label": "Suprafață", "value": "120 mp" }
+    ],
+    "projectType": "Comercial",
+    "location": { "ro": "Cluj-Napoca, România", "en": "Cluj-Napoca, Romania" },
+    "tags": ["Eclectic", "Vintage"],
+    "isFeatured": true,
+    "publishedAt": "2022-01-01T00:00:00Z",
+    "coverMediaId": "3",
+    "isPublished": true,
+    "createdAt": "2022-01-01T00:00:00Z",
+    "updatedAt": "2022-01-01T00:00:00Z"
+  },
+  {
+    "id": "casa-minimalista-ilfov",
+    "slug": "casa-minimalista-ilfov",
+    "title": {
+      "ro": "Casă Minimalistă Ilfov",
+      "en": "Minimalist House Ilfov"
+    },
+    "summary": {
+      "ro": "O locuință spațioasă, cu un design curat, linii simple și multă lumină naturală.",
+      "en": "A spacious home with a clean design, simple lines, and plenty of natural light."
+    },
+    "timelineDate": "2023",
+    "clientBrief": {
+      "ro": "Amenajarea unei case noi cu accent pe funcționalitate și confort.",
+      "en": "Fitting out a new house with an emphasis on functionality and comfort."
+    },
+    "ourSolution": {
+      "ro": "Am optat pentru un stil minimalist, cu spații deschise, ferestre mari și utilizarea materialelor naturale.",
+      "en": "We opted for a minimalist style, with open spaces, large windows, and the use of natural materials."
+    },
+    "result": {
+      "ro": "O atmosferă relaxantă și armonioasă.",
+      "en": "A relaxing and harmonious atmosphere."
+    },
+    "metrics": {
+      "duration": "6 luni",
+      "finish": "Premium",
+      "materials": "Lemn, Piatră, Sticlă",
+      "hardware": "Blum",
+      "services": ["Design Interior", "Management de Proiect"]
+    },
+    "heroConfig": {
+      "mode": "image",
+      "imageId": "4",
+      "overlay": { "intensity": 30, "vignette": true, "grain": false }
+    },
+    "stages": [],
+    "albums": [],
+    "techSpecs": [
+      { "label": "Suprafață", "value": "250 mp" }
+    ],
+    "projectType": "Rezidențial",
+    "location": { "ro": "Ilfov, România", "en": "Ilfov, Romania" },
+    "tags": ["Minimalist", "Modern"],
+    "isFeatured": false,
+    "publishedAt": "2023-01-01T00:00:00Z",
+    "coverMediaId": "4",
+    "isPublished": true,
+    "createdAt": "2023-01-01T00:00:00Z",
+    "updatedAt": "2023-01-01T00:00:00Z"
+  }
+]

@@ -1,7 +1,172 @@
 {
-    "hero": { "title": {"ro":"Despre","en":"About"}, "subtitle": {"ro":"Precizie","en":"Precision"}, "text": {"ro":"Atelier premium.","en":"Premium workshop."}, "mediaId": null },
-    "manifesto": { "title": {"ro":"Manifest","en":"Manifesto"}, "text": {"ro":"Calitate.","en":"Quality."}, "bullets": [] },
-    "pillars": [], "quality": { "title": {"ro":"Calitate","en":"Quality"}, "bullets": [], "images": [] }, "timeline": [],
-    "clients": { "resTitle": {"ro":"","en":""}, "resDesc": {"ro":"","en":""}, "comTitle": {"ro":"","en":""}, "comDesc": {"ro":"","en":""}},
-    "cta": { "title": {"ro":"","en":""}, "trustLine": {"ro":"","en":""}}
+    "hero": {
+        "title": {
+            "ro": "Despre Noi",
+            "en": "About Us"
+        },
+        "subtitle": {
+            "ro": "Pasiune pentru Design",
+            "en": "Passion for Design"
+        },
+        "text": {
+            "ro": "Suntem un studio de design interior dedicat creării de spații unice, funcționale și estetice. Cu o experiență vastă în domeniu, transformăm viziunea clienților noștri în realitate, punând accent pe detalii, calitate și inovație.",
+            "en": "We are an interior design studio dedicated to creating unique, functional, and aesthetic spaces. With extensive experience in the field, we turn our clients' vision into reality, focusing on details, quality, and innovation."
+        },
+        "mediaId": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+    },
+    "manifesto": {
+        "title": {
+            "ro": "Manifestul Nostru",
+            "en": "Our Manifesto"
+        },
+        "text": {
+            "ro": "Credem că designul interior nu este doar despre estetică, ci și despre modul în care un spațiu te face să te simți. Fiecare proiect este o poveste, iar noi suntem aici pentru a o scrie împreună cu tine.",
+            "en": "We believe that interior design is not just about aesthetics, but also about how a space makes you feel. Every project is a story, and we are here to write it together with you."
+        },
+        "bullets": [
+            {
+                "ro": "Design centrat pe om",
+                "en": "Human-centric design"
+            },
+            {
+                "ro": "Sustenabilitate și inovație",
+                "en": "Sustainability and innovation"
+            },
+            {
+                "ro": "Atenție la detalii",
+                "en": "Attention to detail"
+            }
+        ]
+    },
+    "pillars": [
+        {
+            "title": {
+                "ro": "Creativitate",
+                "en": "Creativity"
+            },
+            "desc": {
+                "ro": "Găsim soluții ingenioase și personalizate pentru fiecare spațiu.",
+                "en": "We find ingenious and personalized solutions for every space."
+            },
+            "bullets": [
+                { "ro": "Soluții inovatoare", "en": "Innovative solutions" },
+                { "ro": "Design personalizat", "en": "Custom design" }
+            ]
+        },
+        {
+            "title": {
+                "ro": "Profesionalism",
+                "en": "Professionalism"
+            },
+            "desc": {
+                "ro": "Respectăm termenele și bugetele stabilite, oferind servicii de înaltă calitate.",
+                "en": "We respect established deadlines and budgets, providing high-quality services."
+            },
+            "bullets": [
+                { "ro": "Respectarea termenelor", "en": "Meeting deadlines" },
+                { "ro": "Calitate garantată", "en": "Guaranteed quality" }
+            ]
+        },
+        {
+            "title": {
+                "ro": "Colaborare",
+                "en": "Collaboration"
+            },
+            "desc": {
+                "ro": "Lucrăm îndeaproape cu clienții noștri pentru a ne asigura că rezultatul final depășește așteptările.",
+                "en": "We work closely with our clients to ensure the final result exceeds expectations."
+            },
+            "bullets": [
+                { "ro": "Comunicare transparentă", "en": "Transparent communication" },
+                { "ro": "Implicarea clientului", "en": "Client involvement" }
+            ]
+        }
+    ],
+    "quality": {
+        "title": {
+            "ro": "Standarde de Calitate",
+            "en": "Quality Standards"
+        },
+        "bullets": [
+            {
+                "ro": "Materiale premium",
+                "en": "Premium materials"
+            },
+            {
+                "ro": "Echipe de execuție cu experiență",
+                "en": "Experienced execution teams"
+            },
+            {
+                "ro": "Supervizare constantă pe șantier",
+                "en": "Constant site supervision"
+            }
+        ],
+        "images": [
+            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
+            "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+        ]
+    },
+    "timeline": [
+        {
+            "year": "2015",
+            "title": {
+                "ro": "Fondarea Studioului",
+                "en": "Studio Foundation"
+            },
+            "description": {
+                "ro": "Am început cu o echipă mică și multă pasiune pentru design.",
+                "en": "We started with a small team and a lot of passion for design."
+            }
+        },
+        {
+            "year": "2018",
+            "title": {
+                "ro": "Extinderea Echipei",
+                "en": "Team Expansion"
+            },
+            "description": {
+                "ro": "Ne-am mărit echipa și portofoliul de proiecte.",
+                "en": "We expanded our team and project portfolio."
+            }
+        },
+        {
+            "year": "2023",
+            "title": {
+                "ro": "Recunoaștere Internațională",
+                "en": "International Recognition"
+            },
+            "description": {
+                "ro": "Am câștigat premii importante pentru designul nostru inovator.",
+                "en": "We won important awards for our innovative design."
+            }
+        }
+    ],
+    "clients": {
+        "resTitle": {
+            "ro": "Clienți Rezidențiali",
+            "en": "Residential Clients"
+        },
+        "resDesc": {
+            "ro": "Am transformat sute de case în acasă, creând spații confortabile și pline de personalitate.",
+            "en": "We have transformed hundreds of houses into homes, creating comfortable and personality-filled spaces."
+        },
+        "comTitle": {
+            "ro": "Clienți Comerciali",
+            "en": "Commercial Clients"
+        },
+        "comDesc": {
+            "ro": "Am colaborat cu branduri de top pentru a crea spații comerciale atractive și funcționale.",
+            "en": "We have collaborated with top brands to create attractive and functional commercial spaces."
+        }
+    },
+    "cta": {
+        "title": {
+            "ro": "Ești gata să începi proiectul tău?",
+            "en": "Are you ready to start your project?"
+        },
+        "trustLine": {
+            "ro": "Contactează-ne pentru o consultație gratuită.",
+            "en": "Contact us for a free consultation."
+        }
+    }
 }

@@ -1,5 +1,101 @@
 {
-    "hero": { "title": {"ro":"Contact","en":"Contact"}, "subtitle": {"ro":"Hai să discutăm","en":"Lets talk"}, "ctaPrimary": {"ro":"Mesaj","en":"Message"}, "ctaSecondary": {"ro":"WhatsApp","en":"WhatsApp"}, "coverImageId": null },
-    "info": { "phone": "0729 728 880", "email": "office@carvello.ro", "address": "Strada Industriei 10", "city": "Cluj", "country": "Ro", "hours": "L-V", "responseBuffer": {"ro":"24h","en":"24h"}, "whatsappLink": "", "mapEmbedUrl": "" },
-    "timeline": { "steps": [] }, "faq": []
+    "hero": {
+        "title": {
+            "ro": "Contact",
+            "en": "Contact"
+        },
+        "subtitle": {
+            "ro": "Hai să discutăm despre proiectul tău",
+            "en": "Let's talk about your project"
+        },
+        "ctaPrimary": {
+            "ro": "Trimite Mesaj",
+            "en": "Send Message"
+        },
+        "ctaSecondary": {
+            "ro": "Scrie-ne pe WhatsApp",
+            "en": "Message on WhatsApp"
+        },
+        "coverImageId": "https://images.unsplash.com/photo-1497366216548-37526070297c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+    },
+    "info": {
+        "phone": "+40 722 123 456",
+        "email": "contact@studioulmeu.ro",
+        "address": "Strada Victoriei, Nr. 10",
+        "city": "București",
+        "country": "România",
+        "hours": "Luni - Vineri: 09:00 - 18:00",
+        "responseBuffer": {
+            "ro": "Răspundem în maxim 24 de ore lucrătoare.",
+            "en": "We respond within 24 business hours."
+        },
+        "whatsappLink": "https://wa.me/40722123456",
+        "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8444388087937!2d26.096306!3d44.436141!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1ff4770adb5b7%3A0x58147f39579fe6fa!2sCalea%20Victoriei%2C%20Bucure%C8%99ti!5e0!3m2!1sro!2sro!4v1700000000000!5m2!1sro!2sro"
+    },
+    "timeline": {
+        "steps": [
+            {
+                "title": {
+                    "ro": "1. Ne contactezi",
+                    "en": "1. You contact us"
+                },
+                "desc": {
+                    "ro": "Ne trimiți un mesaj cu detaliile proiectului tău.",
+                    "en": "You send us a message with your project details."
+                }
+            },
+            {
+                "title": {
+                    "ro": "2. Stabilim o întâlnire",
+                    "en": "2. We schedule a meeting"
+                },
+                "desc": {
+                    "ro": "Discutăm la telefon sau ne vedem la o cafea pentru a aprofunda.",
+                    "en": "We discuss over the phone or meet for coffee to dive deeper."
+                }
+            },
+            {
+                "title": {
+                    "ro": "3. Începem colaborarea",
+                    "en": "3. We start the collaboration"
+                },
+                "desc": {
+                    "ro": "Îți prezentăm o ofertă personalizată și dăm startul proiectului.",
+                    "en": "We present a personalized offer and kick off the project."
+                }
+            }
+        ]
+    },
+    "faq": [
+        {
+            "question": {
+                "ro": "Cât costă un proiect de design interior?",
+                "en": "How much does an interior design project cost?"
+            },
+            "answer": {
+                "ro": "Costul variază în funcție de complexitatea proiectului, suprafața spațiului și serviciile alese. Contactează-ne pentru o ofertă personalizată.",
+                "en": "The cost varies depending on the complexity of the project, the area of the space, and the chosen services. Contact us for a personalized offer."
+            }
+        },
+        {
+            "question": {
+                "ro": "Cât durează un proiect?",
+                "en": "How long does a project take?"
+            },
+            "answer": {
+                "ro": "Durata depinde de dimensiunea proiectului. Un proiect de design complet pentru un apartament poate dura între 4 și 8 săptămâni.",
+                "en": "The duration depends on the size of the project. A complete design project for an apartment can take between 4 and 8 weeks."
+            }
+        },
+        {
+            "question": {
+                "ro": "Oferiți servicii și în afara Bucureștiului?",
+                "en": "Do you offer services outside Bucharest?"
+            },
+            "answer": {
+                "ro": "Da, preluăm proiecte în toată țara, iar pentru consultanță oferim și sesiuni online.",
+                "en": "Yes, we take on projects nationwide, and for consulting we also offer online sessions."
+            }
+        }
+    ]
 }

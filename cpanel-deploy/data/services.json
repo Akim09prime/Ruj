@@ -1,1 +1,158 @@
-[]
+[
+  {
+    "id": "design-interior",
+    "slug": "design-interior",
+    "title": {
+      "ro": "Design Interior",
+      "en": "Interior Design"
+    },
+    "subtitle": {
+      "ro": "Concepte personalizate",
+      "en": "Custom concepts"
+    },
+    "shortDescription": {
+      "ro": "Concepte personalizate de design interior pentru spații rezidențiale și comerciale.",
+      "en": "Custom interior design concepts for residential and commercial spaces."
+    },
+    "fullDescription": {
+      "ro": "Oferim servicii complete de design interior, de la conceptul inițial și planificarea spațiului, până la selecția materialelor, a mobilierului și a decorațiunilor. Fiecare proiect este abordat cu atenție la detalii, reflectând personalitatea și nevoile clienților noștri.",
+      "en": "We offer comprehensive interior design services, from initial concept and space planning to the selection of materials, furniture, and decorations. Each project is approached with attention to detail, reflecting the personality and needs of our clients."
+    },
+    "heroMediaId": null,
+    "bullets": [
+      { "ro": "Planificare spațială", "en": "Space planning" },
+      { "ro": "Randări 3D", "en": "3D renderings" }
+    ],
+    "features": [
+      {
+        "title": { "ro": "Planificare spațială 2D/3D", "en": "2D/3D Space Planning" },
+        "desc": { "ro": "Optimizarea spațiului", "en": "Space optimization" },
+        "icon": "Home"
+      },
+      {
+        "title": { "ro": "Selecție materiale și finisaje", "en": "Material & Finish Selection" },
+        "desc": { "ro": "Alegerea materialelor potrivite", "en": "Choosing the right materials" },
+        "icon": "Layers"
+      }
+    ],
+    "processSteps": [
+      {
+        "title": { "ro": "Concept", "en": "Concept" },
+        "desc": { "ro": "Definirea stilului", "en": "Defining the style" }
+      }
+    ],
+    "faq": [
+      {
+        "question": { "ro": "Cât durează?", "en": "How long does it take?" },
+        "answer": { "ro": "Depinde de complexitate", "en": "Depends on complexity" }
+      }
+    ],
+    "relatedProjectTags": ["Modern", "Minimalist"],
+    "isPublished": true,
+    "order": 1
+  },
+  {
+    "id": "consultanta",
+    "slug": "consultanta",
+    "title": {
+      "ro": "Consultanță Design",
+      "en": "Design Consulting"
+    },
+    "subtitle": {
+      "ro": "Sesiuni de consultanță",
+      "en": "Consulting sessions"
+    },
+    "shortDescription": {
+      "ro": "Sesiuni de consultanță pentru a te ghida în alegerile de design și amenajare.",
+      "en": "Consulting sessions to guide you in your design and layout choices."
+    },
+    "fullDescription": {
+      "ro": "Serviciul nostru de consultanță este ideal pentru cei care doresc o părere avizată înainte de a începe o renovare sau o reamenajare. Te ajutăm să definești stilul, să optimizezi bugetul și să eviți greșelile costisitoare.",
+      "en": "Our consulting service is ideal for those who want an expert opinion before starting a renovation or remodeling. We help you define your style, optimize your budget, and avoid costly mistakes."
+    },
+    "heroMediaId": null,
+    "bullets": [
+      { "ro": "Analiza spațiului", "en": "Space analysis" },
+      { "ro": "Recomandări de stil", "en": "Style recommendations" }
+    ],
+    "features": [
+      {
+        "title": { "ro": "Analiza spațiului", "en": "Space Analysis" },
+        "desc": { "ro": "Evaluarea spațiului actual", "en": "Evaluating the current space" },
+        "icon": "Maximize"
+      },
+      {
+        "title": { "ro": "Recomandări de stil", "en": "Style Recommendations" },
+        "desc": { "ro": "Sfaturi personalizate", "en": "Personalized advice" },
+        "icon": "Star"
+      }
+    ],
+    "processSteps": [
+      {
+        "title": { "ro": "Întâlnire", "en": "Meeting" },
+        "desc": { "ro": "Discuție inițială", "en": "Initial discussion" }
+      }
+    ],
+    "faq": [
+      {
+        "question": { "ro": "Cât costă?", "en": "How much does it cost?" },
+        "answer": { "ro": "Prețul variază", "en": "Price varies" }
+      }
+    ],
+    "relatedProjectTags": ["Eclectic"],
+    "isPublished": true,
+    "order": 2
+  },
+  {
+    "id": "project-management",
+    "slug": "project-management",
+    "title": {
+      "ro": "Management de Proiect",
+      "en": "Project Management"
+    },
+    "subtitle": {
+      "ro": "Coordonarea completă",
+      "en": "Complete coordination"
+    },
+    "shortDescription": {
+      "ro": "Coordonarea completă a lucrărilor de amenajare pentru o execuție fără stres.",
+      "en": "Complete coordination of fit-out works for a stress-free execution."
+    },
+    "fullDescription": {
+      "ro": "Ne ocupăm de implementarea proiectului de design, coordonând echipele de constructori, furnizorii și meșterii. Ne asigurăm că totul este executat conform planșelor tehnice, la timp și în bugetul stabilit.",
+      "en": "We handle the implementation of the design project, coordinating construction teams, suppliers, and craftsmen. We ensure everything is executed according to technical drawings, on time and within budget."
+    },
+    "heroMediaId": null,
+    "bullets": [
+      { "ro": "Coordonare echipe", "en": "Team coordination" },
+      { "ro": "Urmărire șantier", "en": "Site supervision" }
+    ],
+    "features": [
+      {
+        "title": { "ro": "Coordonare echipe", "en": "Team Coordination" },
+        "desc": { "ro": "Managementul echipelor", "en": "Team management" },
+        "icon": "Users"
+      },
+      {
+        "title": { "ro": "Urmărire șantier", "en": "Site Supervision" },
+        "desc": { "ro": "Verificarea lucrărilor", "en": "Checking the works" },
+        "icon": "Eye"
+      }
+    ],
+    "processSteps": [
+      {
+        "title": { "ro": "Planificare", "en": "Planning" },
+        "desc": { "ro": "Stabilirea etapelor", "en": "Setting the stages" }
+      }
+    ],
+    "faq": [
+      {
+        "question": { "ro": "Sunteți prezenți pe șantier?", "en": "Are you present on site?" },
+        "answer": { "ro": "Da, zilnic", "en": "Yes, daily" }
+      }
+    ],
+    "relatedProjectTags": ["Modern"],
+    "isPublished": true,
+    "order": 3
+  }
+]

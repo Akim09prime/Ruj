@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "1",
+    "name": "Ion Popescu",
+    "email": "ion.popescu@example.com",
+    "phone": "0722123456",
+    "service": "design-interior",
+    "message": "Buna ziua, as dori o oferta pentru amenajarea unui apartament cu 2 camere in Bucuresti.",
+    "date": "2023-10-26T10:00:00.000Z",
+    "status": "new"
+  },
+  {
+    "id": "2",
+    "name": "Maria Ionescu",
+    "email": "maria.ionescu@example.com",
+    "phone": "0733123456",
+    "service": "consultanta",
+    "message": "Buna ziua, as dori o consultanta pentru reamenajarea livingului.",
+    "date": "2023-10-25T14:30:00.000Z",
+    "status": "contacted"
+  }
+]

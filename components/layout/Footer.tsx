@@ -102,14 +102,13 @@ export const Footer: React.FC<FooterProps> = () => {
           </div>
         </div>
 
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-white/30">
+        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 relative">
+          <Link to="/admin/login" className="text-[10px] uppercase tracking-[0.2em] text-white/30 hover:text-white/40 transition-colors cursor-default">
             © {currentYear} Carvello. {lang === 'ro' ? 'Toate drepturile rezervate.' : 'All rights reserved.'}
-          </p>
+          </Link>
           <div className="flex gap-8">
-             <Link to="/admin/login" className="text-[9px] uppercase tracking-widest text-white/10 hover:text-[#d4af37] transition-colors">
-               Admin Access
-             </Link>
+             {/* Buton invizibil în colțul din dreapta jos */}
+             <Link to="/admin/login" className="absolute bottom-0 right-0 w-16 h-16 opacity-0 z-50 cursor-default" aria-label="Admin Access"></Link>
           </div>
         </div>
       </div>

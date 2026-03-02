@@ -13,6 +13,10 @@ define('DATA_DIR', BASE_DIR . 'data/');
 define('UPLOAD_DIR', BASE_DIR . 'uploads/');
 define('SESSION_DIR', BASE_DIR . 'sessions/');
 
+// Email Configuration
+define('CONTACT_EMAIL', 'office@carvello.ro'); // Change this to your email
+define('SENDER_EMAIL', 'noreply@carvello.ro'); // Change this to a valid sender email
+
 if (!file_exists(DATA_DIR)) mkdir(DATA_DIR, 0755, true);
 if (!file_exists(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);
 if (!file_exists(SESSION_DIR)) mkdir(SESSION_DIR, 0755, true);

@@ -17,13 +17,13 @@ Before uploading, you need to generate the production files.
     ```bash
     npm run build
     ```
-3.  This will create a `dist` folder containing all the files needed for the website.
+3.  This will create a `cpanel-deploy` folder containing all the files needed for the website.
 
 ## Step 2: Prepare for Upload
 
-1.  Locate the `dist` folder created in the previous step.
-2.  Select **all files and folders** inside `dist` (e.g., `assets`, `api`, `index.html`, etc.).
-3.  Create a **ZIP archive** of these contents. Name it `deploy.zip`.
+1.  Locate the `cpanel-deploy` folder created in the previous step.
+2.  Select **all files and folders** inside `cpanel-deploy` (e.g., `assets`, `api`, `index.html`, etc.).
+3.  Create a **ZIP archive** of these contents. Name it `cpanel-deploy.zip`. (Or simply run `npm run zip` to do this automatically).
 
 ## Step 3: Upload to cPanel
 

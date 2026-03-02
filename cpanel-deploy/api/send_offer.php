@@ -19,7 +19,7 @@ if (empty($to) || empty($subject) || empty($message)) {
 }
 
 // Sender info
-$fromEmail = 'noreply@' . $_SERVER['HTTP_HOST'];
+$fromEmail = SENDER_EMAIL;
 $fromName = 'Carvello Offers';
 $headers = "From: $fromName <$fromEmail>\r\n";
 $headers .= "Reply-To: $fromEmail\r\n";

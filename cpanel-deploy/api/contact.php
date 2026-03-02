@@ -93,7 +93,7 @@ if (!file_put_contents($leadsFile, json_encode($leads, JSON_PRETTY_PRINT | JSON_
 }
 
 // 5. Send Email Notification
-$to = 'office@carvello.ro';
+$to = CONTACT_EMAIL;
 $subject = "Lead Nou CARVELLO: {$lead['name']} ({$lead['projectType']})";
 
 $body = "Un nou lead a fost înregistrat pe site:\n\n";
@@ -117,7 +117,7 @@ $body .= "Data: " . date('d.m.Y H:i', strtotime($lead['createdAt'])) . "\n";
 $body .= "Sursa: {$lead['source']}\n";
 
 $headers = [
-    'From' => 'no-reply@carvello.ro',
+    'From' => SENDER_EMAIL,
     'Reply-To' => $lead['email'],
     'X-Mailer' => 'PHP/' . phpversion(),
     'Content-Type' => 'text/plain; charset=UTF-8'

@@ -1,4 +1,4 @@
-import{r as p,d as r,j as e}from"./index.js";import{c as d}from"./createLucideIcon.js";import{P as M,I as D}from"./panels-top-left.js";import{U as c}from"./user.js";import{P as j,T as E}from"./trash-2.js";/**
+import{c as d,r as p,d as r,j as e}from"./index.js";import{P as M,I as D}from"./panels-top-left.js";import{U as c}from"./user.js";import{P as j}from"./plus.js";import{T as E}from"./trash-2.js";/**
  * @license lucide-react v0.460.0 - ISC
  *
  * This source code is licensed under the ISC license.

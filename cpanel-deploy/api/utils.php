@@ -10,7 +10,7 @@ function jsonResponse($data, $status = 200) {
 }
 
 function errorResponse($message, $status = 400) {
-    jsonResponse(['error' => $message], $status);
+    jsonResponse(['ok' => false, 'message' => $message], $status);
 }
 
 function getJsonInput() {

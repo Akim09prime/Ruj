@@ -224,8 +224,10 @@ export interface Project {
   publishedAt: string;
   coverMediaId: string | null;
   isPublished: boolean;
+  isVisible?: boolean; // Added for admin visibility toggle
   createdAt: string;
   updatedAt: string;
+  agentId?: string; // Added for agent tracking
 }
 
 export interface Media {
@@ -303,4 +305,53 @@ export interface AppDB {
   media: Media[];
   pages: Page[];
   leads: Lead[];
+  offerTemplates: OfferTemplate[];
+  offers: Offer[];
+}
+
+export interface OfferTemplate {
+  id: string;
+  name: string;
+  layout: 'grid' | 'masonry' | 'carousel';
+  theme: 'light' | 'dark' | 'gold';
+  defaultTitle: string;
+  defaultMessage: string;
+  contactInfo: {
+    name: string;
+    phone: string;
+    email: string;
+    role: string;
+  };
+  logoUrl?: string;
+  createdBy?: string; // username of the creator
+  createdAt: string;
+}
+
+export interface Offer {
+  id: string;
+  templateId: string;
+  agentId: string; // username of the agent
+  clientEmail: string;
+  subject: string;
+  message: string; // Personalized message for this offer
+  images: string[]; // URLs of selected images
+  viewCount: number;
+  createdAt: string;
+  status: 'sent' | 'viewed' | 'archived';
+}
+
+declare module 'react' {
+  interface ImgHTMLAttributes<T> extends React.HTMLAttributes<T> {
+    fetchpriority?: 'high' | 'low' | 'auto';
+  }
+}
+
+export interface ImportMetaEnv {
+  readonly VITE_APP_TITLE: string;
+  readonly DEV: boolean;
+  // more env variables...
+}
+
+export interface ImportMeta {
+  readonly env: ImportMetaEnv;
 }

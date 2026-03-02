@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { dbService } from '../../services/db';
 
 export const Login: React.FC = () => {
+  const [username, setUsername] = useState('');
   const [pass, setPass] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,12 +23,12 @@ export const Login: React.FC = () => {
     setLoading(true);
     setError('');
 
-    const success = await dbService.login(pass);
+    const result = await dbService.loginUser(username, pass);
     
-    if (success) {
+    if (result.success) {
       navigate('/admin');
     } else {
-      setError('Parolă incorectă sau cont blocat temporar.');
+      setError(result.message || 'Date de autentificare incorecte.');
       setPass('');
     }
     setLoading(false);
@@ -54,10 +55,20 @@ export const Login: React.FC = () => {
         
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Parolă Master</label>
+            <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Utilizator</label>
+            <input 
+              type="text"
+              autoFocus
+              placeholder="admin"
+              className="w-full bg-surface-2 border border-border p-4 outline-none focus:border-accent transition-all text-center tracking-widest text-foreground font-sans"
+              value={username}
+              onChange={e => { setUsername(e.target.value); setError(''); }}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] uppercase font-bold tracking-widest text-muted">Parolă</label>
             <input 
               type="password"
-              autoFocus
               placeholder="••••••••"
               className={`w-full bg-surface-2 border ${error ? 'border-red-500' : 'border-border'} p-4 outline-none focus:border-accent transition-all text-center tracking-[0.3em] text-foreground font-mono`}
               value={pass}

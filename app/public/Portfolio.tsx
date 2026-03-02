@@ -21,7 +21,6 @@ const FALLBACK_PROJECTS: Project[] = [
     slug: 'penthouse-obsidian',
     coverMediaId: null,
     tags: ['Minimalist', 'Black Matte', 'Luxury'],
-    description: { ro: '', en: '' },
     gallery: []
   },
   {
@@ -36,7 +35,6 @@ const FALLBACK_PROJECTS: Project[] = [
     slug: 'showroom-luxury',
     coverMediaId: null,
     tags: ['CNC', 'Commercial', 'Showroom'],
-    description: { ro: '', en: '' },
     gallery: []
   },
   {
@@ -51,7 +49,6 @@ const FALLBACK_PROJECTS: Project[] = [
     slug: 'villa-azure',
     coverMediaId: null,
     tags: ['Bronze', 'Natural Stone', 'Kitchen'],
-    description: { ro: '', en: '' },
     gallery: []
   }
 ];
@@ -76,7 +73,7 @@ export const Portfolio: React.FC = () => {
         const p = await dbService.getProjects();
         const m = await dbService.getMedia();
         
-        const published = p.filter(proj => proj.isPublished);
+        const published = p.filter(proj => proj.isPublished && (proj.isVisible !== false));
         
         if (published.length > 0) {
           setProjects(published);

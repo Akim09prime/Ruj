@@ -1,18 +1,18 @@
 {
     "hero": {
         "title": {
-            "ro": "Despre Noi",
-            "en": "About Us"
+            "ro": "Despre CARVELLO",
+            "en": "About CARVELLO"
         },
         "subtitle": {
-            "ro": "Pasiune pentru Design",
-            "en": "Passion for Design"
+            "ro": "Măiestrie și Precizie",
+            "en": "Craftsmanship and Precision"
         },
         "text": {
-            "ro": "Suntem un studio de design interior dedicat creării de spații unice, funcționale și estetice. Cu o experiență vastă în domeniu, transformăm viziunea clienților noștri în realitate, punând accent pe detalii, calitate și inovație.",
-            "en": "We are an interior design studio dedicated to creating unique, functional, and aesthetic spaces. With extensive experience in the field, we turn our clients' vision into reality, focusing on details, quality, and innovation."
+            "ro": "Suntem un atelier de producție mobilier premium, dedicat excelenței în design și execuție.",
+            "en": "We are a premium furniture production workshop, dedicated to excellence in design and execution."
         },
-        "mediaId": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+        "mediaId": null
     },
     "manifesto": {
         "title": {
@@ -20,124 +20,118 @@
             "en": "Our Manifesto"
         },
         "text": {
-            "ro": "Credem că designul interior nu este doar despre estetică, ci și despre modul în care un spațiu te face să te simți. Fiecare proiect este o poveste, iar noi suntem aici pentru a o scrie împreună cu tine.",
-            "en": "We believe that interior design is not just about aesthetics, but also about how a space makes you feel. Every project is a story, and we are here to write it together with you."
+            "ro": "Credem că mobilierul nu este doar un obiect utilitar, ci o expresie a personalității și a stilului de viață. Ne angajăm să creăm piese care nu doar arată impecabil, ci și rezistă testului timpului, folosind cele mai bune materiale și tehnologii de ultimă generație.",
+            "en": "We believe that furniture is not just a utilitarian object, but an expression of personality and lifestyle. We are committed to creating pieces that not only look flawless but also stand the test of time, using the best materials and cutting-edge technologies."
         },
         "bullets": [
             {
-                "ro": "Design centrat pe om",
-                "en": "Human-centric design"
+                "ro": "Atenție obsesivă la detalii",
+                "en": "Obsessive attention to detail"
             },
             {
-                "ro": "Sustenabilitate și inovație",
-                "en": "Sustainability and innovation"
+                "ro": "Inovație continuă în producție",
+                "en": "Continuous innovation in production"
             },
             {
-                "ro": "Atenție la detalii",
-                "en": "Attention to detail"
+                "ro": "Respect pentru materiale și mediu",
+                "en": "Respect for materials and the environment"
             }
         ]
     },
     "pillars": [
         {
+            "id": "pillar-1",
             "title": {
-                "ro": "Creativitate",
-                "en": "Creativity"
+                "ro": "Tehnologie CNC",
+                "en": "CNC Technology"
             },
-            "desc": {
-                "ro": "Găsim soluții ingenioase și personalizate pentru fiecare spațiu.",
-                "en": "We find ingenious and personalized solutions for every space."
+            "description": {
+                "ro": "Precizie milimetrică în fiecare tăietură.",
+                "en": "Millimeter precision in every cut."
             },
-            "bullets": [
-                { "ro": "Soluții inovatoare", "en": "Innovative solutions" },
-                { "ro": "Design personalizat", "en": "Custom design" }
-            ]
+            "icon": "Cpu"
         },
         {
+            "id": "pillar-2",
             "title": {
-                "ro": "Profesionalism",
-                "en": "Professionalism"
+                "ro": "Finisaje Premium",
+                "en": "Premium Finishes"
             },
-            "desc": {
-                "ro": "Respectăm termenele și bugetele stabilite, oferind servicii de înaltă calitate.",
-                "en": "We respect established deadlines and budgets, providing high-quality services."
+            "description": {
+                "ro": "Vopsire 2K și furnire naturale selectate manual.",
+                "en": "2K painting and hand-selected natural veneers."
             },
-            "bullets": [
-                { "ro": "Respectarea termenelor", "en": "Meeting deadlines" },
-                { "ro": "Calitate garantată", "en": "Guaranteed quality" }
-            ]
+            "icon": "Droplet"
         },
         {
+            "id": "pillar-3",
             "title": {
-                "ro": "Colaborare",
-                "en": "Collaboration"
+                "ro": "Design Personalizat",
+                "en": "Custom Design"
             },
-            "desc": {
-                "ro": "Lucrăm îndeaproape cu clienții noștri pentru a ne asigura că rezultatul final depășește așteptările.",
-                "en": "We work closely with our clients to ensure the final result exceeds expectations."
+            "description": {
+                "ro": "Soluții unice pentru fiecare spațiu.",
+                "en": "Unique solutions for every space."
             },
-            "bullets": [
-                { "ro": "Comunicare transparentă", "en": "Transparent communication" },
-                { "ro": "Implicarea clientului", "en": "Client involvement" }
-            ]
+            "icon": "PenTool"
         }
     ],
     "quality": {
         "title": {
-            "ro": "Standarde de Calitate",
-            "en": "Quality Standards"
+            "ro": "Standardul CARVELLO",
+            "en": "The CARVELLO Standard"
         },
         "bullets": [
             {
-                "ro": "Materiale premium",
-                "en": "Premium materials"
+                "ro": "Feronerie Blum cu garanție extinsă",
+                "en": "Blum hardware with extended warranty"
             },
             {
-                "ro": "Echipe de execuție cu experiență",
-                "en": "Experienced execution teams"
+                "ro": "MDF de înaltă densitate pentru durabilitate",
+                "en": "High-density MDF for durability"
             },
             {
-                "ro": "Supervizare constantă pe șantier",
-                "en": "Constant site supervision"
+                "ro": "Control riguros al calității în 3 etape",
+                "en": "Rigorous 3-stage quality control"
             }
         ],
-        "images": [
-            "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
-            "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
-        ]
+        "images": []
     },
     "timeline": [
         {
-            "year": "2015",
-            "title": {
-                "ro": "Fondarea Studioului",
-                "en": "Studio Foundation"
-            },
-            "description": {
-                "ro": "Am început cu o echipă mică și multă pasiune pentru design.",
-                "en": "We started with a small team and a lot of passion for design."
-            }
-        },
-        {
+            "id": "timeline-1",
             "year": "2018",
             "title": {
-                "ro": "Extinderea Echipei",
-                "en": "Team Expansion"
+                "ro": "Începutul",
+                "en": "The Beginning"
             },
             "description": {
-                "ro": "Ne-am mărit echipa și portofoliul de proiecte.",
-                "en": "We expanded our team and project portfolio."
+                "ro": "Am deschis primul nostru atelier, cu o echipă mică dar pasionată.",
+                "en": "We opened our first workshop, with a small but passionate team."
             }
         },
         {
-            "year": "2023",
+            "id": "timeline-2",
+            "year": "2021",
             "title": {
-                "ro": "Recunoaștere Internațională",
-                "en": "International Recognition"
+                "ro": "Modernizarea",
+                "en": "Modernization"
             },
             "description": {
-                "ro": "Am câștigat premii importante pentru designul nostru inovator.",
-                "en": "We won important awards for our innovative design."
+                "ro": "Am investit în primele utilaje CNC pentru a crește precizia.",
+                "en": "We invested in our first CNC machines to increase precision."
+            }
+        },
+        {
+            "id": "timeline-3",
+            "year": "2024",
+            "title": {
+                "ro": "Extinderea",
+                "en": "Expansion"
+            },
+            "description": {
+                "ro": "Ne-am mutat într-o nouă facilitate de producție, dublându-ne capacitatea.",
+                "en": "We moved to a new production facility, doubling our capacity."
             }
         }
     ],
@@ -147,22 +141,22 @@
             "en": "Residential Clients"
         },
         "resDesc": {
-            "ro": "Am transformat sute de case în acasă, creând spații confortabile și pline de personalitate.",
-            "en": "We have transformed hundreds of houses into homes, creating comfortable and personality-filled spaces."
+            "ro": "Peste 200 de familii se bucură zilnic de mobilierul creat de noi.",
+            "en": "Over 200 families enjoy the furniture we created every day."
         },
         "comTitle": {
-            "ro": "Clienți Comerciali",
-            "en": "Commercial Clients"
+            "ro": "Parteneri B2B",
+            "en": "B2B Partners"
         },
         "comDesc": {
-            "ro": "Am colaborat cu branduri de top pentru a crea spații comerciale atractive și funcționale.",
-            "en": "We have collaborated with top brands to create attractive and functional commercial spaces."
+            "ro": "Colaborăm cu arhitecți și designeri de top pentru proiecte complexe.",
+            "en": "We collaborate with top architects and designers for complex projects."
         }
     },
     "cta": {
         "title": {
-            "ro": "Ești gata să începi proiectul tău?",
-            "en": "Are you ready to start your project?"
+            "ro": "Gata să începem proiectul tău?",
+            "en": "Ready to start your project?"
         },
         "trustLine": {
             "ro": "Contactează-ne pentru o consultație gratuită.",

@@ -1,240 +1,238 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
-import { dbService } from '../../services/db';
-import { ProcessStep, Media } from '../../types';
-import { OptimizedImage } from '../../components/ui/OptimizedImage';
 import { Link } from 'react-router-dom';
+import { OptimizedImage } from '../../components/ui/OptimizedImage';
+import { ArrowRight, CheckCircle2, ChevronDown, Cpu, FileText, Home, MessageSquare, Ruler } from 'lucide-react';
 
-export const Process: React.FC = () => {
-  const { lang, t } = useI18n();
-  const [steps, setSteps] = useState<ProcessStep[]>([]);
-  const [media, setMedia] = useState<Media[]>([]);
-  const [activeStepIndex, setActiveStepIndex] = useState(0);
-  
-  // Refs for intersection observing
-  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+const PROCESS_STEPS = [
+  {
+    id: 1,
+    title: { ro: "Consultare & Viziune", en: "Consultation & Vision" },
+    description: { 
+      ro: "Începem cu o discuție relaxată despre nevoile tale. Vrem să înțelegem stilul de viață, preferințele estetice și bugetul alocat.",
+      en: "We start with a relaxed discussion about your needs. We want to understand your lifestyle, aesthetic preferences, and allocated budget."
+    },
+    action: { ro: "Analizăm spațiul, stilul dorit și bugetul estimat.", en: "We analyze the space, desired style, and estimated budget." },
+    deliverable: { ro: "O direcție clară și o estimare preliminară.", en: "A clear direction and a preliminary estimate." },
+    benefit: { ro: "Știi de la început dacă suntem partenerul potrivit.", en: "You know from the start if we are the right partner." },
+    icon: MessageSquare,
+    image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1200"
+  },
+  {
+    id: 2,
+    title: { ro: "Măsurători & Proiectare", en: "Measurements & Design" },
+    description: { 
+      ro: "Transformăm ideile în planuri tehnice concrete. Nu lăsăm nimic la voia întâmplării.",
+      en: "We transform ideas into concrete technical plans. We leave nothing to chance."
+    },
+    action: { ro: "Releu digital 3D, proiectare tehnică detaliată, randări fotorealiste.", en: "3D digital survey, detailed technical design, photorealistic renderings." },
+    deliverable: { ro: "Proiect complet 3D și dosar tehnic de execuție.", en: "Complete 3D project and technical execution file." },
+    benefit: { ro: "Vezi exact cum va arăta rezultatul final înainte de a tăia prima placă.", en: "See exactly how the final result will look before cutting the first board." },
+    icon: Ruler,
+    image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1200"
+  },
+  {
+    id: 3,
+    title: { ro: "Ofertare & Contract", en: "Quote & Contract" },
+    description: { 
+      ro: "Transparență totală asupra costurilor. Oferta noastră este finală, fără costuri ascunse.",
+      en: "Total transparency on costs. Our quote is final, with no hidden costs."
+    },
+    action: { ro: "Ofertă detaliată pe materiale, feronerie și manoperă.", en: "Detailed quote on materials, hardware, and labor." },
+    deliverable: { ro: "Contract ferm cu termene de execuție clare.", en: "Firm contract with clear execution deadlines." },
+    benefit: { ro: "Siguranță financiară și contractuală.", en: "Financial and contractual security." },
+    icon: FileText,
+    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200"
+  },
+  {
+    id: 4,
+    title: { ro: "Producție CNC & Finisare", en: "CNC Production & Finishing" },
+    description: { 
+      ro: "Unde tehnologia întâlnește măiestria. Producem totul in-house, controlând calitatea fiecărei piese.",
+      en: "Where technology meets craftsmanship. We produce everything in-house, controlling the quality of every piece."
+    },
+    action: { ro: "Debitare și frezare CNC, vopsire în cabină presurizată, pre-asamblare.", en: "CNC cutting and milling, painting in pressurized booth, pre-assembly." },
+    deliverable: { ro: "Mobilier executat la milimetru, gata de montaj.", en: "Furniture executed to the millimeter, ready for installation." },
+    benefit: { ro: "Calitate industrială cu atenție de artizan.", en: "Industrial quality with artisan attention." },
+    icon: Cpu,
+    image: "https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=1200"
+  },
+  {
+    id: 5,
+    title: { ro: "Livrare & Montaj", en: "Delivery & Installation" },
+    description: { 
+      ro: "Ultimul pas spre casa visurilor tale. Tratăm casa ta cu respectul cuvenit.",
+      en: "The last step to your dream home. We treat your home with the respect it deserves."
+    },
+    action: { ro: "Transport specializat, montaj cu echipe proprii, curățenie finală.", en: "Specialized transport, installation with in-house teams, final cleaning." },
+    deliverable: { ro: "Spațiu gata de utilizare, impecabil.", en: "Space ready for use, spotless." },
+    benefit: { ro: "O experiență fără stres, cu garanție extinsă.", en: "A stress-free experience, with extended warranty." },
+    icon: Home,
+    image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200"
+  }
+];
 
-  useEffect(() => {
-    document.title = lang === 'ro' ? 'CARVELLO | Procesul de Execuție' : 'CARVELLO | Execution Process';
-    window.scrollTo(0,0);
-    
-    const load = async () => {
-      const s = await dbService.getProcessSteps();
-      const m = await dbService.getMedia();
-      setSteps(s.filter(step => step.isVisible));
-      setMedia(m);
-    };
-    load();
-  }, [lang]);
+const useReveal = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = Number(entry.target.getAttribute('data-index'));
-            setActiveStepIndex(index);
-          }
-        });
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
       },
-      { rootMargin: '-40% 0px -40% 0px' } 
+      { threshold: 0.1 }
     );
-
-    stepRefs.current.forEach((el) => {
-      if (el) observer.observe(el);
-    });
-
+    if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [steps]);
+  }, []);
 
-  const getMediaUrl = (id: string | null) => {
-    if (!id) return 'https://images.unsplash.com/photo-1581092160607-ee22621dd758';
-    return media.find(m => m.id === id)?.url || 'https://images.unsplash.com/photo-1581092160607-ee22621dd758';
-  };
+  return { ref, isVisible };
+};
+
+export const Process: React.FC = () => {
+  const { t, lang } = useI18n();
+
+  useEffect(() => {
+    document.title = lang === 'ro' ? 'CARVELLO | Procesul de Execuție' : 'CARVELLO | Execution Process';
+    window.scrollTo(0, 0);
+  }, [lang]);
 
   return (
-    <div className="bg-background text-foreground overflow-hidden">
+    <div className="bg-[#050505] text-[#e5e5e5] font-sans selection:bg-[#d4af37] selection:text-black">
       
-      {/* 1) HERO CINEMATIC */}
-      <section className="relative h-[70vh] flex items-center justify-center bg-black overflow-hidden">
+      {/* 1) HERO SECTION */}
+      <section className="relative h-[60vh] min-h-[500px] w-full flex items-center justify-center overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
-           <OptimizedImage 
-             src="https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=2000" 
-             alt="CNC Workshop" 
-             className="w-full h-full object-cover opacity-50 animate-slow-zoom"
-           />
-           <div className="absolute inset-0 bg-black/60"></div>
-           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+          <OptimizedImage 
+            src="https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=2000" 
+            alt="Process Hero"
+            className="w-full h-full object-cover opacity-50"
+          />
+          <div className="absolute inset-0 bg-black/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
         </div>
-        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center text-white">
-           <span className="text-accent uppercase tracking-[0.4em] text-xs font-bold block mb-6 animate-fade-in">
-             {lang === 'ro' ? 'Workflow' : 'Workflow'}
-           </span>
-           <h1 className="font-serif text-5xl md:text-7xl mb-8 leading-tight animate-slide-up">
-             {lang === 'ro' ? 'Procesul de Execuție.' : 'Execution Process.'}
-           </h1>
-           <p className="text-lg md:text-xl font-light text-white/80 max-w-2xl mx-auto leading-relaxed mb-12 animate-slide-up-delayed">
-             {lang === 'ro' 
-               ? 'De la prima măsurătoare până la montajul final, fiecare etapă este controlată milimetric.' 
-               : 'From the first measurement to the final installation, every step is controlled to the millimeter.'}
-           </p>
-           <div className="flex flex-col sm:flex-row justify-center gap-6 animate-slide-up-delayed">
-              <Link to="/contact" className="px-10 py-4 bg-accent text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-accent transition-all shadow-xl">
-                 {lang === 'ro' ? 'Programează Măsurători' : 'Schedule Measurements'}
-              </Link>
-              <Link to="/portofoliu" className="px-10 py-4 border border-white/30 text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all">
-                 {lang === 'ro' ? 'Vezi Portofoliu' : 'View Portfolio'}
-              </Link>
-           </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <span className="text-[#d4af37] uppercase tracking-[0.3em] text-xs font-bold block mb-6 animate-fade-in">
+            {lang === 'ro' ? 'Metodologia Noastră' : 'Our Methodology'}
+          </span>
+          <h1 className="font-serif text-5xl md:text-7xl mb-8 leading-tight text-white animate-slide-up">
+            {lang === 'ro' ? 'Claritate. Control. Execuție.' : 'Clarity. Control. Execution.'}
+          </h1>
+          <p className="text-lg md:text-xl font-light text-white/80 max-w-2xl mx-auto leading-relaxed animate-slide-up-delayed">
+            {lang === 'ro' 
+              ? 'Un proces rafinat în ani de experiență, gândit să elimine incertitudinea și să garanteze rezultatul perfect.'
+              : 'A process refined over years of experience, designed to eliminate uncertainty and guarantee the perfect result.'}
+          </p>
+        </div>
+        
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-white/30 hidden md:block">
+          <ChevronDown className="w-6 h-6" />
         </div>
       </section>
 
-      {/* 2) INTERACTIVE STORY TIMELINE */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-         <div className="flex flex-col lg:flex-row gap-20">
-            
-            {/* LEFT: TEXT STEPS (Scrollable) */}
-            <div className="w-full lg:w-1/2 space-y-48 pb-24">
-               {steps.map((step, idx) => (
-                  <div 
-                    key={step.id} 
-                    data-index={idx} 
-                    ref={el => stepRefs.current[idx] = el}
-                    className={`transition-all duration-500 ${activeStepIndex === idx ? 'opacity-100' : 'opacity-40 blur-[1px]'}`}
-                  >
-                     <span className="text-accent font-serif text-6xl block mb-6 opacity-30">0{idx}</span>
-                     <h2 className="font-serif text-3xl md:text-4xl mb-6">{t(step.title)}</h2>
-                     <p className="text-muted text-lg leading-relaxed mb-8">{t(step.description)}</p>
-                     
-                     <ul className="space-y-3 mb-10 border-l border-border pl-6">
-                        {step.bullets.map((b, i) => (
-                           <li key={i} className="text-sm font-bold uppercase tracking-widest text-foreground/70 flex items-center gap-3">
-                              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
-                              {t(b)}
-                           </li>
-                        ))}
-                     </ul>
+      {/* 2) STEPS LIST */}
+      <div className="py-24 max-w-5xl mx-auto px-6 relative">
+        {/* Vertical Line */}
+        <div className="absolute left-6 md:left-1/2 top-24 bottom-24 w-[1px] bg-white/10 hidden md:block"></div>
 
-                     <Link to={step.cta.href} className="inline-block border-b border-foreground pb-1 text-xs uppercase font-bold tracking-widest hover:text-accent hover:border-accent transition-all">
-                        {t(step.cta.label)}
-                     </Link>
+        <div className="space-y-24">
+          {PROCESS_STEPS.map((step, idx) => (
+            <StepCard key={step.id} step={step} index={idx} lang={lang} />
+          ))}
+        </div>
+      </div>
 
-                     {/* Mobile Image (Visible only on small screens) */}
-                     <div className="lg:hidden mt-8 aspect-video overflow-hidden bg-surface-2 border border-border">
-                        <OptimizedImage src={getMediaUrl(step.mediaId)} alt={t(step.title)} className="w-full h-full object-cover" />
-                     </div>
-                  </div>
-               ))}
-            </div>
-
-            {/* RIGHT: STICKY VISUAL (Desktop only) */}
-            <div className="hidden lg:block w-1/2 h-screen sticky top-24 pb-24">
-               <div className="w-full h-[70vh] bg-surface-2 border border-border relative overflow-hidden shadow-2xl">
-                  {steps.map((step, idx) => (
-                     <div 
-                        key={step.id} 
-                        className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${activeStepIndex === idx ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-                     >
-                        <OptimizedImage 
-                           src={getMediaUrl(step.mediaId)} 
-                           alt={t(step.title)} 
-                           className="w-full h-full object-cover" 
-                        />
-                        <div className="absolute inset-0 bg-black/20"></div>
-                        
-                        <div className="absolute bottom-8 left-8 right-8 bg-black/80 backdrop-blur-md p-6 border-l-4 border-accent text-white transform translate-y-4 opacity-0 transition-all duration-700 delay-300" style={{ opacity: activeStepIndex === idx ? 1 : 0, transform: activeStepIndex === idx ? 'translateY(0)' : 'translateY(20px)' }}>
-                           <span className="text-[10px] uppercase font-bold tracking-widest block mb-2 text-accent">Etapa {idx}</span>
-                           <p className="font-serif text-2xl">{t(step.title)}</p>
-                        </div>
-                     </div>
-                  ))}
-               </div>
-            </div>
-
-         </div>
+      {/* 3) FINAL CTA */}
+      <section className="py-32 bg-[#0a0a0a] px-6 text-center border-t border-white/5 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-serif text-4xl md:text-5xl text-white mb-8 leading-tight">
+            {lang === 'ro' ? 'Pregătit să începem?' : 'Ready to start?'}
+          </h2>
+          <p className="text-white/60 text-lg font-light mb-12 max-w-2xl mx-auto">
+            {lang === 'ro' 
+              ? 'Programează o discuție inițială și hai să transformăm planurile tale în realitate.' 
+              : 'Schedule an initial discussion and let\'s turn your plans into reality.'}
+          </p>
+          <div className="flex flex-col md:flex-row gap-6 justify-center">
+            <Link to="/contact" className="inline-block px-12 py-5 bg-[#d4af37] text-black font-bold uppercase tracking-[0.2em] text-xs hover:bg-white transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+              {lang === 'ro' ? 'Programează Discuție' : 'Schedule Talk'}
+            </Link>
+          </div>
+        </div>
       </section>
 
-      {/* 3) DIFFERENTIATORS */}
-      <section className="bg-surface py-24 border-y border-border px-6">
-         <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-               <span className="text-accent uppercase tracking-[0.3em] text-xs font-bold block mb-4">Standardele Noastre</span>
-               <h2 className="font-serif text-4xl">De ce Carvello?</h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-               {[
-                  { title: "Execuție Milimetrică", desc: "Utilaje CNC calibrate la 0.1mm." },
-                  { title: "Finisaje Controlate", desc: "Cabină vopsire 2K presurizată." },
-                  { title: "Design Integrat", desc: "Tehnicul validează esteticul." },
-                  { title: "Montaj White-Glove", desc: "Echipe proprii, curățenie totală." }
-               ].map((item, i) => (
-                  <div key={i} className="p-8 border border-border bg-background text-center hover:border-accent transition-colors group">
-                     <span className="text-3xl text-accent mb-4 block opacity-50 group-hover:opacity-100">✦</span>
-                     <h3 className="font-serif text-xl mb-3">{item.title}</h3>
-                     <p className="text-muted text-sm">{item.desc}</p>
-                  </div>
-               ))}
-            </div>
-         </div>
-      </section>
+    </div>
+  );
+};
 
-      {/* 4) QUALITY WARRANTY */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div className="order-2 md:order-1">
-               <h2 className="font-serif text-4xl mb-8">Garanția Calității Absolute</h2>
-               <p className="text-muted text-lg mb-8 leading-relaxed">
-                  Nu suntem doar producători de mobilă, suntem parteneri de încredere. Fiecare proiect beneficiază de o dublă verificare (în fabrică și la montaj) și de materiale certificate de la lideri mondiali.
-               </p>
-               <ul className="space-y-4">
-                  <li className="flex items-center gap-4 p-4 border border-border bg-surface-2">
-                     <span className="text-2xl">🛡️</span>
-                     <div>
-                        <h4 className="font-bold text-xs uppercase tracking-widest">Garanție Structură 5 Ani</h4>
-                        <p className="text-xs text-muted">Pentru corpuri, balamale și sisteme de glisare.</p>
-                     </div>
-                  </li>
-                  <li className="flex items-center gap-4 p-4 border border-border bg-surface-2">
-                     <span className="text-2xl">🔧</span>
-                     <div>
-                        <h4 className="font-bold text-xs uppercase tracking-widest">Suport Post-Montaj</h4>
-                        <p className="text-xs text-muted">Reglaje gratuite în primele 12 luni.</p>
-                     </div>
-                  </li>
-               </ul>
-            </div>
-            <div className="order-1 md:order-2 aspect-square relative bg-surface-2 border border-border p-4">
-               <div className="w-full h-full border border-accent/20 flex items-center justify-center p-8 text-center">
-                  <div>
-                     <span className="font-serif text-9xl text-accent/20 block mb-4">100%</span>
-                     <span className="text-sm font-bold uppercase tracking-[0.4em] text-foreground">Satisfaction Rate</span>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </section>
+const StepCard = ({ step, index, lang }: { step: any, index: number, lang: string }) => {
+  const { ref, isVisible } = useReveal();
+  const isEven = index % 2 === 0;
 
-      {/* 5) FINAL CTA */}
-      <section className="py-32 bg-black text-white text-center px-6 relative overflow-hidden">
-         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
-         <div className="relative z-10 max-w-3xl mx-auto">
-            <h2 className="font-serif text-4xl md:text-5xl mb-8">Vrei o execuție perfectă, fără compromis?</h2>
-            <div className="flex flex-wrap justify-center gap-6 text-[10px] uppercase font-bold tracking-widest text-white/50 mb-12">
-               <span>• Termen Clar</span>
-               <span>• Echipe Specializate</span>
-               <span>• Proces Verificat</span>
-            </div>
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-               <Link to="/cerere-oferta" className="px-12 py-5 bg-white text-black font-bold uppercase tracking-widest text-xs hover:bg-accent hover:text-white transition-all shadow-2xl">
-                  Cere Ofertă
-               </Link>
-               <Link to="/contact" className="px-12 py-5 border border-white/30 text-white font-bold uppercase tracking-widest text-xs hover:bg-white hover:text-black transition-all">
-                  Contact Rapid
-               </Link>
-            </div>
-         </div>
-      </section>
+  return (
+    <div ref={ref} className={`relative flex flex-col md:flex-row gap-12 items-center transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
+      
+      {/* Center Dot (Desktop) */}
+      <div className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-[#050505] border border-[#d4af37] rounded-full z-10 items-center justify-center">
+        <div className="w-1.5 h-1.5 bg-[#d4af37] rounded-full animate-pulse"></div>
+      </div>
+
+      {/* Content Side */}
+      <div className={`w-full md:w-1/2 ${isEven ? 'md:text-right md:pr-16' : 'md:order-2 md:pl-16'}`}>
+        <div className={`flex items-center gap-4 mb-4 ${isEven ? 'md:justify-end' : ''}`}>
+          <span className="text-[#d4af37] font-serif text-5xl opacity-20 font-bold">0{index + 1}</span>
+          <h3 className="text-2xl md:text-3xl text-white font-serif">{lang === 'ro' ? step.title.ro : step.title.en}</h3>
+        </div>
+        
+        <p className="text-white/70 text-lg font-light mb-8 leading-relaxed">
+          {lang === 'ro' ? step.description.ro : step.description.en}
+        </p>
+
+        <div className={`space-y-4 text-sm ${isEven ? 'md:items-end' : ''} flex flex-col`}>
+          <div className="p-4 bg-white/5 border border-white/10 rounded-sm">
+            <span className="text-[#d4af37] text-[10px] uppercase font-bold tracking-widest block mb-1">
+              {lang === 'ro' ? 'Ce se întâmplă:' : 'What happens:'}
+            </span>
+            <p className="text-white/80 font-light">{lang === 'ro' ? step.action.ro : step.action.en}</p>
+          </div>
+          
+          <div className="p-4 bg-white/5 border border-white/10 rounded-sm">
+            <span className="text-[#d4af37] text-[10px] uppercase font-bold tracking-widest block mb-1">
+              {lang === 'ro' ? 'Ce primești:' : 'Deliverable:'}
+            </span>
+            <p className="text-white/80 font-light">{lang === 'ro' ? step.deliverable.ro : step.deliverable.en}</p>
+          </div>
+
+          <div className="flex items-center gap-2 text-[#d4af37]/80 mt-2">
+            <CheckCircle2 className="w-4 h-4" />
+            <span className="italic text-xs">{lang === 'ro' ? step.benefit.ro : step.benefit.en}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Image Side */}
+      <div className={`w-full md:w-1/2 ${isEven ? 'md:pl-16' : 'md:order-1 md:pr-16'}`}>
+        <div className="aspect-[4/3] overflow-hidden relative bg-[#111] border border-white/10 group">
+          <OptimizedImage 
+            src={step.image} 
+            alt={lang === 'ro' ? step.title.ro : step.title.en} 
+            className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[1.5s] group-hover:opacity-100"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+          
+          {/* Floating Icon */}
+          <div className="absolute top-4 right-4 w-12 h-12 bg-[#0a0a0a]/90 backdrop-blur-md border border-white/10 flex items-center justify-center">
+            <step.icon className="w-6 h-6 text-[#d4af37]" strokeWidth={1} />
+          </div>
+        </div>
+      </div>
 
     </div>
   );

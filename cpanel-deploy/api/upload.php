@@ -24,6 +24,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         errorResponse('Invalid file type');
     }
 
+    // Validate size (50MB)
+    if ($file['size'] > 50 * 1024 * 1024) {
+        errorResponse('File too large (max 50MB)');
+    }
+
     // Generate unique name
     $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
     $filename = uniqid() . '.' . $ext;

@@ -33,6 +33,18 @@ export const MediaManager: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Client-side validation
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Tipul de fișier nu este suportat. Te rugăm să încarci imagini sau video.');
+      return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+      alert('Fișierul este prea mare (max 50MB).');
+      return;
+    }
+
     setIsUploading(true);
     try {
       const url = await dbService.uploadFile(file);
@@ -42,7 +54,7 @@ export const MediaManager: React.FC = () => {
       alert("Eroare la încărcarea fișierului.");
     } finally {
       setIsUploading(false);
-      e.target.value = '';
+      if (e.target) e.target.value = '';
     }
   };
 

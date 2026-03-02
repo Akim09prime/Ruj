@@ -134,6 +134,7 @@ export const LeadForm: React.FC = () => {
 
   const handleReset = () => {
     setStatus('idle');
+    setFile(null);
     setFormData({
       name: '', email: '', phone: '', city: '', projectType: 'Rezidențial', message: '', company: '', filePath: ''
     });
@@ -221,7 +222,7 @@ export const LeadForm: React.FC = () => {
                   <span className="text-xs font-bold uppercase">{isUploading ? 'Uploading...' : (lang === 'ro' ? 'Alege Fișier' : 'Choose File')}</span>
                   <input type="file" className="hidden" onChange={handleFileUpload} accept="image/*,.pdf,.doc,.docx" disabled={status === 'loading' || isUploading} />
               </label>
-              {formData.filePath && (
+              {file && (
                   <span className="text-xs text-accent">
                       {lang === 'ro' ? 'Fișier atașat ✓' : 'File attached ✓'}
                   </span>

@@ -4,6 +4,15 @@ import { dbService } from '../../services/db';
 import { Project, Media, ProjectStage } from '../../types';
 import { Link } from 'react-router-dom';
 
+const Toggle = ({ checked, onChange, label }: { checked: boolean, onChange: (val: boolean) => void, label: string }) => (
+  <div className="flex items-center gap-3 cursor-pointer group" onClick={() => onChange(!checked)}>
+    <div className={`w-8 h-4 rounded-full relative transition-colors ${checked ? 'bg-accent' : 'bg-surface-2 border border-border'}`}>
+      <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform shadow-sm ${checked ? 'left-4.5 translate-x-0' : 'left-0.5'}`} style={{ left: checked ? 'calc(100% - 3.5px)' : '2px', transform: checked ? 'translateX(-100%)' : 'none' }} />
+    </div>
+    <span className="text-[9px] uppercase font-bold select-none text-muted group-hover:text-foreground transition-colors">{label}</span>
+  </div>
+);
+
 export const ProjectManager: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [allMedia, setAllMedia] = useState<Media[]>([]); 
@@ -11,10 +20,14 @@ export const ProjectManager: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'basic' | 'hero' | 'story' | 'stages' | 'tech'>('basic');
   const [mediaPickerOpen, setMediaPickerOpen] = useState<{ field: string, multiple: boolean, context?: any } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
 
   const loadData = async () => {
     setProjects(await dbService.getProjects());
     setAllMedia(await dbService.getMedia());
+    const session = await dbService.getSession();
+    setCurrentUser(session.user || null);
   };
 
   useEffect(() => { loadData(); }, []);
@@ -22,80 +35,68 @@ export const ProjectManager: React.FC = () => {
   const handleQuickUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setIsUploading(true);
     try {
-        const url = await dbService.uploadFile(file);
-        const newMedia: Media = {
-            id: Math.random().toString(36).substr(2, 9),
-            url,
-            kind: file.type.startsWith('video') ? 'video' : 'image',
-            projectId: editing?.id || '',
-            createdAt: new Date().toISOString(),
-            stars: 0,
-            orderInProject: 0,
-            pieceTypes: [],
-            caption: { ro: '', en: '' }
-        };
-        await dbService.upsertMedia(newMedia);
-        setAllMedia(prev => [newMedia, ...prev]);
+      setIsUploading(true);
+      const url = await dbService.uploadFile(file);
+      const newMedia: Media = {
+        id: Math.random().toString(36).substr(2, 9),
+        url,
+        kind: file.type.startsWith('video') ? 'video' : 'image',
+        tags: [],
+        createdAt: new Date().toISOString()
+      };
+      await dbService.upsertMedia(newMedia);
+      await loadData();
+      if (mediaPickerOpen) {
         handleMediaSelect(newMedia.id);
+      }
     } catch (err) {
-        console.error(err);
-        alert("Eroare la upload. Verifică permisiunile folderului uploads.");
+      console.error("Upload failed", err);
+      alert("Eroare la încărcare. Vă rugăm încercați din nou.");
     } finally {
-        setIsUploading(false);
-        e.target.value = '';
+      setIsUploading(false);
     }
   };
 
-  const handleDirectUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: string) => {
+  const handleDirectUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    setIsUploading(true);
     try {
-        const url = await dbService.uploadFile(file);
-        const newMedia: Media = {
-            id: Math.random().toString(36).substr(2, 9),
-            url,
-            kind: file.type.startsWith('video') ? 'video' : 'image',
-            projectId: editing?.id || '',
-            createdAt: new Date().toISOString(),
-            stars: 0,
-            orderInProject: 0,
-            pieceTypes: [],
-            caption: { ro: '', en: '' },
-            room: '',
-            stage: '',
-            shotDate: new Date().toISOString()
-        };
-        await dbService.upsertMedia(newMedia);
-        setAllMedia(prev => [newMedia, ...prev]);
-        
-        if (targetField === 'coverMediaId') {
-            setEditing(prev => ({ ...prev!, coverMediaId: newMedia.id }));
-        } else if (targetField.startsWith('hero.')) {
-            const subField = targetField.split('.')[1];
-            setEditing(prev => ({
-                ...prev!,
-                heroConfig: { ...prev!.heroConfig!, [subField]: newMedia.id }
-            }));
-        }
+      setIsUploading(true);
+      const url = await dbService.uploadFile(file);
+      const newMedia: Media = {
+        id: Math.random().toString(36).substr(2, 9),
+        url,
+        kind: file.type.startsWith('video') ? 'video' : 'image',
+        tags: [],
+        createdAt: new Date().toISOString()
+      };
+      await dbService.upsertMedia(newMedia);
+      await loadData();
+      
+      // Set the field directly
+      if (field.startsWith('hero.')) {
+          const subField = field.split('.')[1];
+          setEditing(prev => prev ? {
+              ...prev,
+              heroConfig: { ...prev.heroConfig!, [subField]: newMedia.id }
+          } : null);
+      } else {
+          // @ts-ignore
+          setEditing(prev => prev ? { ...prev, [field]: newMedia.id } : null);
+      }
     } catch (err) {
-        console.error(err);
-        alert("Eroare la upload. Verifică permisiunile folderului uploads.");
+      console.error("Upload failed", err);
+      alert("Eroare la încărcare. Vă rugăm încercați din nou.");
     } finally {
-        setIsUploading(false);
-        e.target.value = '';
+      setIsUploading(false);
     }
   };
 
-
-
-  const handleDelete = async (id: string) => {
-      if (confirm('Ștergi acest proiect? Această acțiune nu poate fi anulată.')) {
-          await dbService.deleteProject(id);
+  const executeDelete = async () => {
+      if (confirmDeleteId) {
+          await dbService.deleteProject(confirmDeleteId);
+          setConfirmDeleteId(null);
           loadData();
       }
   };
@@ -216,9 +217,10 @@ export const ProjectManager: React.FC = () => {
               id: Math.random().toString(36).substr(2, 9), 
               title: { ro: '', en: '' }, summary: { ro: '', en: '' }, location: { ro: '', en: '' }, 
               publishedAt: new Date().toISOString(), timelineDate: new Date().toISOString().split('T')[0],
-              isPublished: true, createdAt: new Date().toISOString(), projectType: 'Rezidențial', 
+              isPublished: true, isVisible: true, createdAt: new Date().toISOString(), projectType: 'Rezidențial', 
               coverMediaId: null, stages: [], techSpecs: [], tags: [],
-              heroConfig: { mode: 'image', overlay: { intensity: 40, vignette: true, grain: false } }
+              heroConfig: { mode: 'image', overlay: { intensity: 40, vignette: true, grain: false } },
+              agentId: currentUser || undefined
             })}
             className="bg-accent text-white px-8 py-3 text-[10px] font-bold uppercase tracking-widest hover:scale-105 transition-all"
           >
@@ -248,18 +250,21 @@ export const ProjectManager: React.FC = () => {
              </div>
              <div className="flex items-center gap-6">
                 <div className="flex flex-col gap-2 mr-4">
-                    <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer select-none">
-                        <input type="checkbox" checked={p.isPublished} onChange={async (e) => { await dbService.upsertProject({...p, isPublished: e.target.checked}); loadData(); }} />
-                        Publicat
-                    </label>
-                    <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer select-none">
-                        <input type="checkbox" checked={p.isVisible} onChange={async (e) => { await dbService.upsertProject({...p, isVisible: e.target.checked}); loadData(); }} />
-                        Vizibil
-                    </label>
-                    <label className="flex items-center gap-2 text-[10px] uppercase font-bold cursor-pointer select-none">
-                        <input type="checkbox" checked={p.isFeatured} onChange={async (e) => { await dbService.upsertProject({...p, isFeatured: e.target.checked}); loadData(); }} />
-                        Evidențiat
-                    </label>
+                    <Toggle 
+                        checked={p.isPublished} 
+                        onChange={async (val) => { await dbService.upsertProject({...p, isPublished: val}); loadData(); }} 
+                        label="Publicat" 
+                    />
+                    <Toggle 
+                        checked={p.isVisible !== false} 
+                        onChange={async (val) => { await dbService.upsertProject({...p, isVisible: val}); loadData(); }} 
+                        label="Vizibil" 
+                    />
+                    <Toggle 
+                        checked={!!p.isFeatured} 
+                        onChange={async (val) => { await dbService.upsertProject({...p, isFeatured: val}); loadData(); }} 
+                        label="Evidențiat" 
+                    />
                 </div>
                 <div className="text-right">
                     <span className="block text-[9px] font-bold uppercase text-muted">Completare</span>
@@ -269,13 +274,27 @@ export const ProjectManager: React.FC = () => {
                 </div>
                 <div className="flex gap-2">
                     <button onClick={() => setEditing(p)} className="px-4 py-2 border border-border hover:bg-accent hover:text-white transition-colors text-xs uppercase font-bold">Editează</button>
-                    <button onClick={() => handleDelete(p.id)} className="px-4 py-2 border border-red-500 text-red-500 hover:bg-red-500/10 transition-colors text-xs uppercase font-bold">Șterge</button>
+                    <button onClick={() => setConfirmDeleteId(p.id)} className="px-4 py-2 border border-red-500 text-red-500 hover:bg-red-500/10 transition-colors text-xs uppercase font-bold">Șterge</button>
                 </div>
              </div>
           </div>
         )})}
       </div>
       </div>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-fade-in">
+          <div className="bg-background max-w-sm w-full p-12 border border-border shadow-2xl text-center">
+            <h2 className="font-serif text-3xl mb-4">Ștergi acest proiect?</h2>
+            <p className="text-muted text-xs mb-10 leading-relaxed uppercase tracking-widest font-bold italic">Această acțiune nu poate fi anulată.</p>
+            <div className="flex flex-col space-y-3">
+              <button onClick={executeDelete} className="w-full py-4 bg-red-500 text-white font-bold uppercase tracking-widest text-[9px] hover:bg-red-600 transition-all">Șterge definitiv</button>
+              <button onClick={() => setConfirmDeleteId(null)} className="w-full py-4 border border-border text-muted font-bold uppercase tracking-widest text-[9px] hover:bg-surface-2 transition-all">Renunță</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* EDITOR MODAL */}
       {editing && (

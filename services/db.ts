@@ -56,23 +56,86 @@ const SEED_DATA: AppDB = {
     }
   },
   about: {
-    hero: { title: {ro:'Despre',en:'About'}, subtitle: {ro:'Precizie',en:'Precision'}, text: {ro:'Atelier premium.',en:'Premium workshop.'}, mediaId: null },
-    manifesto: { title: {ro:'Manifest',en:'Manifesto'}, text: {ro:'Calitate.',en:'Quality.'}, bullets: [] },
-    pillars: [], quality: { title: {ro:'Calitate',en:'Quality'}, bullets: [], images: [] }, timeline: [],
-    clients: { resTitle: {ro:'',en:''}, resDesc: {ro:'',en:''}, comTitle: {ro:'',en:''}, comDesc: {ro:'',en:''}},
-    cta: { title: {ro:'',en:''}, trustLine: {ro:'',en:''}}
+    hero: { title: {ro:'Despre CARVELLO',en:'About CARVELLO'}, subtitle: {ro:'Măiestrie și Precizie',en:'Craftsmanship and Precision'}, text: {ro:'Suntem un atelier de producție mobilier premium, dedicat excelenței în design și execuție.',en:'We are a premium furniture production workshop, dedicated to excellence in design and execution.'}, mediaId: null },
+    manifesto: { title: {ro:'Manifestul Nostru',en:'Our Manifesto'}, text: {ro:'Credem că mobilierul nu este doar un obiect utilitar, ci o expresie a personalității și a stilului de viață. Ne angajăm să creăm piese care nu doar arată impecabil, ci și rezistă testului timpului, folosind cele mai bune materiale și tehnologii de ultimă generație.',en:'We believe that furniture is not just a utilitarian object, but an expression of personality and lifestyle. We are committed to creating pieces that not only look flawless but also stand the test of time, using the best materials and cutting-edge technologies.'}, bullets: [{ro:'Atenție obsesivă la detalii',en:'Obsessive attention to detail'},{ro:'Inovație continuă în producție',en:'Continuous innovation in production'},{ro:'Respect pentru materiale și mediu',en:'Respect for materials and the environment'}] },
+    pillars: [{id:'pillar-1',title:{ro:'Tehnologie CNC',en:'CNC Technology'},description:{ro:'Precizie milimetrică în fiecare tăietură.',en:'Millimeter precision in every cut.'},icon:'Cpu'},{id:'pillar-2',title:{ro:'Finisaje Premium',en:'Premium Finishes'},description:{ro:'Vopsire 2K și furnire naturale selectate manual.',en:'2K painting and hand-selected natural veneers.'},icon:'Droplet'},{id:'pillar-3',title:{ro:'Design Personalizat',en:'Custom Design'},description:{ro:'Soluții unice pentru fiecare spațiu.',en:'Unique solutions for every space.'},icon:'PenTool'}], quality: { title: {ro:'Standardul CARVELLO',en:'The CARVELLO Standard'}, bullets: [{ro:'Feronerie Blum cu garanție extinsă',en:'Blum hardware with extended warranty'},{ro:'MDF de înaltă densitate pentru durabilitate',en:'High-density MDF for durability'},{ro:'Control riguros al calității în 3 etape',en:'Rigorous 3-stage quality control'}], images: [] }, timeline: [{id:'timeline-1',year:'2018',title:{ro:'Începutul',en:'The Beginning'},description:{ro:'Am deschis primul nostru atelier, cu o echipă mică dar pasionată.',en:'We opened our first workshop, with a small but passionate team.'}},{id:'timeline-2',year:'2021',title:{ro:'Modernizarea',en:'Modernization'},description:{ro:'Am investit în primele utilaje CNC pentru a crește precizia.',en:'We invested in our first CNC machines to increase precision.'}},{id:'timeline-3',year:'2024',title:{ro:'Extinderea',en:'Expansion'},description:{ro:'Ne-am mutat într-o nouă facilitate de producție, dublându-ne capacitatea.',en:'We moved to a new production facility, doubling our capacity.'}}],
+    clients: { resTitle: {ro:'Clienți Rezidențiali',en:'Residential Clients'}, resDesc: {ro:'Peste 200 de familii se bucură zilnic de mobilierul creat de noi.',en:'Over 200 families enjoy the furniture we created every day.'}, comTitle: {ro:'Parteneri B2B',en:'B2B Partners'}, comDesc: {ro:'Colaborăm cu arhitecți și designeri de top pentru proiecte complexe.',en:'We collaborate with top architects and designers for complex projects.'}},
+    cta: { title: {ro:'Gata să începem proiectul tău?',en:'Ready to start your project?'}, trustLine: {ro:'Contactează-ne pentru o consultație gratuită.',en:'Contact us for a free consultation.'}}
   },
   contact: {
     hero: { title: {ro:'Contact',en:'Contact'}, subtitle: {ro:'Hai să discutăm',en:'Lets talk'}, ctaPrimary: {ro:'Mesaj',en:'Message'}, ctaSecondary: {ro:'WhatsApp',en:'WhatsApp'}, coverImageId: null },
     info: { phone: '0729 728 880', email: 'office@carvello.ro', address: 'Strada Industriei 10', city: 'Cluj', country: 'Ro', hours: 'L-V', "responseBuffer": {"ro":"24h","en":"24h"}, whatsappLink: '', mapEmbedUrl: '' },
     timeline: { steps: [] }, faq: []
   },
-  media: [],
-  projects: [],
-  services: [],
+  media: [
+    { id: 'm1', projectId: 'p1', kind: 'image', url: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=800', room: 'Bucătărie', stage: 'Final', pieceTypes: ['Insulă'], stars: 5, caption: {ro: 'Bucătărie Modernă', en: 'Modern Kitchen'}, shotDate: '2024-01-15', orderInProject: 1, createdAt: new Date().toISOString() },
+    { id: 'm2', projectId: 'p1', kind: 'image', url: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&q=80&w=800', room: 'Living', stage: 'Final', pieceTypes: ['Masă'], stars: 4, caption: {ro: 'Living Open Space', en: 'Open Space Living'}, shotDate: '2024-01-15', orderInProject: 2, createdAt: new Date().toISOString() },
+    { id: 'm3', projectId: 'p1', kind: 'image', url: 'https://images.unsplash.com/photo-1616594039964-408359566a05?auto=format&fit=crop&q=80&w=800', room: 'Dormitor', stage: 'Final', pieceTypes: ['Dulap'], stars: 5, caption: {ro: 'Dormitor Matrimonial', en: 'Master Bedroom'}, shotDate: '2024-01-15', orderInProject: 3, createdAt: new Date().toISOString() },
+    { id: 'm4', projectId: 'p1', kind: 'image', url: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=800', room: 'Office', stage: 'Final', pieceTypes: ['Birou'], stars: 4, caption: {ro: 'Birou Executive', en: 'Executive Office'}, shotDate: '2024-01-15', orderInProject: 4, createdAt: new Date().toISOString() },
+    { id: 'm5', projectId: 'p1', kind: 'image', url: 'https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&q=80&w=800', room: 'Living', stage: 'Detalii', pieceTypes: ['Finisaj'], stars: 5, caption: {ro: 'Detaliu Furnir', en: 'Veneer Detail'}, shotDate: '2024-01-15', orderInProject: 5, createdAt: new Date().toISOString() }
+  ],
+  projects: [
+    {
+      id: 'p1',
+      title: { ro: 'Penthouse Panoramic', en: 'Panoramic Penthouse' },
+      summary: { ro: 'Amenajare completă pentru un penthouse de 200mp în centrul orașului.', en: 'Complete furnishing for a 200sqm penthouse in the city center.' },
+      timelineDate: '2024-01-20',
+      projectType: 'Rezidențial',
+      location: { ro: 'Cluj-Napoca', en: 'Cluj-Napoca' },
+      isPublished: true,
+      isVisible: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      coverMediaId: 'm1',
+      agentId: 'admin',
+      tags: ['Luxury', 'Modern', 'Penthouse'],
+      heroConfig: { mode: 'image', imageId: 'm2', overlay: { intensity: 30, vignette: true, grain: false } },
+      stages: [],
+      techSpecs: [{ label: 'Materiale', value: 'MDF Vopsit, Furnir Nuc' }, { label: 'Feronerie', value: 'Blum Legrabox' }]
+    }
+  ],
+  services: [
+    {id:'serviciu-1',slug:'mobilier-rezidential',title:{ro:'Mobilier Rezidențial',en:'Residential Furniture'},shortDescription:{ro:'Bucătării, livinguri și dormitoare executate milimetric pentru confortul casei tale.',en:'Kitchens, living rooms, and bedrooms executed with millimeter precision for your home\'s comfort.'},fullDescription:{ro:'Transformăm spațiile de locuit în adevărate opere de artă funcționale. De la bucătării moderne cu insulă, la dressinguri spațioase și livinguri elegante, folosim materiale premium și tehnologie CNC pentru a asigura o potrivire perfectă și un finisaj impecabil.',en:'We transform living spaces into true functional works of art. From modern kitchens with islands to spacious walk-in closets and elegant living rooms, we use premium materials and CNC technology to ensure a perfect fit and flawless finish.'},icon:'Home',order:1,features:[{title:{ro:'Design Personalizat',en:'Custom Design'},description:{ro:'Adaptat perfect nevoilor și spațiului tău.',en:'Perfectly adapted to your needs and space.'}},{title:{ro:'Materiale Premium',en:'Premium Materials'},description:{ro:'MDF vopsit, furnir natural, feronerie Blum.',en:'Painted MDF, natural veneer, Blum hardware.'}}],galleryIds:[]},
+    {id:'serviciu-2',slug:'mobilier-horeca',title:{ro:'Mobilier HoReCa',en:'HoReCa Furniture'},shortDescription:{ro:'Soluții complete de amenajare pentru restaurante, cafenele și hoteluri.',en:'Complete furnishing solutions for restaurants, cafes, and hotels.'},fullDescription:{ro:'Înțelegem importanța durabilității și a esteticii în industria ospitalității. Proiectăm și executăm baruri, recepții, mese și placări de pereți care rezistă la trafic intens, păstrându-și în același timp aspectul premium.',en:'We understand the importance of durability and aesthetics in the hospitality industry. We design and manufacture bars, receptions, tables, and wall panelling that withstand heavy traffic while maintaining their premium look.'},icon:'Coffee',order:2,features:[{title:{ro:'Durabilitate',en:'Durability'},description:{ro:'Materiale rezistente la uzură intensă.',en:'Materials resistant to heavy wear.'}},{title:{ro:'Estetică Unică',en:'Unique Aesthetics'},description:{ro:'Design care atrage și reține clienții.',en:'Design that attracts and retains customers.'}}],galleryIds:[]},
+    {id:'serviciu-3',slug:'mobilier-office',title:{ro:'Mobilier Office',en:'Office Furniture'},shortDescription:{ro:'Spații de lucru ergonomice și moderne care inspiră productivitate.',en:'Ergonomic and modern workspaces that inspire productivity.'},fullDescription:{ro:'Creăm medii de lucru care stimulează creativitatea și eficiența. De la birouri executive și săli de conferințe, până la spații de coworking și zone de relaxare, oferim soluții integrate care reflectă identitatea companiei tale.',en:'We create work environments that stimulate creativity and efficiency. From executive offices and conference rooms to coworking spaces and relaxation areas, we offer integrated solutions that reflect your company\'s identity.'},icon:'Briefcase',order:3,features:[{title:{ro:'Ergonomie',en:'Ergonomics'},description:{ro:'Confort pentru ore lungi de lucru.',en:'Comfort for long working hours.'}},{title:{ro:'Integrare Tehnologică',en:'Tech Integration'},description:{ro:'Soluții ascunse pentru cabluri și conectivitate.',en:'Hidden solutions for cables and connectivity.'}}],galleryIds:[]}
+  ],
   processSteps: [],
   reviews: [],
-  pages: [], leads: []
+  pages: [], 
+  leads: [],
+  offerTemplates: [
+    {
+      id: 'template-rezidential',
+      name: 'Ofertă Rezidențial Premium',
+      layout: 'grid',
+      theme: 'light',
+      defaultTitle: 'Propunere Mobilier Custom — CARVELLO',
+      defaultMessage: 'Bună ziua,\n\nVă mulțumim pentru oportunitatea de a colabora la amenajarea locuinței dumneavoastră. Am analizat cu atenție cerințele discutate și suntem încântați să vă prezentăm viziunea noastră.\n\nPropunerea atașată include:\n- Randări fotorealiste ale spațiilor\n- Selecție de materiale premium (MDF vopsit, furnir natural)\n- Soluții tehnice de feronerie Blum de ultimă generație\n- Estimare bugetară detaliată\n\nSuntem dedicați excelenței și garantăm o execuție milimetrică pentru fiecare piesă de mobilier.\n\nAșteptăm cu interes feedback-ul dumneavoastră pentru a rafina detaliile.\n\nCu stimă,',
+      contactInfo: { name: 'Alexandru Pop', phone: '0729 728 880', email: 'alex@carvello.ro', role: 'Senior Designer' },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'template-b2b',
+      name: 'Parteneriat Arhitecți & Designeri',
+      layout: 'masonry',
+      theme: 'gold',
+      defaultTitle: 'Parteneriat Producție — CARVELLO',
+      defaultMessage: 'Stimate Partener,\n\nÎnțelegem exigențele proiectelor de arhitectură și nevoia de a avea un partener de producție pe care vă puteți baza. La CARVELLO, transformăm viziunea dumneavoastră în realitate, fără compromisuri.\n\nDe ce să colaborăm:\n- Tehnologie CNC de precizie pentru forme complexe\n- Capacitate de producție pentru proiecte mari (HoReCa, Office)\n- Finisaje speciale (vopsire 2K, furnire rare, inserții metalice)\n- Suport tehnic dedicat pe tot parcursul proiectului\n\nVă invităm la o vizită în atelierul nostru pentru a vedea mostre și a discuta despre următorul proiect.\n\nCu respect,',
+      contactInfo: { name: 'Director Vânzări', phone: '0729 728 880', email: 'b2b@carvello.ro', role: 'Manager Parteneriate' },
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'template-update',
+      name: 'Update Status Producție',
+      layout: 'carousel',
+      theme: 'dark',
+      defaultTitle: 'Actualizare Proiect — În Producție',
+      defaultMessage: 'Bună ziua,\n\nVrem să vă ținem la curent cu progresul mobilierului dumneavoastră. Suntem în etapa de finisaj și asamblare finală în atelier.\n\nAtașat regăsiți câteva imagini din procesul de producție. Totul decurge conform planului și estimăm livrarea în data stabilită.\n\nNu ezitați să ne contactați pentru orice întrebări.\n\nEchipa CARVELLO',
+      contactInfo: { name: 'Departament Tehnic', phone: '0729 728 880', email: 'productie@carvello.ro', role: 'Manager Proiect' },
+      createdAt: new Date().toISOString()
+    }
+  ],
+  offers: []
 };
 
 class DBService {
@@ -157,6 +220,7 @@ class DBService {
       if (!res.ok) throw new Error('Failed to save data');
       
       const json = JSON.parse(text);
+      if (json.ok === false) throw new Error(json.message);
       if (json.error) throw new Error(json.error);
       
     } catch (e) {
@@ -178,6 +242,15 @@ class DBService {
     } catch { return false; }
   }
 
+  async getSession(): Promise<{ authenticated: boolean; user?: string; role?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/auth.php?action=session`, { credentials: 'include' });
+      const text = await res.text();
+      if (text.trim().startsWith('<?php')) return { authenticated: DEBUG_MODE, role: 'admin' };
+      return JSON.parse(text);
+    } catch { return { authenticated: false }; }
+  }
+
   async login(password: string): Promise<boolean> {
     try {
       const res = await fetch(`${API_BASE}/auth.php?action=login`, {
@@ -192,6 +265,21 @@ class DBService {
       const data = JSON.parse(text);
       return data.success === true;
     } catch { return false; }
+  }
+
+  async loginUser(username: string, password: string): Promise<{ success: boolean; role?: string; message?: string }> {
+    try {
+      const res = await fetch(`${API_BASE}/auth.php?action=login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+        credentials: 'include'
+      });
+      const text = await res.text();
+      if (text.trim().startsWith('<?php')) return { success: DEBUG_MODE && password === 'admin', role: 'admin' };
+      
+      return JSON.parse(text);
+    } catch (e) { return { success: false, message: 'Network error' }; }
   }
 
   async logout(): Promise<void> {
@@ -216,6 +304,52 @@ class DBService {
       const data = await res.json();
       return data.success;
     } catch { return false; }
+  }
+
+  async listUsers(): Promise<{ username: string; role: string }[]> {
+    const res = await fetch(`${API_BASE}/auth.php?action=list_users`, { credentials: 'include' });
+    if (!res.ok) throw new Error('Failed to list users');
+    return res.json();
+  }
+
+  async addUser(user: any): Promise<void> {
+    const res = await fetch(`${API_BASE}/auth.php?action=add_user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user),
+      credentials: 'include'
+    });
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || err.error || 'Failed to add user');
+    }
+  }
+
+  async deleteUser(username: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/auth.php?action=delete_user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username }),
+      credentials: 'include'
+    });
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || err.error || 'Failed to delete user');
+    }
+  }
+
+  async sendOffer(data: any): Promise<any> {
+    const res = await fetch(`${API_BASE}/send_offer.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      credentials: 'include'
+    });
+    if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || err.error || 'Failed to send offer');
+    }
+    return res.json();
   }
 
   // Settings
@@ -400,6 +534,52 @@ class DBService {
     const idx = steps.findIndex(s => s.id === step.id);
     if (idx >= 0) steps[idx] = step; else steps.push(step);
     await this.saveContent('process', steps);
+  }
+
+  // Offer Templates
+  async getOfferTemplates(): Promise<OfferTemplate[]> {
+    return this.fetchContent('offerTemplates', []);
+  }
+
+  async upsertOfferTemplate(template: OfferTemplate): Promise<void> {
+    const templates = await this.getOfferTemplates();
+    const idx = templates.findIndex(t => t.id === template.id);
+    if (idx >= 0) templates[idx] = template; else templates.push(template);
+    await this.saveContent('offerTemplates', templates);
+  }
+
+  async deleteOfferTemplate(id: string): Promise<void> {
+    const templates = await this.getOfferTemplates();
+    const newTemplates = templates.filter(t => t.id !== id);
+    await this.saveContent('offerTemplates', newTemplates);
+  }
+
+  // Offers
+  async getOffers(): Promise<Offer[]> {
+    return this.fetchContent('offers', []);
+  }
+
+  async getOfferById(id: string): Promise<Offer | undefined> {
+    const offers = await this.getOffers();
+    return offers.find(o => o.id === id);
+  }
+
+  async createOffer(offer: Offer): Promise<void> {
+    const offers = await this.getOffers();
+    offers.push(offer);
+    await this.saveContent('offers', offers);
+  }
+
+  async updateOfferStatus(id: string, status: 'viewed' | 'archived'): Promise<void> {
+    const offers = await this.getOffers();
+    const offer = offers.find(o => o.id === id);
+    if (offer) {
+      offer.status = status;
+      if (status === 'viewed') {
+        offer.viewCount = (offer.viewCount || 0) + 1;
+      }
+      await this.saveContent('offers', offers);
+    }
   }
 
   // Backup/Restore

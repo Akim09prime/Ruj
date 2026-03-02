@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "build": "vite build",
+    "zip": "node create-zip.js",
     "preview": "vite preview"
   },
   "dependencies": {

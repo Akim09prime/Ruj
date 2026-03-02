@@ -66,7 +66,7 @@ app.all('/api/auth.php', (req, res) => {
     if (req.method === 'POST' && !action) {
         const { username, password } = req.body;
         // Hardcoded credentials for demo
-        if (username === 'admin' && password === 'admin') {
+        if (username === 'admin' && password === 'carvello2024') {
             (req.session as any).admin_logged_in = true;
             res.json({ success: true, message: 'Login successful' });
         } else {
@@ -174,6 +174,80 @@ app.post('/api/leads.php', (req, res) => {
     writeJsonFile('leads.json', leads);
     
     res.json({ success: true, message: 'Lead submitted successfully' });
+});
+
+// Contact API (Mocking PHP)
+app.post('/api/contact.php', upload.single('file'), (req, res) => {
+    const body = req.body;
+    const file = req.file;
+
+    console.log('--- SIMULATING CONTACT FORM SUBMISSION ---');
+    console.log('Data:', body);
+    if (file) console.log('File:', file.filename);
+
+    // Save to leads.json
+    const leadsPath = 'leads.json';
+    let leads = [];
+    try {
+        const existing = readJsonFile(leadsPath);
+        if (Array.isArray(existing)) leads = existing;
+    } catch (e) { console.error('Error reading leads', e); }
+
+    const newLead = {
+        id: Date.now().toString(), // PHP uses uniqid()
+        type: 'general',
+        name: body.name,
+        email: body.email,
+        phone: body.phone,
+        city: body.city,
+        projectType: body.projectType,
+        category: body.category,
+        budget: body.budget,
+        timeline: body.timeline,
+        message: body.message,
+        filePath: file ? `/uploads/${file.filename}` : '',
+        status: 'new',
+        source: body.source || 'website',
+        userAgent: body.userAgent || '',
+        createdAt: body.createdAt || new Date().toISOString()
+    };
+
+    leads.unshift(newLead);
+    writeJsonFile(leadsPath, leads);
+
+    console.log('Lead saved to leads.json');
+    console.log('Email would be sent to office@carvello.ro');
+    console.log('------------------------------------------');
+
+    res.json({ ok: true, message: 'Solicitarea a fost trimisă cu succes (Simulated).' });
+});
+
+// Send Offer API
+app.post('/api/send_offer.php', (req, res) => {
+    // Check auth
+    if (!(req.session as any).admin_logged_in) {
+        res.status(401).json({ error: 'Unauthorized' });
+        return;
+    }
+
+    const { to, subject, message, images, link } = req.body;
+
+    if (!to || !subject || !message) {
+        res.status(400).json({ error: 'Missing required fields' });
+        return;
+    }
+
+    console.log('--- SIMULATING EMAIL SEND ---');
+    console.log(`To: ${to}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Message: ${message}`);
+    console.log(`Link: ${link}`);
+    console.log(`Images: ${images?.length || 0} attached`);
+    console.log('-----------------------------');
+
+    // In a real PHP environment, this would use mail() or PHPMailer
+    
+    res.json({ success: true, message: 'Offer sent successfully' });
 });
 
 // Vite Middleware

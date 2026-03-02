@@ -21,7 +21,6 @@ const FALLBACK_PROJECTS: Project[] = [
     slug: 'penthouse-obsidian',
     coverMediaId: null,
     tags: ['Minimalist', 'Black Matte', 'Luxury'],
-    description: { ro: 'Un penthouse modern în inima Bucureștiului.', en: 'A modern penthouse in the heart of Bucharest.' },
     clientBrief: { ro: 'Clientul a dorit un spațiu masculin, dominat de tonuri închise și texturi mate.', en: 'The client wanted a masculine space, dominated by dark tones and matte textures.' },
     ourSolution: { ro: 'Am utilizat MDF vopsit 2K Ultra Mat și inserții de metal vopsit electrostatic.', en: 'We used 2K Ultra Matte painted MDF and electrostatic painted metal inserts.' },
     result: { ro: 'Un interior coerent, fluid și impunător.', en: 'A coherent, fluid and imposing interior.' },
@@ -39,7 +38,6 @@ const FALLBACK_PROJECTS: Project[] = [
     slug: 'showroom-luxury',
     coverMediaId: null,
     tags: ['CNC', 'Commercial', 'Showroom'],
-    description: { ro: '', en: '' },
     gallery: []
   },
   {
@@ -54,7 +52,6 @@ const FALLBACK_PROJECTS: Project[] = [
     slug: 'villa-azure',
     coverMediaId: null,
     tags: ['Bronze', 'Natural Stone', 'Kitchen'],
-    description: { ro: '', en: '' },
     gallery: []
   }
 ];
@@ -91,6 +88,11 @@ export const ProjectDetail: React.FC = () => {
         }
 
         if (p) {
+          // Check visibility
+          if (!p.isPublished) {
+             setProject(null); // Will trigger redirect
+             return;
+          }
           setProject(p);
           
           let m: Media[] = [];

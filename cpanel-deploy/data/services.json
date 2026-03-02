@@ -1,158 +1,125 @@
 [
   {
-    "id": "design-interior",
-    "slug": "design-interior",
+    "id": "serviciu-1",
+    "slug": "mobilier-rezidential",
     "title": {
-      "ro": "Design Interior",
-      "en": "Interior Design"
-    },
-    "subtitle": {
-      "ro": "Concepte personalizate",
-      "en": "Custom concepts"
+      "ro": "Mobilier Rezidențial",
+      "en": "Residential Furniture"
     },
     "shortDescription": {
-      "ro": "Concepte personalizate de design interior pentru spații rezidențiale și comerciale.",
-      "en": "Custom interior design concepts for residential and commercial spaces."
+      "ro": "Bucătării, livinguri și dormitoare executate milimetric pentru confortul casei tale.",
+      "en": "Kitchens, living rooms, and bedrooms executed with millimeter precision for your home's comfort."
     },
     "fullDescription": {
-      "ro": "Oferim servicii complete de design interior, de la conceptul inițial și planificarea spațiului, până la selecția materialelor, a mobilierului și a decorațiunilor. Fiecare proiect este abordat cu atenție la detalii, reflectând personalitatea și nevoile clienților noștri.",
-      "en": "We offer comprehensive interior design services, from initial concept and space planning to the selection of materials, furniture, and decorations. Each project is approached with attention to detail, reflecting the personality and needs of our clients."
+      "ro": "Transformăm spațiile de locuit în adevărate opere de artă funcționale. De la bucătării moderne cu insulă, la dressinguri spațioase și livinguri elegante, folosim materiale premium și tehnologie CNC pentru a asigura o potrivire perfectă și un finisaj impecabil.",
+      "en": "We transform living spaces into true functional works of art. From modern kitchens with islands to spacious walk-in closets and elegant living rooms, we use premium materials and CNC technology to ensure a perfect fit and flawless finish."
     },
-    "heroMediaId": null,
-    "bullets": [
-      { "ro": "Planificare spațială", "en": "Space planning" },
-      { "ro": "Randări 3D", "en": "3D renderings" }
-    ],
+    "icon": "Home",
+    "order": 1,
     "features": [
       {
-        "title": { "ro": "Planificare spațială 2D/3D", "en": "2D/3D Space Planning" },
-        "desc": { "ro": "Optimizarea spațiului", "en": "Space optimization" },
-        "icon": "Home"
+        "title": {
+          "ro": "Design Personalizat",
+          "en": "Custom Design"
+        },
+        "description": {
+          "ro": "Adaptat perfect nevoilor și spațiului tău.",
+          "en": "Perfectly adapted to your needs and space."
+        }
       },
       {
-        "title": { "ro": "Selecție materiale și finisaje", "en": "Material & Finish Selection" },
-        "desc": { "ro": "Alegerea materialelor potrivite", "en": "Choosing the right materials" },
-        "icon": "Layers"
+        "title": {
+          "ro": "Materiale Premium",
+          "en": "Premium Materials"
+        },
+        "description": {
+          "ro": "MDF vopsit, furnir natural, feronerie Blum.",
+          "en": "Painted MDF, natural veneer, Blum hardware."
+        }
       }
     ],
-    "processSteps": [
-      {
-        "title": { "ro": "Concept", "en": "Concept" },
-        "desc": { "ro": "Definirea stilului", "en": "Defining the style" }
-      }
-    ],
-    "faq": [
-      {
-        "question": { "ro": "Cât durează?", "en": "How long does it take?" },
-        "answer": { "ro": "Depinde de complexitate", "en": "Depends on complexity" }
-      }
-    ],
-    "relatedProjectTags": ["Modern", "Minimalist"],
-    "isPublished": true,
-    "order": 1
+    "galleryIds": []
   },
   {
-    "id": "consultanta",
-    "slug": "consultanta",
+    "id": "serviciu-2",
+    "slug": "mobilier-horeca",
     "title": {
-      "ro": "Consultanță Design",
-      "en": "Design Consulting"
-    },
-    "subtitle": {
-      "ro": "Sesiuni de consultanță",
-      "en": "Consulting sessions"
+      "ro": "Mobilier HoReCa",
+      "en": "HoReCa Furniture"
     },
     "shortDescription": {
-      "ro": "Sesiuni de consultanță pentru a te ghida în alegerile de design și amenajare.",
-      "en": "Consulting sessions to guide you in your design and layout choices."
+      "ro": "Soluții complete de amenajare pentru restaurante, cafenele și hoteluri.",
+      "en": "Complete furnishing solutions for restaurants, cafes, and hotels."
     },
     "fullDescription": {
-      "ro": "Serviciul nostru de consultanță este ideal pentru cei care doresc o părere avizată înainte de a începe o renovare sau o reamenajare. Te ajutăm să definești stilul, să optimizezi bugetul și să eviți greșelile costisitoare.",
-      "en": "Our consulting service is ideal for those who want an expert opinion before starting a renovation or remodeling. We help you define your style, optimize your budget, and avoid costly mistakes."
+      "ro": "Înțelegem importanța durabilității și a esteticii în industria ospitalității. Proiectăm și executăm baruri, recepții, mese și placări de pereți care rezistă la trafic intens, păstrându-și în același timp aspectul premium.",
+      "en": "We understand the importance of durability and aesthetics in the hospitality industry. We design and manufacture bars, receptions, tables, and wall panelling that withstand heavy traffic while maintaining their premium look."
     },
-    "heroMediaId": null,
-    "bullets": [
-      { "ro": "Analiza spațiului", "en": "Space analysis" },
-      { "ro": "Recomandări de stil", "en": "Style recommendations" }
-    ],
+    "icon": "Coffee",
+    "order": 2,
     "features": [
       {
-        "title": { "ro": "Analiza spațiului", "en": "Space Analysis" },
-        "desc": { "ro": "Evaluarea spațiului actual", "en": "Evaluating the current space" },
-        "icon": "Maximize"
+        "title": {
+          "ro": "Durabilitate",
+          "en": "Durability"
+        },
+        "description": {
+          "ro": "Materiale rezistente la uzură intensă.",
+          "en": "Materials resistant to heavy wear."
+        }
       },
       {
-        "title": { "ro": "Recomandări de stil", "en": "Style Recommendations" },
-        "desc": { "ro": "Sfaturi personalizate", "en": "Personalized advice" },
-        "icon": "Star"
+        "title": {
+          "ro": "Estetică Unică",
+          "en": "Unique Aesthetics"
+        },
+        "description": {
+          "ro": "Design care atrage și reține clienții.",
+          "en": "Design that attracts and retains customers."
+        }
       }
     ],
-    "processSteps": [
-      {
-        "title": { "ro": "Întâlnire", "en": "Meeting" },
-        "desc": { "ro": "Discuție inițială", "en": "Initial discussion" }
-      }
-    ],
-    "faq": [
-      {
-        "question": { "ro": "Cât costă?", "en": "How much does it cost?" },
-        "answer": { "ro": "Prețul variază", "en": "Price varies" }
-      }
-    ],
-    "relatedProjectTags": ["Eclectic"],
-    "isPublished": true,
-    "order": 2
+    "galleryIds": []
   },
   {
-    "id": "project-management",
-    "slug": "project-management",
+    "id": "serviciu-3",
+    "slug": "mobilier-office",
     "title": {
-      "ro": "Management de Proiect",
-      "en": "Project Management"
-    },
-    "subtitle": {
-      "ro": "Coordonarea completă",
-      "en": "Complete coordination"
+      "ro": "Mobilier Office",
+      "en": "Office Furniture"
     },
     "shortDescription": {
-      "ro": "Coordonarea completă a lucrărilor de amenajare pentru o execuție fără stres.",
-      "en": "Complete coordination of fit-out works for a stress-free execution."
+      "ro": "Spații de lucru ergonomice și moderne care inspiră productivitate.",
+      "en": "Ergonomic and modern workspaces that inspire productivity."
     },
     "fullDescription": {
-      "ro": "Ne ocupăm de implementarea proiectului de design, coordonând echipele de constructori, furnizorii și meșterii. Ne asigurăm că totul este executat conform planșelor tehnice, la timp și în bugetul stabilit.",
-      "en": "We handle the implementation of the design project, coordinating construction teams, suppliers, and craftsmen. We ensure everything is executed according to technical drawings, on time and within budget."
+      "ro": "Creăm medii de lucru care stimulează creativitatea și eficiența. De la birouri executive și săli de conferințe, până la spații de coworking și zone de relaxare, oferim soluții integrate care reflectă identitatea companiei tale.",
+      "en": "We create work environments that stimulate creativity and efficiency. From executive offices and conference rooms to coworking spaces and relaxation areas, we offer integrated solutions that reflect your company's identity."
     },
-    "heroMediaId": null,
-    "bullets": [
-      { "ro": "Coordonare echipe", "en": "Team coordination" },
-      { "ro": "Urmărire șantier", "en": "Site supervision" }
-    ],
+    "icon": "Briefcase",
+    "order": 3,
     "features": [
       {
-        "title": { "ro": "Coordonare echipe", "en": "Team Coordination" },
-        "desc": { "ro": "Managementul echipelor", "en": "Team management" },
-        "icon": "Users"
+        "title": {
+          "ro": "Ergonomie",
+          "en": "Ergonomics"
+        },
+        "description": {
+          "ro": "Confort pentru ore lungi de lucru.",
+          "en": "Comfort for long working hours."
+        }
       },
       {
-        "title": { "ro": "Urmărire șantier", "en": "Site Supervision" },
-        "desc": { "ro": "Verificarea lucrărilor", "en": "Checking the works" },
-        "icon": "Eye"
+        "title": {
+          "ro": "Integrare Tehnologică",
+          "en": "Tech Integration"
+        },
+        "description": {
+          "ro": "Soluții ascunse pentru cabluri și conectivitate.",
+          "en": "Hidden solutions for cables and connectivity."
+        }
       }
     ],
-    "processSteps": [
-      {
-        "title": { "ro": "Planificare", "en": "Planning" },
-        "desc": { "ro": "Stabilirea etapelor", "en": "Setting the stages" }
-      }
-    ],
-    "faq": [
-      {
-        "question": { "ro": "Sunteți prezenți pe șantier?", "en": "Are you present on site?" },
-        "answer": { "ro": "Da, zilnic", "en": "Yes, daily" }
-      }
-    ],
-    "relatedProjectTags": ["Modern"],
-    "isPublished": true,
-    "order": 3
+    "galleryIds": []
   }
 ]

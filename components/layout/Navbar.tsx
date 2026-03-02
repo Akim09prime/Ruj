@@ -34,15 +34,21 @@ export const Navbar: React.FC<NavbarProps> = ({ settings }) => {
 
     if (brand.useTextLogo || (!brand.logoDarkUrl && !brand.logoLightUrl)) {
       return (
-        <div className="flex flex-col">
-          <span className="font-serif text-2xl lg:text-3xl tracking-[0.25em] font-bold text-foreground leading-none">
-            {brand.brandName || 'CARVELLO'}
-          </span>
-          {brand.brandSlogan && (
-            <span className="text-[9px] uppercase tracking-[0.3em] text-accent font-bold mt-1 text-right">
-              {brand.brandSlogan}
+        <div className="flex items-center gap-4 group">
+          <div className="relative flex items-center justify-center w-10 h-10 border border-accent/30 rotate-45 group-hover:rotate-90 transition-transform duration-700">
+            <div className="absolute inset-1 bg-accent/10 border border-accent/50"></div>
+            <span className="font-serif text-xl -rotate-45 group-hover:-rotate-90 transition-transform duration-700 font-bold text-accent">C</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-serif text-2xl lg:text-3xl tracking-[0.25em] font-bold text-foreground leading-none uppercase">
+              {brand.brandName || 'CARVELLO'}
             </span>
-          )}
+            {brand.brandSlogan && (
+              <span className="text-[9px] uppercase tracking-[0.3em] text-accent font-bold mt-1">
+                {brand.brandSlogan}
+              </span>
+            )}
+          </div>
         </div>
       );
     }

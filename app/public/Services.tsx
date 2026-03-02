@@ -1,224 +1,263 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { Link } from 'react-router-dom';
-import { AIExpert } from './AIExpert';
 import { OptimizedImage } from '../../components/ui/OptimizedImage';
-import { dbService } from '../../services/db';
-import { ServicePage, Media } from '../../types';
-import { Skeleton } from '../../components/ui/Skeleton';
+import { ArrowRight, CheckCircle2, ChevronDown, Cpu, Gem, PencilRuler } from 'lucide-react';
+
+const SERVICES_DATA = [
+  {
+    id: 'mobilier-premium',
+    icon: Gem,
+    title: { ro: "Mobilier Premium la Comandă", en: "Premium Custom Furniture" },
+    subtitle: { ro: "Rezidențial & Comercial", en: "Residential & Commercial" },
+    description: { 
+      ro: "Nu livrăm doar piese de mobilier, ci soluții arhitecturale perfect integrate. De la bucătării statement la dressing-uri complexe și panotări de pereți, controlăm fiecare milimetru al producției.",
+      en: "We deliver not just furniture pieces, but perfectly integrated architectural solutions. From statement kitchens to complex walk-in closets and wall paneling, we control every millimeter of production."
+    },
+    target: { ro: "Pentru: Arhitecți, Designeri, Proprietari de locuințe luxury.", en: "For: Architects, Designers, Luxury Homeowners." },
+    problem: { 
+      ro: "Rezolvăm: Eliminăm nepotrivirile din șantier, finisajele mediocre și compromisurile de execuție.", 
+      en: "Solved: We eliminate site mismatches, mediocre finishes, and execution compromises." 
+    },
+    deliverables: [
+      { ro: "Releu digital & Proiectare tehnică", en: "Digital Survey & Technical Design" },
+      { ro: "Materiale: MDF vopsit, Furnir, Lemn Masiv, Metal", en: "Materials: Painted MDF, Veneer, Solid Wood, Metal" },
+      { ro: "Montaj cu echipă proprie", en: "Installation with in-house team" }
+    ],
+    image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200",
+    cta: { link: "/contact", text: { ro: "Cere Ofertă Mobilier", en: "Request Furniture Quote" } }
+  },
+  {
+    id: 'servicii-cnc',
+    icon: Cpu,
+    title: { ro: "Servicii de Frezare CNC", en: "CNC Milling Services" },
+    subtitle: { ro: "Precizie & Volum", en: "Precision & Volume" },
+    description: { 
+      ro: "Partenerul tehnic ideal pentru proiecte complexe. Dispunem de tehnologie CNC de ultimă generație pentru debitare, frezare și gravare pe o gamă largă de materiale.",
+      en: "The ideal technical partner for complex projects. We utilize state-of-the-art CNC technology for cutting, milling, and engraving on a wide range of materials."
+    },
+    target: { ro: "Pentru: Producători de mobilă, Arhitecți, Dezvoltatori Imobiliari.", en: "For: Furniture Manufacturers, Architects, Real Estate Developers." },
+    problem: { 
+      ro: "Rezolvăm: Execuție rapidă și precisă pentru forme curbe, traforaje sau piese unicat imposibil de realizat manual.", 
+      en: "Solved: Fast and precise execution for curved shapes, fretwork, or unique pieces impossible to make by hand." 
+    },
+    deliverables: [
+      { ro: "Frezare 2D & 3D complexă", en: "Complex 2D & 3D Milling" },
+      { ro: "Debitare MDF, PAL, Placaj, Compozit", en: "Cutting MDF, Chipboard, Plywood, Composite" },
+      { ro: "Prototipare rapidă", en: "Rapid Prototyping" }
+    ],
+    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200",
+    cta: { link: "/contact", text: { ro: "Trimite Fișiere CNC", en: "Send CNC Files" } }
+  },
+  {
+    id: 'proiectare-design',
+    icon: PencilRuler,
+    title: { ro: "Proiectare & Randare 3D", en: "3D Design & Rendering" },
+    subtitle: { ro: "Vizualizare & Concept", en: "Visualization & Concept" },
+    description: { 
+      ro: "Vezi viitorul spațiu înainte de a investi. Transformăm schițele sau ideile tale în imagini fotorealiste și planuri tehnice gata de execuție.",
+      en: "See your future space before investing. We transform your sketches or ideas into photorealistic images and technical plans ready for execution."
+    },
+    target: { ro: "Pentru: Clienți care vor claritate, Dezvoltatori care vând off-plan.", en: "For: Clients seeking clarity, Developers selling off-plan." },
+    problem: { 
+      ro: "Rezolvăm: Elimină riscul de a primi ceva ce nu îți place. Validezi estetica și funcționalitatea înainte de producție.", 
+      en: "Solved: Eliminate the risk of getting something you don't like. Validate aesthetics and functionality before production." 
+    },
+    deliverables: [
+      { ro: "Randări fotorealiste 4K", en: "4K Photorealistic Renderings" },
+      { ro: "Planuri tehnice de execuție", en: "Technical Execution Plans" },
+      { ro: "Moodboard & Selecție materiale", en: "Moodboard & Material Selection" }
+    ],
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200",
+    cta: { link: "/contact", text: { ro: "Începe Proiectarea", en: "Start Designing" } }
+  }
+];
+
+const useReveal = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, isVisible };
+};
 
 export const Services: React.FC = () => {
-  const { lang, t } = useI18n();
-  const [services, setServices] = useState<ServicePage[]>([]);
-  const [media, setMedia] = useState<Media[]>([]);
-  const [activeTab, setActiveTab] = useState('');
-  const [loading, setLoading] = useState(true);
-
-  // Refs for scroll observation
-  const sectionRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     document.title = lang === 'ro' ? 'CARVELLO | Servicii Premium' : 'CARVELLO | Premium Services';
     window.scrollTo(0, 0);
-
-    const loadData = async () => {
-      const s = await dbService.getServices();
-      const m = await dbService.getMedia();
-      setServices(s.filter(x => x.isPublished));
-      setMedia(m);
-      if (s.length > 0) setActiveTab(s[0].id);
-      setLoading(false);
-    };
-    loadData();
   }, [lang]);
 
-  // Scroll Observer
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveTab(entry.target.id);
-          }
-        });
-      },
-      { rootMargin: '-30% 0px -60% 0px' }
-    );
-
-    Object.values(sectionRefs.current).forEach((el) => {
-      if (el) observer.observe(el as Element);
-    });
-
-    return () => observer.disconnect();
-  }, [services]);
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const offset = 120; // sticky header height
-      const bodyRect = document.body.getBoundingClientRect().top;
-      const elementRect = el.getBoundingClientRect().top;
-      const elementPosition = elementRect - bodyRect;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-      setActiveTab(id);
-    }
-  };
-
-  const getImageUrl = (mediaId: string | null) => {
-    if (!mediaId) return 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200';
-    return media.find(m => m.id === mediaId)?.url || 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200';
-  };
-
   return (
-    <div className="bg-background text-foreground overflow-hidden">
+    <div className="bg-[#050505] text-[#e5e5e5] font-sans selection:bg-[#d4af37] selection:text-black">
       
-      {/* 1) CINEMATIC HERO */}
-      <section className="relative h-[70vh] w-full flex items-center justify-center overflow-hidden bg-black">
+      {/* 1) HERO SECTION */}
+      <section className="relative h-[60vh] min-h-[500px] w-full flex items-center justify-center overflow-hidden bg-black">
         <div className="absolute inset-0 z-0">
           <OptimizedImage 
-            src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000"
-            alt="Hero Background"
-            className="w-full h-full object-cover opacity-60 animate-slow-zoom"
+            src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000"
+            alt="Services Hero"
+            className="w-full h-full object-cover opacity-50"
           />
-          <div className="absolute inset-0 bg-black/50"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent"></div>
+          <div className="absolute inset-0 bg-black/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent"></div>
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white">
-          <span className="text-accent uppercase tracking-[0.4em] text-xs font-bold block mb-6 animate-fade-in">
-            {lang === 'ro' ? 'Expertiza Noastră' : 'Our Expertise'}
+        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+          <span className="text-[#d4af37] uppercase tracking-[0.3em] text-xs font-bold block mb-6 animate-fade-in">
+            {lang === 'ro' ? 'Ecosistemul Carvello' : 'The Carvello Ecosystem'}
           </span>
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl mb-8 leading-tight animate-slide-up">
-            {lang === 'ro' ? 'Tehnologie & Artizanat.' : 'Technology & Craft.'}
+          <h1 className="font-serif text-5xl md:text-7xl mb-8 leading-tight text-white animate-slide-up">
+            {lang === 'ro' ? 'Soluții Integrate.' : 'Integrated Solutions.'}
           </h1>
-          <p className="text-lg md:text-2xl font-light text-white/80 max-w-3xl mx-auto leading-relaxed mb-12 animate-slide-up-delayed">
+          <p className="text-lg md:text-xl font-light text-white/80 max-w-2xl mx-auto leading-relaxed animate-slide-up-delayed">
             {lang === 'ro' 
-              ? 'Îmbinăm tehnologia digitală cu execuția artizanală pentru mobilier la comandă, finisaje premium și precizie CNC.'
-              : 'Blending digital technology with artisanal execution for custom furniture, premium finishes, and CNC precision.'}
+              ? 'De la concept la realitate. Oferim servicii complete pentru proiecte care nu acceptă compromisuri.'
+              : 'From concept to reality. We offer complete services for projects that refuse to compromise.'}
           </p>
         </div>
+        
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-white/30 hidden md:block">
+          <ChevronDown className="w-6 h-6" />
+        </div>
       </section>
 
-      {/* 2) STICKY NAVIGATION HUB */}
-      <div className="sticky top-24 z-40 bg-background/95 backdrop-blur-md border-b border-border shadow-sm">
-         <div className="max-w-7xl mx-auto px-6 overflow-x-auto scrollbar-hide">
-            <div className="flex items-center gap-8 md:gap-12 min-w-max">
-               {services.map(s => (
-                  <button
-                    key={s.id}
-                    onClick={() => scrollToSection(s.id)}
-                    className={`py-6 text-[10px] uppercase font-bold tracking-widest transition-all relative ${activeTab === s.id ? 'text-accent' : 'text-muted hover:text-foreground'}`}
-                  >
-                     {t(s.title)}
-                     <span className={`absolute bottom-0 left-0 w-full h-[2px] bg-accent transition-transform duration-300 origin-left ${activeTab === s.id ? 'scale-x-100' : 'scale-x-0'}`}></span>
-                  </button>
-               ))}
-            </div>
-         </div>
+      {/* 2) SERVICES LIST */}
+      <div className="py-24 space-y-32">
+        {SERVICES_DATA.map((service, idx) => (
+          <ServiceSection key={service.id} service={service} index={idx} lang={lang} />
+        ))}
       </div>
 
-      {/* 3) MAIN SERVICES SECTIONS */}
-      <div className="py-20 space-y-32">
-        {loading ? [1,2,3].map(i => <div key={i} className="max-w-7xl mx-auto px-6 h-96 bg-surface-2 animate-pulse"></div>) : (
-           services.map((service, idx) => (
-            <section 
-               key={service.id} 
-               id={service.id} 
-               ref={(el) => (sectionRefs.current[service.id] = el)}
-               className="max-w-7xl mx-auto px-6 scroll-mt-40"
-            >
-              <div className={`flex flex-col lg:flex-row gap-16 lg:gap-24 items-center ${idx % 2 !== 0 ? 'lg:flex-row-reverse' : ''}`}>
-                
-                {/* Image Side */}
-                <div className="w-full lg:w-1/2 relative group">
-                  <div className="absolute -inset-4 border border-border opacity-50 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"></div>
-                  <div className="aspect-[4/3] overflow-hidden relative bg-surface-2 shadow-2xl">
-                    <OptimizedImage 
-                      src={getImageUrl(service.heroMediaId)} 
-                      alt={t(service.title)} 
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/20 group-hover:opacity-0 transition-opacity"></div>
-                    
-                    {/* Floating Detail */}
-                    <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-md p-4 border-l-2 border-accent text-white opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
-                       <span className="text-[9px] uppercase font-bold tracking-widest">{t(service.subtitle)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content Side */}
-                <div className="w-full lg:w-1/2">
-                  <span className="text-accent uppercase tracking-[0.2em] text-[10px] font-bold mb-4 block">
-                    0{idx + 1} — {t(service.subtitle)}
-                  </span>
-                  <h2 className="font-serif text-4xl md:text-5xl mb-6 leading-tight">
-                    {t(service.title)}
-                  </h2>
-                  <p className="text-muted text-lg leading-relaxed mb-8 font-light border-l-2 border-border pl-6">
-                    {t(service.shortDescription)}
-                  </p>
-                  
-                  <ul className="space-y-4 mb-10">
-                    {service.bullets.map((bullet, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm text-foreground/80 group">
-                        <span className="text-accent mt-1 transition-transform group-hover:scale-125">✦</span>
-                        <span>{t(bullet)}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="flex flex-col sm:flex-row gap-6">
-                     <Link to={`/servicii/${service.slug}`} className="px-8 py-4 bg-foreground text-background text-[10px] uppercase font-bold tracking-widest hover:bg-accent hover:text-white transition-all shadow-xl">
-                        {lang === 'ro' ? 'Vezi Detalii' : 'View Details'}
-                     </Link>
-                     <Link to={`/cerere-oferta?service=${service.slug}`} className="px-8 py-4 border border-foreground/20 text-foreground text-[10px] uppercase font-bold tracking-widest hover:border-accent hover:text-accent transition-all">
-                        {lang === 'ro' ? 'Cere Ofertă' : 'Get Quote'}
-                     </Link>
-                  </div>
-                </div>
-
-              </div>
-            </section>
-          ))
-        )}
-      </div>
-
-      {/* 4) AI EXPERT SECTION */}
-      <section className="py-24 bg-surface border-y border-border">
-         <div className="max-w-4xl mx-auto px-6">
-            <AIExpert />
-         </div>
-      </section>
-
-      {/* 5) FINAL CINEMATIC CTA */}
-      <section className="relative py-32 px-6 text-center overflow-hidden bg-black">
-         <div className="absolute inset-0 opacity-40">
-            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=2000" loading="lazy" className="w-full h-full object-cover" alt="" />
-         </div>
-         <div className="absolute inset-0 bg-black/60"></div>
-         
-         <div className="relative z-10 max-w-3xl mx-auto">
-            <h2 className="font-serif text-4xl md:text-6xl text-white mb-6">
-              {lang === 'ro' ? 'Vrei un proiect similar?' : 'Want a similar project?'}
-            </h2>
-            <p className="text-white/70 text-lg font-light mb-12 leading-relaxed">
-              {lang === 'ro' 
-                ? 'Scrie-ne și îți trimitem o estimare + un plan clar de execuție.' 
-                : 'Write to us and we will send you an estimate + a clear execution plan.'}
-            </p>
-            <Link to="/cerere-oferta" className="inline-block px-12 py-5 bg-white text-black font-bold uppercase tracking-[0.2em] text-xs hover:bg-accent hover:text-white transition-all shadow-2xl">
-              {lang === 'ro' ? 'Cere Ofertă' : 'Get Quote'}
+      {/* 3) FINAL CTA */}
+      <section className="py-32 bg-[#0a0a0a] px-6 text-center border-t border-white/5 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]"></div>
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-serif text-4xl md:text-5xl text-white mb-8 leading-tight">
+            {lang === 'ro' ? 'Gata să începem?' : 'Ready to start?'}
+          </h2>
+          <p className="text-white/60 text-lg font-light mb-12 max-w-2xl mx-auto">
+            {lang === 'ro' 
+              ? 'Indiferent de stadiul proiectului tău, suntem aici să oferim claritate și execuție impecabilă.' 
+              : 'Regardless of your project stage, we are here to offer clarity and flawless execution.'}
+          </p>
+          <div className="flex flex-col md:flex-row gap-6 justify-center">
+            <Link to="/contact" className="inline-block px-12 py-5 bg-[#d4af37] text-black font-bold uppercase tracking-[0.2em] text-xs hover:bg-white transition-all shadow-[0_0_30px_rgba(212,175,55,0.2)]">
+              {lang === 'ro' ? 'Solicită Ofertă' : 'Request Quote'}
             </Link>
-         </div>
+            <Link to="/portofoliu" className="inline-block px-12 py-5 border border-white/20 text-white font-bold uppercase tracking-[0.2em] text-xs hover:bg-white hover:text-black transition-all">
+              {lang === 'ro' ? 'Vezi Portofoliu' : 'View Portfolio'}
+            </Link>
+          </div>
+        </div>
       </section>
 
     </div>
+  );
+};
+
+const ServiceSection = ({ service, index, lang }: { service: any, index: number, lang: string }) => {
+  const { ref, isVisible } = useReveal();
+  const isEven = index % 2 === 0;
+
+  return (
+    <section ref={ref} id={service.id} className={`max-w-7xl mx-auto px-6 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
+      <div className={`flex flex-col lg:flex-row gap-16 lg:gap-24 items-center ${!isEven ? 'lg:flex-row-reverse' : ''}`}>
+        
+        {/* Image Side */}
+        <div className="w-full lg:w-1/2 relative group">
+          <div className={`absolute -inset-4 border border-white/10 transition-transform duration-700 ${isEven ? 'translate-x-4 translate-y-4' : '-translate-x-4 translate-y-4'} group-hover:translate-x-0 group-hover:translate-y-0`}></div>
+          <div className="aspect-[4/3] overflow-hidden relative bg-[#111]">
+            <OptimizedImage 
+              src={service.image} 
+              alt={lang === 'ro' ? service.title.ro : service.title.en} 
+              className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-[1.5s]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            
+            {/* Floating Icon */}
+            <div className="absolute top-6 left-6 w-16 h-16 bg-[#0a0a0a]/90 backdrop-blur-md border border-white/10 flex items-center justify-center">
+              <service.icon className="w-8 h-8 text-[#d4af37]" strokeWidth={1} />
+            </div>
+          </div>
+        </div>
+
+        {/* Content Side */}
+        <div className="w-full lg:w-1/2">
+          <div className="flex items-center gap-4 mb-6">
+            <span className="text-[#d4af37] font-serif text-4xl opacity-30">0{index + 1}</span>
+            <span className="h-[1px] w-12 bg-[#d4af37]/30"></span>
+            <span className="text-[#d4af37] uppercase tracking-[0.2em] text-[10px] font-bold">
+              {lang === 'ro' ? service.subtitle.ro : service.subtitle.en}
+            </span>
+          </div>
+          
+          <h2 className="font-serif text-4xl md:text-5xl text-white mb-8 leading-tight">
+            {lang === 'ro' ? service.title.ro : service.title.en}
+          </h2>
+          
+          <p className="text-white/70 text-lg leading-relaxed mb-8 font-light border-l-2 border-[#d4af37]/30 pl-6">
+            {lang === 'ro' ? service.description.ro : service.description.en}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div>
+              <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-3 border-b border-white/10 pb-2">
+                {lang === 'ro' ? 'Pentru Cine' : 'Target Audience'}
+              </h4>
+              <p className="text-white/50 text-sm font-light">
+                {lang === 'ro' ? service.target.ro : service.target.en}
+              </p>
+            </div>
+            <div>
+              <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-3 border-b border-white/10 pb-2">
+                {lang === 'ro' ? 'Valoare Adăugată' : 'Value Added'}
+              </h4>
+              <p className="text-white/50 text-sm font-light">
+                {lang === 'ro' ? service.problem.ro : service.problem.en}
+              </p>
+            </div>
+          </div>
+          
+          <div className="mb-10">
+            <h4 className="text-white text-xs font-bold uppercase tracking-widest mb-4">
+              {lang === 'ro' ? 'Ce Primești' : 'Deliverables'}
+            </h4>
+            <ul className="space-y-3">
+              {service.deliverables.map((item: any, i: number) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-white/70">
+                  <CheckCircle2 className="w-4 h-4 text-[#d4af37]" />
+                  <span>{lang === 'ro' ? item.ro : item.en}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <Link 
+            to={service.cta.link} 
+            className="group inline-flex items-center gap-3 text-white text-xs font-bold uppercase tracking-widest border-b border-[#d4af37] pb-2 hover:text-[#d4af37] transition-colors"
+          >
+            {lang === 'ro' ? service.cta.text.ro : service.cta.text.en}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+          </Link>
+        </div>
+
+      </div>
+    </section>
   );
 };

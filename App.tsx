@@ -32,6 +32,12 @@ const SettingsManager = React.lazy(() => import('./app/admin/SettingsManager').t
 const ServiceManager = React.lazy(() => import('./app/admin/ServiceManager').then(m => ({ default: m.ServiceManager })));
 const ProcessManager = React.lazy(() => import('./app/admin/ProcessManager').then(m => ({ default: m.ProcessManager })));
 const HeroManager = React.lazy(() => import('./app/admin/HeroManager').then(m => ({ default: m.HeroManager })));
+const UserManager = React.lazy(() => import('./app/admin/UserManager').then(m => ({ default: m.UserManager })));
+const OfferManager = React.lazy(() => import('./app/admin/OfferManager').then(m => ({ default: m.OfferManager })));
+const TemplateManager = React.lazy(() => import('./app/admin/TemplateManager').then(m => ({ default: m.TemplateManager })));
+
+// Public Offer Presentation
+const OfferPresentation = React.lazy(() => import('./app/public/OfferPresentation').then(m => ({ default: m.OfferPresentation })));
 
 const LoadingFallback = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-[#0B0D10] text-white">
@@ -42,7 +48,7 @@ const LoadingFallback = () => (
 
 const PublicLayout: React.FC<{ settings?: Settings }> = ({ settings }) => {
   const location = useLocation();
-  if (settings?.maintenanceMode && location.pathname !== '/maintenance' && !location.pathname.startsWith('/admin')) {
+  if (settings?.maintenanceMode && location.pathname !== '/maintenance' && !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/oferta')) {
     return <Navigate to="/maintenance" replace />;
   }
   if (!settings?.maintenanceMode && location.pathname === '/maintenance') {
@@ -62,25 +68,48 @@ const PublicLayout: React.FC<{ settings?: Settings }> = ({ settings }) => {
   );
 };
 
-const AdminLayout: React.FC = () => {
+const AdminLayout: React.FC<{ role?: string }> = ({ role }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const getLinkClass = (path: string) => {
+    const isActive = location.pathname === path;
+    return `block text-[10px] uppercase font-bold tracking-widest mb-4 ${isActive ? 'text-accent' : 'text-muted hover:text-foreground'}`;
+  };
+
   return (
     <div className="min-h-screen bg-surface-2 flex">
       <aside className="w-64 bg-background border-r border-border p-8 flex flex-col sticky top-0 h-screen shadow-xl z-20">
         <div className="mb-12"><span className="font-serif text-2xl tracking-widest font-bold text-accent">CARVELLO</span></div>
         <nav className="flex flex-col space-y-6 flex-grow overflow-y-auto">
-          <Link to="/admin" className="text-[10px] uppercase font-bold tracking-widest">Dashboard</Link>
+          <Link to="/admin" className={`text-[10px] uppercase font-bold tracking-widest ${location.pathname === '/admin' ? 'text-accent' : 'text-muted hover:text-foreground'}`}>Dashboard</Link>
+          
+          {/* Offers - Available to all agents */}
           <div className="pt-4 border-t border-border/50">
-             <Link to="/admin/projects" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Proiecte</Link>
-             <Link to="/admin/services" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Servicii</Link>
-             <Link to="/admin/process" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Proces</Link>
-             <Link to="/admin/media" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Media / Fișiere</Link>
-             <Link to="/admin/leads" className="block text-[10px] uppercase font-bold tracking-widest mb-4 text-accent">Cereri / Leads</Link>
+             <Link to="/admin/offers" className={getLinkClass('/admin/offers')}>Trimite Ofertă</Link>
+             <Link to="/admin/templates" className={getLinkClass('/admin/templates')}>Templaturi Oferte</Link>
           </div>
+
+          {/* Admin Only Sections */}
+          {role === 'admin' && (
+            <div className="pt-4 border-t border-border/50">
+               <Link to="/admin/projects" className={getLinkClass('/admin/projects')}>Proiecte</Link>
+               <Link to="/admin/services" className={getLinkClass('/admin/services')}>Servicii</Link>
+               <Link to="/admin/process" className={getLinkClass('/admin/process')}>Proces</Link>
+               <Link to="/admin/media" className={getLinkClass('/admin/media')}>Media / Fișiere</Link>
+               <Link to="/admin/leads" className={getLinkClass('/admin/leads')}>Cereri / Leads</Link>
+               <Link to="/admin/users" className={getLinkClass('/admin/users')}>Utilizatori</Link>
+            </div>
+          )}
+
           <div className="mt-auto pt-4 border-t border-border/50">
-            <Link to="/admin/hero" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Hero / Homepage</Link>
-            <Link to="/admin/settings" className="block text-[10px] uppercase font-bold tracking-widest mb-4">Setări</Link>
-            <button onClick={async () => { await dbService.logout(); navigate('/'); }} className="text-left text-[9px] uppercase font-bold text-red-500">Ieșire</button>
+            {role === 'admin' && (
+              <>
+                <Link to="/admin/hero" className={getLinkClass('/admin/hero')}>Hero / Homepage</Link>
+                <Link to="/admin/settings" className={getLinkClass('/admin/settings')}>Setări</Link>
+              </>
+            )}
+            <button onClick={async () => { await dbService.logout(); navigate('/'); }} className="text-left text-[9px] uppercase font-bold text-red-500 hover:text-red-400 mt-4">Ieșire</button>
           </div>
         </nav>
       </aside>
@@ -90,22 +119,22 @@ const AdminLayout: React.FC = () => {
 };
 
 const AdminGuard: React.FC = () => {
-  const [auth, setAuth] = useState<boolean | null>(null);
+  const [session, setSession] = useState<{ authenticated: boolean; role?: string } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    dbService.checkAuth().then(isAuthenticated => {
-      setAuth(isAuthenticated);
-      if (!isAuthenticated) {
+    dbService.getSession().then(sess => {
+      setSession(sess);
+      if (!sess.authenticated) {
         navigate('/admin/login', { replace: true });
       }
     });
   }, [navigate]);
 
-  if (auth === null) return <LoadingFallback />;
-  if (auth === false) return null;
+  if (session === null) return <LoadingFallback />;
+  if (!session.authenticated) return null;
 
-  return <AdminLayout />;
+  return <AdminLayout role={session.role} />;
 };
 
 const App: React.FC = () => {
@@ -185,6 +214,7 @@ const App: React.FC = () => {
               <Route path="despre" element={<About />} />
               <Route path="contact" element={<Contact />} />
               <Route path="maintenance" element={<Maintenance />} />
+              <Route path="oferta/:id" element={<OfferPresentation />} />
             </Route>
             <Route path="/admin/login" element={<Suspense fallback={<LoadingFallback />}><Login /></Suspense>} />
             <Route path="/admin" element={<AdminGuard />}>
@@ -196,6 +226,9 @@ const App: React.FC = () => {
               <Route path="leads" element={<LeadsManager />} />
               <Route path="settings" element={<SettingsManager />} />
               <Route path="hero" element={<HeroManager />} />
+              <Route path="users" element={<UserManager />} />
+              <Route path="offers" element={<OfferManager />} />
+              <Route path="templates" element={<TemplateManager />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

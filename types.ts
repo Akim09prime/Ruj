@@ -94,8 +94,9 @@ export interface AboutPageData {
   };
   pillars: {
     title: I18nString;
-    desc: I18nString;
-    bullets: I18nString[];
+    desc?: I18nString;
+    description?: I18nString;
+    bullets?: I18nString[];
   }[];
   quality: {
     title: I18nString;
@@ -105,7 +106,8 @@ export interface AboutPageData {
   timeline: {
     year: string;
     title: I18nString;
-    desc: I18nString;
+    desc?: I18nString;
+    description?: I18nString;
   }[];
   clients: {
     resTitle: I18nString;

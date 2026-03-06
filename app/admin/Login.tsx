@@ -24,6 +24,7 @@ export const Login: React.FC = () => {
     setError('');
 
     const result = await dbService.loginUser(username, pass);
+    console.log('Login result:', result);
     
     if (result.success) {
       navigate('/admin');
@@ -51,6 +52,7 @@ export const Login: React.FC = () => {
         <div className="text-center">
           <span className="font-serif text-3xl tracking-widest font-bold text-accent">CARVELLO</span>
           <p className="text-[10px] uppercase tracking-widest text-muted mt-2 font-bold">Autentificare Manager</p>
+          <p className="text-[9px] text-accent/50 mt-1 uppercase tracking-widest">admin / carvello2024</p>
         </div>
         
         <div className="space-y-4">

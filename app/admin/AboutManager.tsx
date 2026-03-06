@@ -26,17 +26,23 @@ export const AboutManager: React.FC = () => {
     setData({ ...data, [section]: newSection });
   };
 
-  const updatePillar = (idx: number, field: 'title' | 'desc', lang: 'ro' | 'en', val: string) => {
+  const updatePillar = (idx: number, field: 'title' | 'desc' | 'description', lang: 'ro' | 'en', val: string) => {
     if (!data) return;
     const pillars = [...data.pillars];
-    pillars[idx][field][lang] = val;
+    if (!pillars[idx][field]) {
+      pillars[idx][field] = { ro: '', en: '' };
+    }
+    pillars[idx][field]![lang] = val;
     setData({ ...data, pillars });
   };
 
-  const updateTimeline = (idx: number, field: 'title' | 'desc', lang: 'ro' | 'en', val: string) => {
+  const updateTimeline = (idx: number, field: 'title' | 'desc' | 'description', lang: 'ro' | 'en', val: string) => {
     if (!data) return;
     const timeline = [...data.timeline];
-    timeline[idx][field][lang] = val;
+    if (!timeline[idx][field]) {
+      timeline[idx][field] = { ro: '', en: '' };
+    }
+    timeline[idx][field]![lang] = val;
     setData({ ...data, timeline });
   };
 
@@ -102,7 +108,7 @@ export const AboutManager: React.FC = () => {
               <div key={i} className="bg-surface-2 p-4 border border-border">
                 <span className="text-[10px] font-bold text-muted block mb-2">Card {i+1}</span>
                 <input className="w-full bg-background border border-border p-2 text-xs mb-2" value={p.title.ro} onChange={e => updatePillar(i, 'title', 'ro', e.target.value)} />
-                <textarea className="w-full bg-background border border-border p-2 text-xs h-20" value={p.desc.ro} onChange={e => updatePillar(i, 'desc', 'ro', e.target.value)} />
+                <textarea className="w-full bg-background border border-border p-2 text-xs h-20" value={p.desc?.ro || ''} onChange={e => updatePillar(i, 'desc', 'ro', e.target.value)} />
               </div>
             ))}
           </div>
@@ -116,7 +122,7 @@ export const AboutManager: React.FC = () => {
               <div key={i} className="flex gap-4 items-center">
                 <span className="text-xl font-serif text-accent w-8">{step.year}</span>
                 <input className="w-1/3 bg-surface-2 border border-border p-3 text-xs" value={step.title.ro} onChange={e => updateTimeline(i, 'title', 'ro', e.target.value)} />
-                <input className="w-2/3 bg-surface-2 border border-border p-3 text-xs" value={step.desc.ro} onChange={e => updateTimeline(i, 'desc', 'ro', e.target.value)} />
+                <input className="w-2/3 bg-surface-2 border border-border p-3 text-xs" value={step.desc?.ro || ''} onChange={e => updateTimeline(i, 'desc', 'ro', e.target.value)} />
               </div>
             ))}
           </div>

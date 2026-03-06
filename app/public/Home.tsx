@@ -6,6 +6,27 @@ import { dbService } from '../../services/db';
 import { OptimizedImage } from '../../components/ui/OptimizedImage';
 import { ArrowRight, Cpu, Gem, Hammer, PencilRuler, ChevronDown, Quote, ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
+const useReveal = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, isVisible };
+};
+
 // --- STATIC CONTENT FOR SEO & PERFORMANCE ---
 const HERO_SLIDES = [
   {
@@ -119,27 +140,7 @@ const FALLBACK_PROJECTS = [
   }
 ];
 
-const useReveal = () => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, isVisible };
-};
-
+// Removed local useReveal hook since we import it now
 export const Home: React.FC = () => {
   const { t, lang } = useI18n();
   // Initialize with fallback to avoid layout shift/loading state
@@ -147,46 +148,8 @@ export const Home: React.FC = () => {
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const pillarsReveal = useReveal();
   const aboutReveal = useReveal();
   const projectsReveal = useReveal();
-
-  useEffect(() => {
-    // SEO: Set Title
-    document.title = "CARVELLO | Mobilier Premium la Comandă";
-    
-    // SEO: Meta Description (Manual injection if not present)
-    let metaDesc = document.querySelector('meta[name="description"]');
-    if (!metaDesc) {
-      metaDesc = document.createElement('meta');
-      metaDesc.setAttribute('name', 'description');
-      document.head.appendChild(metaDesc);
-    }
-    metaDesc.setAttribute('content', 'Carvello produce mobilier premium la comandă, utilizând tehnologie CNC și finisaje de lux. Proiectare personalizată pentru rezidențial și comercial.');
-
-    // SEO: JSON-LD
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.text = JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Carvello",
-      "url": "https://carvello.ro",
-      "logo": "https://carvello.ro/logo.png",
-      "description": "Mobilier Premium la Comandă",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Romania"
-      }
-    });
-    document.head.appendChild(script);
-
-    return () => {
-      if (document.head.contains(script)) {
-        document.head.removeChild(script);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -194,6 +157,11 @@ export const Home: React.FC = () => {
         const dbProjects = await dbService.getProjects();
         const media = await dbService.getMedia();
         
+        if (!Array.isArray(dbProjects)) {
+          console.error("dbProjects is not an array", dbProjects);
+          return;
+        }
+
         const realProjects = dbProjects
           .filter(p => p.isPublished && (p.isVisible !== false))
           .map(p => {
@@ -342,9 +310,9 @@ export const Home: React.FC = () => {
       {/* 2) TRUST / DIFFERENTIATORS */}
       <section className="py-24 bg-[#0a0a0a] border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6">
-          <div ref={pillarsReveal.ref} className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000 ${pillarsReveal.isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {PILLARS.map((p, i) => (
-              <div key={i} className="group p-8 border border-white/5 hover:border-[#d4af37]/30 bg-[#050505] transition-all duration-500 hover:-translate-y-2">
+              <div key={i} className="group p-8 border border-white/5 hover:border-[#d4af37]/30 bg-[#050505] transition-all duration-500 hover:-translate-y-2 h-full">
                 <div className="mb-6 text-[#d4af37] opacity-80 group-hover:opacity-100 transition-opacity">
                   <p.icon strokeWidth={1} className="w-10 h-10" />
                 </div>

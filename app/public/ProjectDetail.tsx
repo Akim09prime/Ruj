@@ -18,13 +18,15 @@ const FALLBACK_PROJECTS: Project[] = [
     isPublished: true,
     isFeatured: true,
     publishedAt: new Date().toISOString(),
+    timelineDate: '2024-01-01',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: 'penthouse-obsidian',
     coverMediaId: null,
     tags: ['Minimalist', 'Black Matte', 'Luxury'],
     clientBrief: { ro: 'Clientul a dorit un spațiu masculin, dominat de tonuri închise și texturi mate.', en: 'The client wanted a masculine space, dominated by dark tones and matte textures.' },
     ourSolution: { ro: 'Am utilizat MDF vopsit 2K Ultra Mat și inserții de metal vopsit electrostatic.', en: 'We used 2K Ultra Matte painted MDF and electrostatic painted metal inserts.' },
-    result: { ro: 'Un interior coerent, fluid și impunător.', en: 'A coherent, fluid and imposing interior.' },
-    gallery: []
+    result: { ro: 'Un interior coerent, fluid și impunător.', en: 'A coherent, fluid and imposing interior.' }
   },
   {
     id: 'demo-2',
@@ -35,10 +37,12 @@ const FALLBACK_PROJECTS: Project[] = [
     isPublished: true,
     isFeatured: true,
     publishedAt: new Date().toISOString(),
+    timelineDate: '2024-01-01',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: 'showroom-luxury',
     coverMediaId: null,
-    tags: ['CNC', 'Commercial', 'Showroom'],
-    gallery: []
+    tags: ['CNC', 'Commercial', 'Showroom']
   },
   {
     id: 'demo-3',
@@ -49,10 +53,12 @@ const FALLBACK_PROJECTS: Project[] = [
     isPublished: true,
     isFeatured: true,
     publishedAt: new Date().toISOString(),
+    timelineDate: '2024-01-01',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: 'villa-azure',
     coverMediaId: null,
-    tags: ['Bronze', 'Natural Stone', 'Kitchen'],
-    gallery: []
+    tags: ['Bronze', 'Natural Stone', 'Kitchen']
   }
 ];
 
@@ -107,9 +113,9 @@ export const ProjectDetail: React.FC = () => {
                'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200';
              
              m = [
-               { id: 'm1', projectId: p.id, url: coverUrl, kind: 'image', stage: 'Final', caption: { ro: 'Vedere Generală', en: 'Overview' } },
-               { id: 'm2', projectId: p.id, url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200', kind: 'image', stage: 'Final', caption: { ro: 'Detaliu', en: 'Detail' } },
-               { id: 'm3', projectId: p.id, url: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=1200', kind: 'image', stage: 'Final', caption: { ro: 'Living', en: 'Living Room' } }
+               { id: 'm1', projectId: p.id, url: coverUrl, kind: 'image', stage: 'Final', caption: { ro: 'Vedere Generală', en: 'Overview' }, createdAt: new Date().toISOString(), room: 'Living', pieceTypes: [], stars: 5, shotDate: null, orderInProject: 0 },
+               { id: 'm2', projectId: p.id, url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200', kind: 'image', stage: 'Final', caption: { ro: 'Detaliu', en: 'Detail' }, createdAt: new Date().toISOString(), room: 'Living', pieceTypes: [], stars: 5, shotDate: null, orderInProject: 1 },
+               { id: 'm3', projectId: p.id, url: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=1200', kind: 'image', stage: 'Final', caption: { ro: 'Living', en: 'Living Room' }, createdAt: new Date().toISOString(), room: 'Living', pieceTypes: [], stars: 5, shotDate: null, orderInProject: 2 }
              ];
           }
 
@@ -121,8 +127,13 @@ export const ProjectDetail: React.FC = () => {
           setGalleryImages(m.filter(x => x.kind === 'image'));
 
           const allLeads = await dbService.getLeads();
-          const approved = allLeads.filter(l => l.type === 'project-feedback' && l.projectRef?.id === p.id && l.status === 'approved');
-          setFeedbacks(approved);
+          if (Array.isArray(allLeads)) {
+            const approved = allLeads.filter(l => l.type === 'project-feedback' && l.projectRef?.id === p.id && l.status === 'approved');
+            setFeedbacks(approved);
+          } else {
+            console.error("Leads is not an array", allLeads);
+            setFeedbacks([]);
+          }
         }
       } catch (e) {
         console.error("Error loading project", e);
@@ -185,7 +196,7 @@ export const ProjectDetail: React.FC = () => {
         ) : (
            <div className="absolute inset-0 animate-slow-zoom">
              <OptimizedImage 
-               src={getMediaUrl(project.heroConfig?.imageId) || getMediaUrl(project.coverMediaId) || ''} 
+               src={getMediaUrl(project.heroConfig?.imageId || undefined) || getMediaUrl(project.coverMediaId || undefined) || ''} 
                alt="Hero" 
                className="w-full h-full object-cover"
              />
@@ -237,7 +248,7 @@ export const ProjectDetail: React.FC = () => {
             </div>
             <div className="lg:col-span-8 flex flex-col justify-between">
                 <div className="aspect-[16/8] bg-surface-2 overflow-hidden mb-8 border border-border">
-                   <img src={getMediaUrl(projectMedia.find(m=>m.kind==='image' && m.room === 'Living')?.id) || getMediaUrl(project.coverMediaId)} className="w-full h-full object-cover" alt="Detail" />
+                   <img src={getMediaUrl(projectMedia.find(m=>m.kind==='image' && m.room === 'Living')?.id) || getMediaUrl(project.coverMediaId || undefined)} className="w-full h-full object-cover" alt="Detail" />
                 </div>
                 <div className="grid grid-cols-2 gap-8">
                    <div>

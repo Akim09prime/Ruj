@@ -110,14 +110,16 @@ export const About: React.FC = () => {
               <div key={i} className="bg-background border border-border p-10 hover:border-accent transition-colors group">
                 <div className="text-3xl mb-6 text-accent opacity-50 group-hover:opacity-100">✦</div>
                 <h3 className="font-serif text-2xl mb-4 group-hover:text-accent transition-colors">{t(pillar.title)}</h3>
-                <p className="text-muted text-sm mb-6 leading-relaxed">{t(pillar.desc)}</p>
-                <ul className="space-y-2 border-t border-border pt-6">
-                  {pillar.bullets.map((b, idx) => (
-                    <li key={idx} className="text-[10px] uppercase font-bold tracking-widest text-muted group-hover:text-foreground transition-colors">
-                      • {t(b)}
-                    </li>
-                  ))}
-                </ul>
+                <p className="text-muted text-sm mb-6 leading-relaxed">{t(pillar.desc || pillar.description || {ro: '', en: ''})}</p>
+                {pillar.bullets && pillar.bullets.length > 0 && (
+                  <ul className="space-y-2 border-t border-border pt-6">
+                    {pillar.bullets.map((b, idx) => (
+                      <li key={idx} className="text-[10px] uppercase font-bold tracking-widest text-muted group-hover:text-foreground transition-colors">
+                        • {t(b)}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
           </div>
@@ -160,7 +162,7 @@ export const About: React.FC = () => {
                   <div key={i} className="relative md:text-center group">
                      <div className="text-6xl font-serif text-border mb-4 group-hover:text-accent transition-colors">{step.year}</div>
                      <h4 className="font-bold uppercase tracking-widest text-sm mb-2">{t(step.title)}</h4>
-                     <p className="text-xs text-muted leading-relaxed">{t(step.desc)}</p>
+                     <p className="text-xs text-muted leading-relaxed">{t(step.desc || step.description || {ro: '', en: ''})}</p>
                      {i < data.timeline.length - 1 && (
                         <div className="hidden md:block absolute top-10 -right-4 w-8 h-[1px] bg-border"></div>
                      )}

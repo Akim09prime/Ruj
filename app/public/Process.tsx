@@ -4,74 +4,8 @@ import { useI18n } from '../../lib/i18n';
 import { Link } from 'react-router-dom';
 import { OptimizedImage } from '../../components/ui/OptimizedImage';
 import { ArrowRight, CheckCircle2, ChevronDown, Cpu, FileText, Home, MessageSquare, Ruler } from 'lucide-react';
-
-const PROCESS_STEPS = [
-  {
-    id: 1,
-    title: { ro: "Consultare & Viziune", en: "Consultation & Vision" },
-    description: { 
-      ro: "Începem cu o discuție relaxată despre nevoile tale. Vrem să înțelegem stilul de viață, preferințele estetice și bugetul alocat.",
-      en: "We start with a relaxed discussion about your needs. We want to understand your lifestyle, aesthetic preferences, and allocated budget."
-    },
-    action: { ro: "Analizăm spațiul, stilul dorit și bugetul estimat.", en: "We analyze the space, desired style, and estimated budget." },
-    deliverable: { ro: "O direcție clară și o estimare preliminară.", en: "A clear direction and a preliminary estimate." },
-    benefit: { ro: "Știi de la început dacă suntem partenerul potrivit.", en: "You know from the start if we are the right partner." },
-    icon: MessageSquare,
-    image: "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1200"
-  },
-  {
-    id: 2,
-    title: { ro: "Măsurători & Proiectare", en: "Measurements & Design" },
-    description: { 
-      ro: "Transformăm ideile în planuri tehnice concrete. Nu lăsăm nimic la voia întâmplării.",
-      en: "We transform ideas into concrete technical plans. We leave nothing to chance."
-    },
-    action: { ro: "Releu digital 3D, proiectare tehnică detaliată, randări fotorealiste.", en: "3D digital survey, detailed technical design, photorealistic renderings." },
-    deliverable: { ro: "Proiect complet 3D și dosar tehnic de execuție.", en: "Complete 3D project and technical execution file." },
-    benefit: { ro: "Vezi exact cum va arăta rezultatul final înainte de a tăia prima placă.", en: "See exactly how the final result will look before cutting the first board." },
-    icon: Ruler,
-    image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1200"
-  },
-  {
-    id: 3,
-    title: { ro: "Ofertare & Contract", en: "Quote & Contract" },
-    description: { 
-      ro: "Transparență totală asupra costurilor. Oferta noastră este finală, fără costuri ascunse.",
-      en: "Total transparency on costs. Our quote is final, with no hidden costs."
-    },
-    action: { ro: "Ofertă detaliată pe materiale, feronerie și manoperă.", en: "Detailed quote on materials, hardware, and labor." },
-    deliverable: { ro: "Contract ferm cu termene de execuție clare.", en: "Firm contract with clear execution deadlines." },
-    benefit: { ro: "Siguranță financiară și contractuală.", en: "Financial and contractual security." },
-    icon: FileText,
-    image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200"
-  },
-  {
-    id: 4,
-    title: { ro: "Producție CNC & Finisare", en: "CNC Production & Finishing" },
-    description: { 
-      ro: "Unde tehnologia întâlnește măiestria. Producem totul in-house, controlând calitatea fiecărei piese.",
-      en: "Where technology meets craftsmanship. We produce everything in-house, controlling the quality of every piece."
-    },
-    action: { ro: "Debitare și frezare CNC, vopsire în cabină presurizată, pre-asamblare.", en: "CNC cutting and milling, painting in pressurized booth, pre-assembly." },
-    deliverable: { ro: "Mobilier executat la milimetru, gata de montaj.", en: "Furniture executed to the millimeter, ready for installation." },
-    benefit: { ro: "Calitate industrială cu atenție de artizan.", en: "Industrial quality with artisan attention." },
-    icon: Cpu,
-    image: "https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=1200"
-  },
-  {
-    id: 5,
-    title: { ro: "Livrare & Montaj", en: "Delivery & Installation" },
-    description: { 
-      ro: "Ultimul pas spre casa visurilor tale. Tratăm casa ta cu respectul cuvenit.",
-      en: "The last step to your dream home. We treat your home with the respect it deserves."
-    },
-    action: { ro: "Transport specializat, montaj cu echipe proprii, curățenie finală.", en: "Specialized transport, installation with in-house teams, final cleaning." },
-    deliverable: { ro: "Spațiu gata de utilizare, impecabil.", en: "Space ready for use, spotless." },
-    benefit: { ro: "O experiență fără stres, cu garanție extinsă.", en: "A stress-free experience, with extended warranty." },
-    icon: Home,
-    image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200"
-  }
-];
+import * as Icons from 'lucide-react';
+import { dbService } from '../../services/db';
 
 const useReveal = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -96,10 +30,40 @@ const useReveal = () => {
 
 export const Process: React.FC = () => {
   const { t, lang } = useI18n();
+  const [steps, setSteps] = useState<any[]>([]);
 
   useEffect(() => {
-    document.title = lang === 'ro' ? 'CARVELLO | Procesul de Execuție' : 'CARVELLO | Execution Process';
     window.scrollTo(0, 0);
+
+    const load = async () => {
+      const dbSteps = await dbService.getProcessSteps();
+      const media = await dbService.getMedia();
+      
+      const mapped = dbSteps.map((s, i) => {
+        let imageUrl = s.mediaId || '';
+        if (s.mediaId && !s.mediaId.startsWith('http')) {
+             const m = media.find(m => m.id === s.mediaId);
+             if (m) imageUrl = m.url;
+        }
+        
+        // Map icons based on index
+        const icons = [Icons.MessageSquare, Icons.Ruler, Icons.FileText, Icons.Cpu, Icons.Home];
+        const IconComp = icons[i % icons.length] || Icons.CheckCircle2;
+
+        return {
+          id: s.id,
+          title: s.title,
+          description: s.description,
+          action: s.bullets[0] || { ro: '', en: '' },
+          deliverable: s.bullets[1] || { ro: '', en: '' },
+          benefit: s.bullets[2] || { ro: 'Garanție Carvello', en: 'Carvello Warranty' },
+          icon: IconComp,
+          image: imageUrl
+        };
+      });
+      setSteps(mapped);
+    };
+    load();
   }, [lang]);
 
   return (
@@ -142,7 +106,7 @@ export const Process: React.FC = () => {
         <div className="absolute left-6 md:left-1/2 top-24 bottom-24 w-[1px] bg-white/10 hidden md:block"></div>
 
         <div className="space-y-24">
-          {PROCESS_STEPS.map((step, idx) => (
+          {steps.map((step, idx) => (
             <StepCard key={step.id} step={step} index={idx} lang={lang} />
           ))}
         </div>

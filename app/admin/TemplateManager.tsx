@@ -22,7 +22,7 @@ export const TemplateManager: React.FC = () => {
   const loadTemplates = async () => {
     try {
       const data = await dbService.getOfferTemplates();
-      setTemplates(data);
+      setTemplates(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load templates', err);
     } finally {

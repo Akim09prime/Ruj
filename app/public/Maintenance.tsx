@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 export const Maintenance: React.FC = () => {
   return (
     <div className="h-screen w-full bg-black text-[#F2F2EF] flex flex-col items-center justify-center relative overflow-hidden">
+      
       {/* Background Effect */}
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10"></div>
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>

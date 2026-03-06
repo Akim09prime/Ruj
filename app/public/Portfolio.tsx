@@ -18,10 +18,12 @@ const FALLBACK_PROJECTS: Project[] = [
     isPublished: true,
     isFeatured: true,
     publishedAt: new Date().toISOString(),
+    timelineDate: '2024-01-01',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: 'penthouse-obsidian',
     coverMediaId: null,
-    tags: ['Minimalist', 'Black Matte', 'Luxury'],
-    gallery: []
+    tags: ['Minimalist', 'Black Matte', 'Luxury']
   },
   {
     id: 'demo-2',
@@ -32,10 +34,12 @@ const FALLBACK_PROJECTS: Project[] = [
     isPublished: true,
     isFeatured: true,
     publishedAt: new Date().toISOString(),
+    timelineDate: '2024-01-01',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: 'showroom-luxury',
     coverMediaId: null,
-    tags: ['CNC', 'Commercial', 'Showroom'],
-    gallery: []
+    tags: ['CNC', 'Commercial', 'Showroom']
   },
   {
     id: 'demo-3',
@@ -46,10 +50,12 @@ const FALLBACK_PROJECTS: Project[] = [
     isPublished: true,
     isFeatured: true,
     publishedAt: new Date().toISOString(),
+    timelineDate: '2024-01-01',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
     slug: 'villa-azure',
     coverMediaId: null,
-    tags: ['Bronze', 'Natural Stone', 'Kitchen'],
-    gallery: []
+    tags: ['Bronze', 'Natural Stone', 'Kitchen']
   }
 ];
 
@@ -64,15 +70,17 @@ export const Portfolio: React.FC = () => {
   const [activeSort, setActiveSort] = useState('newest');
 
   useEffect(() => {
-    document.title = lang === 'ro' ? 'CARVELLO | Portofoliu Proiecte' : 'CARVELLO | Project Portfolio';
-  }, [lang]);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
         const p = await dbService.getProjects();
         const m = await dbService.getMedia();
         
+        if (!Array.isArray(p)) {
+          console.error("Projects is not an array", p);
+          setProjects(FALLBACK_PROJECTS);
+          return;
+        }
+
         const published = p.filter(proj => proj.isPublished && (proj.isVisible !== false));
         
         if (published.length > 0) {

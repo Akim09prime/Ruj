@@ -5,7 +5,7 @@ import { Lang, I18nString } from '../types';
 interface I18nContextType {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  t: (str: I18nString | string) => string;
+  t: (str: I18nString | string | undefined | null) => string;
 }
 
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
@@ -20,9 +20,10 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('carvello-lang', lang);
   }, [lang]);
 
-  const t = (str: I18nString | string): string => {
+  const t = (str: I18nString | string | undefined | null): string => {
+    if (!str) return '';
     if (typeof str === 'string') return str;
-    return str[lang] || str['ro'];
+    return str[lang] || str['ro'] || '';
   };
 
   return (

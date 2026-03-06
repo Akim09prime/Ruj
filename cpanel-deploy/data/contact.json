@@ -1,5 +1,0 @@
-{
-    "hero": { "title": {"ro":"Contact","en":"Contact"}, "subtitle": {"ro":"Hai să discutăm","en":"Lets talk"}, "ctaPrimary": {"ro":"Mesaj","en":"Message"}, "ctaSecondary": {"ro":"WhatsApp","en":"WhatsApp"}, "coverImageId": null },
-    "info": { "phone": "0729 728 880", "email": "office@carvello.ro", "address": "Strada Industriei 10", "city": "Cluj", "country": "Ro", "hours": "L-V", "responseBuffer": {"ro":"24h","en":"24h"}, "whatsappLink": "", "mapEmbedUrl": "" },
-    "timeline": { "steps": [] }, "faq": []
-}

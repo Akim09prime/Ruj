@@ -8,6 +8,9 @@ export const SettingsManager: React.FC = () => {
   const [settings, setSettings] = useState<Settings | null>(null);
   const { setTheme } = useTheme();
 
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordStatus, setPasswordStatus] = useState<{type: 'success' | 'error', text: string} | null>(null);
+
   useEffect(() => {
     dbService.getSettings().then(setSettings);
   }, []);
@@ -18,6 +21,23 @@ export const SettingsManager: React.FC = () => {
       setTheme(settings.activeTheme);
       alert('Setările au fost salvate!');
       window.location.reload();
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword) return;
+    
+    try {
+      const success = await dbService.changePassword(newPassword);
+      if (success) {
+        setPasswordStatus({ type: 'success', text: 'Parola a fost schimbată cu succes!' });
+        setNewPassword('');
+      } else {
+        setPasswordStatus({ type: 'error', text: 'Eroare la schimbarea parolei.' });
+      }
+    } catch (err) {
+      setPasswordStatus({ type: 'error', text: 'Eroare la schimbarea parolei.' });
     }
   };
 
@@ -68,6 +88,37 @@ export const SettingsManager: React.FC = () => {
                 <span className="text-[10px] uppercase font-bold">{t.label}</span>
               </button>
             ))}
+          </div>
+        </section>
+
+        {/* SECURITY */}
+        <section className="bg-surface p-8 border border-border shadow-sm md:col-span-2">
+          <h2 className="text-xs uppercase font-bold text-accent mb-6">Securitate</h2>
+          <div className="max-w-md">
+            <form onSubmit={handleChangePassword} className="space-y-4">
+              <div>
+                <label className="block text-xs uppercase tracking-widest text-muted-foreground mb-1">Noua Parolă</label>
+                <input 
+                  type="password" 
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="w-full bg-background border border-border rounded px-3 py-2 text-sm focus:border-accent outline-none"
+                  placeholder="Introduceți noua parolă"
+                  required
+                />
+              </div>
+              <button 
+                type="submit"
+                className="px-6 py-2 bg-surface-2 border border-border hover:bg-accent hover:text-white text-[10px] uppercase font-bold transition-colors"
+              >
+                Schimbă Parola
+              </button>
+              {passwordStatus && (
+                <p className={`text-xs mt-2 ${passwordStatus.type === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+                  {passwordStatus.text}
+                </p>
+              )}
+            </form>
           </div>
         </section>
 

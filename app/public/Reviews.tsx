@@ -30,12 +30,16 @@ export const Reviews: React.FC = () => {
   });
 
   useEffect(() => {
-    document.title = lang === 'ro' ? 'CARVELLO | Recenzii Clienți' : 'CARVELLO | Client Reviews';
     const load = async () => {
       try {
         const all = await dbService.getReviews();
-        // Only show approved and consented reviews
-        setReviews(all.filter(r => r.status === 'approved' && r.consentPublic));
+        if (Array.isArray(all)) {
+          // Only show approved and consented reviews
+          setReviews(all.filter(r => r.status === 'approved' && r.consentPublic));
+        } else {
+          console.error("Reviews is not an array", all);
+          setReviews([]);
+        }
       } catch (error) {
         console.error("Failed to load reviews", error);
         setReviews([]);

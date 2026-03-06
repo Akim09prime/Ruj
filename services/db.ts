@@ -1,10 +1,10 @@
 
-import { AppDB, Settings, Project, Media, Page, Lead, ServicePage, ProcessStep, AboutPageData, Review, ContactPageData } from '../types';
+import { AppDB, Settings, Project, Media, Page, Lead, ServicePage, ProcessStep, AboutPageData, Review, ContactPageData, Offer, OfferTemplate } from '../types';
 
 // DEBUG FLAG - Set to true for preview environment (Node.js) where PHP doesn't run.
 // On cPanel (Apache/PHP), the server will execute PHP, so the "<?php" check will fail, 
 // and this flag won't matter (it will use the real backend).
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const getBasePath = () => {
   // In production (cPanel), the app is at the root or a subdirectory.
@@ -58,7 +58,7 @@ const SEED_DATA: AppDB = {
   about: {
     hero: { title: {ro:'Despre CARVELLO',en:'About CARVELLO'}, subtitle: {ro:'Măiestrie și Precizie',en:'Craftsmanship and Precision'}, text: {ro:'Suntem un atelier de producție mobilier premium, dedicat excelenței în design și execuție.',en:'We are a premium furniture production workshop, dedicated to excellence in design and execution.'}, mediaId: null },
     manifesto: { title: {ro:'Manifestul Nostru',en:'Our Manifesto'}, text: {ro:'Credem că mobilierul nu este doar un obiect utilitar, ci o expresie a personalității și a stilului de viață. Ne angajăm să creăm piese care nu doar arată impecabil, ci și rezistă testului timpului, folosind cele mai bune materiale și tehnologii de ultimă generație.',en:'We believe that furniture is not just a utilitarian object, but an expression of personality and lifestyle. We are committed to creating pieces that not only look flawless but also stand the test of time, using the best materials and cutting-edge technologies.'}, bullets: [{ro:'Atenție obsesivă la detalii',en:'Obsessive attention to detail'},{ro:'Inovație continuă în producție',en:'Continuous innovation in production'},{ro:'Respect pentru materiale și mediu',en:'Respect for materials and the environment'}] },
-    pillars: [{id:'pillar-1',title:{ro:'Tehnologie CNC',en:'CNC Technology'},description:{ro:'Precizie milimetrică în fiecare tăietură.',en:'Millimeter precision in every cut.'},icon:'Cpu'},{id:'pillar-2',title:{ro:'Finisaje Premium',en:'Premium Finishes'},description:{ro:'Vopsire 2K și furnire naturale selectate manual.',en:'2K painting and hand-selected natural veneers.'},icon:'Droplet'},{id:'pillar-3',title:{ro:'Design Personalizat',en:'Custom Design'},description:{ro:'Soluții unice pentru fiecare spațiu.',en:'Unique solutions for every space.'},icon:'PenTool'}], quality: { title: {ro:'Standardul CARVELLO',en:'The CARVELLO Standard'}, bullets: [{ro:'Feronerie Blum cu garanție extinsă',en:'Blum hardware with extended warranty'},{ro:'MDF de înaltă densitate pentru durabilitate',en:'High-density MDF for durability'},{ro:'Control riguros al calității în 3 etape',en:'Rigorous 3-stage quality control'}], images: [] }, timeline: [{id:'timeline-1',year:'2018',title:{ro:'Începutul',en:'The Beginning'},description:{ro:'Am deschis primul nostru atelier, cu o echipă mică dar pasionată.',en:'We opened our first workshop, with a small but passionate team.'}},{id:'timeline-2',year:'2021',title:{ro:'Modernizarea',en:'Modernization'},description:{ro:'Am investit în primele utilaje CNC pentru a crește precizia.',en:'We invested in our first CNC machines to increase precision.'}},{id:'timeline-3',year:'2024',title:{ro:'Extinderea',en:'Expansion'},description:{ro:'Ne-am mutat într-o nouă facilitate de producție, dublându-ne capacitatea.',en:'We moved to a new production facility, doubling our capacity.'}}],
+    pillars: [{title:{ro:'Tehnologie CNC',en:'CNC Technology'},description:{ro:'Precizie milimetrică în fiecare tăietură.',en:'Millimeter precision in every cut.'}},{title:{ro:'Finisaje Premium',en:'Premium Finishes'},description:{ro:'Vopsire 2K și furnire naturale selectate manual.',en:'2K painting and hand-selected natural veneers.'}},{title:{ro:'Design Personalizat',en:'Custom Design'},description:{ro:'Soluții unice pentru fiecare spațiu.',en:'Unique solutions for every space.'}}], quality: { title: {ro:'Standardul CARVELLO',en:'The CARVELLO Standard'}, bullets: [{ro:'Feronerie Blum cu garanție extinsă',en:'Blum hardware with extended warranty'},{ro:'MDF de înaltă densitate pentru durabilitate',en:'High-density MDF for durability'},{ro:'Control riguros al calității în 3 etape',en:'Rigorous 3-stage quality control'}], images: [] }, timeline: [{year:'2018',title:{ro:'Începutul',en:'The Beginning'},description:{ro:'Am deschis primul nostru atelier, cu o echipă mică dar pasionată.',en:'We opened our first workshop, with a small but passionate team.'}},{year:'2021',title:{ro:'Modernizarea',en:'Modernization'},description:{ro:'Am investit în primele utilaje CNC pentru a crește precizia.',en:'We invested in our first CNC machines to increase precision.'}},{year:'2024',title:{ro:'Extinderea',en:'Expansion'},description:{ro:'Ne-am mutat într-o nouă facilitate de producție, dublându-ne capacitatea.',en:'We moved to a new production facility, doubling our capacity.'}}],
     clients: { resTitle: {ro:'Clienți Rezidențiali',en:'Residential Clients'}, resDesc: {ro:'Peste 200 de familii se bucură zilnic de mobilierul creat de noi.',en:'Over 200 families enjoy the furniture we created every day.'}, comTitle: {ro:'Parteneri B2B',en:'B2B Partners'}, comDesc: {ro:'Colaborăm cu arhitecți și designeri de top pentru proiecte complexe.',en:'We collaborate with top architects and designers for complex projects.'}},
     cta: { title: {ro:'Gata să începem proiectul tău?',en:'Ready to start your project?'}, trustLine: {ro:'Contactează-ne pentru o consultație gratuită.',en:'Contact us for a free consultation.'}}
   },
@@ -84,8 +84,10 @@ const SEED_DATA: AppDB = {
       location: { ro: 'Cluj-Napoca', en: 'Cluj-Napoca' },
       isPublished: true,
       isVisible: true,
+      publishedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      slug: 'penthouse-panoramic',
       coverMediaId: 'm1',
       agentId: 'admin',
       tags: ['Luxury', 'Modern', 'Penthouse'],
@@ -95,11 +97,17 @@ const SEED_DATA: AppDB = {
     }
   ],
   services: [
-    {id:'serviciu-1',slug:'mobilier-rezidential',title:{ro:'Mobilier Rezidențial',en:'Residential Furniture'},shortDescription:{ro:'Bucătării, livinguri și dormitoare executate milimetric pentru confortul casei tale.',en:'Kitchens, living rooms, and bedrooms executed with millimeter precision for your home\'s comfort.'},fullDescription:{ro:'Transformăm spațiile de locuit în adevărate opere de artă funcționale. De la bucătării moderne cu insulă, la dressinguri spațioase și livinguri elegante, folosim materiale premium și tehnologie CNC pentru a asigura o potrivire perfectă și un finisaj impecabil.',en:'We transform living spaces into true functional works of art. From modern kitchens with islands to spacious walk-in closets and elegant living rooms, we use premium materials and CNC technology to ensure a perfect fit and flawless finish.'},icon:'Home',order:1,features:[{title:{ro:'Design Personalizat',en:'Custom Design'},description:{ro:'Adaptat perfect nevoilor și spațiului tău.',en:'Perfectly adapted to your needs and space.'}},{title:{ro:'Materiale Premium',en:'Premium Materials'},description:{ro:'MDF vopsit, furnir natural, feronerie Blum.',en:'Painted MDF, natural veneer, Blum hardware.'}}],galleryIds:[]},
-    {id:'serviciu-2',slug:'mobilier-horeca',title:{ro:'Mobilier HoReCa',en:'HoReCa Furniture'},shortDescription:{ro:'Soluții complete de amenajare pentru restaurante, cafenele și hoteluri.',en:'Complete furnishing solutions for restaurants, cafes, and hotels.'},fullDescription:{ro:'Înțelegem importanța durabilității și a esteticii în industria ospitalității. Proiectăm și executăm baruri, recepții, mese și placări de pereți care rezistă la trafic intens, păstrându-și în același timp aspectul premium.',en:'We understand the importance of durability and aesthetics in the hospitality industry. We design and manufacture bars, receptions, tables, and wall panelling that withstand heavy traffic while maintaining their premium look.'},icon:'Coffee',order:2,features:[{title:{ro:'Durabilitate',en:'Durability'},description:{ro:'Materiale rezistente la uzură intensă.',en:'Materials resistant to heavy wear.'}},{title:{ro:'Estetică Unică',en:'Unique Aesthetics'},description:{ro:'Design care atrage și reține clienții.',en:'Design that attracts and retains customers.'}}],galleryIds:[]},
-    {id:'serviciu-3',slug:'mobilier-office',title:{ro:'Mobilier Office',en:'Office Furniture'},shortDescription:{ro:'Spații de lucru ergonomice și moderne care inspiră productivitate.',en:'Ergonomic and modern workspaces that inspire productivity.'},fullDescription:{ro:'Creăm medii de lucru care stimulează creativitatea și eficiența. De la birouri executive și săli de conferințe, până la spații de coworking și zone de relaxare, oferim soluții integrate care reflectă identitatea companiei tale.',en:'We create work environments that stimulate creativity and efficiency. From executive offices and conference rooms to coworking spaces and relaxation areas, we offer integrated solutions that reflect your company\'s identity.'},icon:'Briefcase',order:3,features:[{title:{ro:'Ergonomie',en:'Ergonomics'},description:{ro:'Confort pentru ore lungi de lucru.',en:'Comfort for long working hours.'}},{title:{ro:'Integrare Tehnologică',en:'Tech Integration'},description:{ro:'Soluții ascunse pentru cabluri și conectivitate.',en:'Hidden solutions for cables and connectivity.'}}],galleryIds:[]}
+    {id:'mobilier-premium',slug:'mobilier-premium',title:{ro:'Mobilier Premium la Comandă',en:'Premium Custom Furniture'},shortDescription:{ro:'Rezidențial & Comercial',en:'Residential & Commercial'},fullDescription:{ro:'Nu livrăm doar piese de mobilier, ci soluții arhitecturale perfect integrate. De la bucătării statement la dressing-uri complexe și panotări de pereți, controlăm fiecare milimetru al producției.',en:'We deliver not just furniture pieces, but perfectly integrated architectural solutions. From statement kitchens to complex walk-in closets and wall paneling, we control every millimeter of production.'},order:1,features:[{title:{ro:'Pentru Cine',en:'Target Audience'},description:{ro:'Arhitecți, Designeri, Proprietari de locuințe luxury.',en:'Architects, Designers, Luxury Homeowners.'}},{title:{ro:'Valoare Adăugată',en:'Value Added'},description:{ro:'Eliminăm nepotrivirile din șantier, finisajele mediocre și compromisurile de execuție.',en:'We eliminate site mismatches, mediocre finishes, and execution compromises.'}}],bullets:[{ro:'Releu digital & Proiectare tehnică',en:'Digital Survey & Technical Design'},{ro:'Materiale: MDF vopsit, Furnir, Lemn Masiv, Metal',en:'Materials: Painted MDF, Veneer, Solid Wood, Metal'},{ro:'Montaj cu echipă proprie',en:'Installation with in-house team'}],galleryIds:[],heroMediaId:'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200'},
+    {id:'servicii-cnc',slug:'servicii-cnc',title:{ro:'Servicii de Frezare CNC',en:'CNC Milling Services'},shortDescription:{ro:'Precizie & Volum',en:'Precision & Volume'},fullDescription:{ro:'Partenerul tehnic ideal pentru proiecte complexe. Dispunem de tehnologie CNC de ultimă generație pentru debitare, frezare și gravare pe o gamă largă de materiale.',en:'The ideal technical partner for complex projects. We utilize state-of-the-art CNC technology for cutting, milling, and engraving on a wide range of materials.'},order:2,features:[{title:{ro:'Pentru Cine',en:'Target Audience'},description:{ro:'Producători de mobilă, Arhitecți, Dezvoltatori Imobiliari.',en:'Furniture Manufacturers, Architects, Real Estate Developers.'}},{title:{ro:'Valoare Adăugată',en:'Value Added'},description:{ro:'Execuție rapidă și precisă pentru forme curbe, traforaje sau piese unicat imposibil de realizat manual.',en:'Fast and precise execution for curved shapes, fretwork, or unique pieces impossible to make by hand.'}}],bullets:[{ro:'Frezare 2D & 3D complexă',en:'Complex 2D & 3D Milling'},{ro:'Debitare MDF, PAL, Placaj, Compozit',en:'Cutting MDF, Chipboard, Plywood, Composite'},{ro:'Prototipare rapidă',en:'Rapid Prototyping'}],galleryIds:[],heroMediaId:'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200'},
+    {id:'proiectare-design',slug:'proiectare-design',title:{ro:'Proiectare & Randare 3D',en:'3D Design & Rendering'},shortDescription:{ro:'Vizualizare & Concept',en:'Visualization & Concept'},fullDescription:{ro:'Vezi viitorul spațiu înainte de a investi. Transformăm schițele sau ideile tale în imagini fotorealiste și planuri tehnice gata de execuție.',en:'See your future space before investing. We transform your sketches or ideas into photorealistic images and technical plans ready for execution.'},order:3,features:[{title:{ro:'Pentru Cine',en:'Target Audience'},description:{ro:'Clienți care vor claritate, Dezvoltatori care vând off-plan.',en:'Clients seeking clarity, Developers selling off-plan.'}},{title:{ro:'Valoare Adăugată',en:'Value Added'},description:{ro:'Elimină riscul de a primi ceva ce nu îți place. Validezi estetica și funcționalitatea înainte de producție.',en:'Eliminate the risk of getting something you don\'t like. Validate aesthetics and functionality before production.'}}],bullets:[{ro:'Randări fotorealiste 4K',en:'4K Photorealistic Renderings'},{ro:'Planuri tehnice de execuție',en:'Technical Execution Plans'},{ro:'Moodboard & Selecție materiale',en:'Moodboard & Material Selection'}],galleryIds:[],heroMediaId:'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200'}
   ],
-  processSteps: [],
+  processSteps: [
+    {id:'1',title:{ro:'Consultare & Viziune',en:'Consultation & Vision'},description:{ro:'Începem cu o discuție relaxată despre nevoile tale. Vrem să înțelegem stilul de viață, preferințele estetice și bugetul alocat.',en:'We start with a relaxed discussion about your needs. We want to understand your lifestyle, aesthetic preferences, and allocated budget.'},bullets:[{ro:'Analizăm spațiul, stilul dorit și bugetul estimat.',en:'We analyze the space, desired style, and estimated budget.'},{ro:'O direcție clară și o estimare preliminară.',en:'A clear direction and a preliminary estimate.'}],mediaId:'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&q=80&w=1200',order:1,isVisible:true,cta:{label:{ro:'Vezi detalii',en:'View details'},href:'#'}},
+    {id:'2',title:{ro:'Măsurători & Proiectare',en:'Measurements & Design'},description:{ro:'Transformăm ideile în planuri tehnice concrete. Nu lăsăm nimic la voia întâmplării.',en:'We transform ideas into concrete technical plans. We leave nothing to chance.'},bullets:[{ro:'Releu digital 3D, proiectare tehnică detaliată, randări fotorealiste.',en:'3D digital survey, detailed technical design, photorealistic renderings.'},{ro:'Proiect complet 3D și dosar tehnic de execuție.',en:'Complete 3D project and technical execution file.'}],mediaId:'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&q=80&w=1200',order:2,isVisible:true,cta:{label:{ro:'Vezi detalii',en:'View details'},href:'#'}},
+    {id:'3',title:{ro:'Ofertare & Contract',en:'Quote & Contract'},description:{ro:'Transparență totală asupra costurilor. Oferta noastră este finală, fără costuri ascunse.',en:'Total transparency on costs. Our quote is final, with no hidden costs.'},bullets:[{ro:'Ofertă detaliată pe materiale, feronerie și manoperă.',en:'Detailed quote on materials, hardware, and labor.'},{ro:'Contract ferm cu termene de execuție clare.',en:'Firm contract with clear execution deadlines.'}],mediaId:'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&q=80&w=1200',order:3,isVisible:true,cta:{label:{ro:'Vezi detalii',en:'View details'},href:'#'}},
+    {id:'4',title:{ro:'Producție CNC & Finisare',en:'CNC Production & Finishing'},description:{ro:'Unde tehnologia întâlnește măiestria. Producem totul in-house, controlând calitatea fiecărei piese.',en:'Where technology meets craftsmanship. We produce everything in-house, controlling the quality of every piece.'},bullets:[{ro:'Debitare și frezare CNC, vopsire în cabină presurizată, pre-asamblare.',en:'CNC cutting and milling, painting in pressurized booth, pre-assembly.'},{ro:'Mobilier executat la milimetru, gata de montaj.',en:'Furniture executed to the millimeter, ready for installation.'}],mediaId:'https://images.unsplash.com/photo-1620613909778-83ae22f462a6?auto=format&fit=crop&q=80&w=1200',order:4,isVisible:true,cta:{label:{ro:'Vezi detalii',en:'View details'},href:'#'}},
+    {id:'5',title:{ro:'Livrare & Montaj',en:'Delivery & Installation'},description:{ro:'Ultimul pas spre casa visurilor tale. Tratăm casa ta cu respectul cuvenit.',en:'The last step to your dream home. We treat your home with the respect it deserves.'},bullets:[{ro:'Transport specializat, montaj cu echipe proprii, curățenie finală.',en:'Specialized transport, installation with in-house teams, final cleaning.'},{ro:'Spațiu gata de utilizare, impecabil.',en:'Space ready for use, spotless.'}],mediaId:'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200',order:5,isVisible:true,cta:{label:{ro:'Vezi detalii',en:'View details'},href:'#'}}
+  ],
   reviews: [],
   pages: [], 
   leads: [],
@@ -181,6 +189,14 @@ class DBService {
       
       const data = JSON.parse(text);
       
+      // If data is empty array for certain types, use fallback to restore defaults
+      if (Array.isArray(data) && data.length === 0 && Array.isArray(fallback) && (fallback as any[]).length > 0) {
+        if (['services', 'process', 'offerTemplates'].includes(type)) {
+          console.log(`Using fallback for ${type} because fetched data is empty`);
+          return fallback;
+        }
+      }
+      
       // Merge with fallback for objects to ensure all keys exist
       if (typeof fallback === 'object' && fallback !== null && !Array.isArray(fallback)) {
          return { ...fallback, ...data };
@@ -232,8 +248,13 @@ class DBService {
   // Auth methods
   async checkAuth(): Promise<boolean> {
     try {
+      const token = localStorage.getItem('carvello_token');
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       const res = await fetch(`${API_BASE}/auth.php?action=session`, { 
-        credentials: 'include'
+        credentials: 'include',
+        headers
       });
       const text = await res.text();
       if (text.trim().startsWith('<?php')) return DEBUG_MODE; // Dev fallback
@@ -244,7 +265,14 @@ class DBService {
 
   async getSession(): Promise<{ authenticated: boolean; user?: string; role?: string }> {
     try {
-      const res = await fetch(`${API_BASE}/auth.php?action=session`, { credentials: 'include' });
+      const token = localStorage.getItem('carvello_token');
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`${API_BASE}/auth.php?action=session`, { 
+        credentials: 'include',
+        headers
+      });
       const text = await res.text();
       if (text.trim().startsWith('<?php')) return { authenticated: DEBUG_MODE, role: 'admin' };
       return JSON.parse(text);
@@ -252,19 +280,8 @@ class DBService {
   }
 
   async login(password: string): Promise<boolean> {
-    try {
-      const res = await fetch(`${API_BASE}/auth.php?action=login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: 'admin', password }), // Default username
-        credentials: 'include'
-      });
-      const text = await res.text();
-      if (text.trim().startsWith('<?php')) return DEBUG_MODE && password === 'admin';
-      
-      const data = JSON.parse(text);
-      return data.success === true;
-    } catch { return false; }
+    // Deprecated, use loginUser
+    return (await this.loginUser('admin', password)).success;
   }
 
   async loginUser(username: string, password: string): Promise<{ success: boolean; role?: string; message?: string }> {
@@ -276,18 +293,28 @@ class DBService {
         credentials: 'include'
       });
       const text = await res.text();
-      if (text.trim().startsWith('<?php')) return { success: DEBUG_MODE && password === 'admin', role: 'admin' };
+      if (text.trim().startsWith('<?php')) return { success: DEBUG_MODE && (password === 'admin' || password === 'carvello2024'), role: 'admin' };
       
-      return JSON.parse(text);
+      const data = JSON.parse(text);
+      if (data.success && data.token) {
+        localStorage.setItem('carvello_token', data.token);
+      }
+      return data;
     } catch (e) { return { success: false, message: 'Network error' }; }
   }
 
   async logout(): Promise<void> {
     try {
+      const token = localStorage.getItem('carvello_token');
+      const headers: any = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       await fetch(`${API_BASE}/auth.php?action=logout`, { 
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers
       });
+      localStorage.removeItem('carvello_token');
     } catch (e) {
       // ignore
     }
@@ -424,13 +451,15 @@ class DBService {
   }
   async upsertMedia(mediaItem: Media): Promise<void> { 
     const media = await this.getMedia();
-    const idx = media.findIndex(m => m.id === mediaItem.id);
-    if (idx >= 0) media[idx] = mediaItem; else media.push(mediaItem);
-    await this.saveContent('gallery', media);
+    const mediaArray = Array.isArray(media) ? media : [];
+    const idx = mediaArray.findIndex(m => m.id === mediaItem.id);
+    if (idx >= 0) mediaArray[idx] = mediaItem; else mediaArray.push(mediaItem);
+    await this.saveContent('gallery', mediaArray);
   }
   async deleteMedia(id: string): Promise<void> { 
     const media = await this.getMedia();
-    const newMedia = media.filter(m => m.id !== id);
+    const mediaArray = Array.isArray(media) ? media : [];
+    const newMedia = mediaArray.filter(m => m.id !== id);
     await this.saveContent('gallery', newMedia);
   }
   
@@ -538,47 +567,52 @@ class DBService {
 
   // Offer Templates
   async getOfferTemplates(): Promise<OfferTemplate[]> {
-    return this.fetchContent('offerTemplates', []);
+    return this.fetchContent('offerTemplates', SEED_DATA.offerTemplates);
   }
 
   async upsertOfferTemplate(template: OfferTemplate): Promise<void> {
     const templates = await this.getOfferTemplates();
-    const idx = templates.findIndex(t => t.id === template.id);
-    if (idx >= 0) templates[idx] = template; else templates.push(template);
-    await this.saveContent('offerTemplates', templates);
+    const templatesArray = Array.isArray(templates) ? templates : [];
+    const idx = templatesArray.findIndex(t => t.id === template.id);
+    if (idx >= 0) templatesArray[idx] = template; else templatesArray.push(template);
+    await this.saveContent('offerTemplates', templatesArray);
   }
 
   async deleteOfferTemplate(id: string): Promise<void> {
     const templates = await this.getOfferTemplates();
-    const newTemplates = templates.filter(t => t.id !== id);
+    const templatesArray = Array.isArray(templates) ? templates : [];
+    const newTemplates = templatesArray.filter(t => t.id !== id);
     await this.saveContent('offerTemplates', newTemplates);
   }
 
   // Offers
   async getOffers(): Promise<Offer[]> {
-    return this.fetchContent('offers', []);
+    return this.fetchContent('offers', SEED_DATA.offers);
   }
 
   async getOfferById(id: string): Promise<Offer | undefined> {
     const offers = await this.getOffers();
-    return offers.find(o => o.id === id);
+    const offersArray = Array.isArray(offers) ? offers : [];
+    return offersArray.find(o => o.id === id);
   }
 
   async createOffer(offer: Offer): Promise<void> {
     const offers = await this.getOffers();
-    offers.push(offer);
-    await this.saveContent('offers', offers);
+    const offersArray = Array.isArray(offers) ? offers : [];
+    offersArray.push(offer);
+    await this.saveContent('offers', offersArray);
   }
 
   async updateOfferStatus(id: string, status: 'viewed' | 'archived'): Promise<void> {
     const offers = await this.getOffers();
-    const offer = offers.find(o => o.id === id);
+    const offersArray = Array.isArray(offers) ? offers : [];
+    const offer = offersArray.find(o => o.id === id);
     if (offer) {
       offer.status = status;
       if (status === 'viewed') {
         offer.viewCount = (offer.viewCount || 0) + 1;
       }
-      await this.saveContent('offers', offers);
+      await this.saveContent('offers', offersArray);
     }
   }
 

@@ -40,9 +40,16 @@ export const ProjectManager: React.FC = () => {
       const url = await dbService.uploadFile(file);
       const newMedia: Media = {
         id: Math.random().toString(36).substr(2, 9),
+        projectId: 'general',
         url,
         kind: file.type.startsWith('video') ? 'video' : 'image',
-        tags: [],
+        room: '',
+        stage: '',
+        pieceTypes: [],
+        stars: 0,
+        caption: null,
+        shotDate: null,
+        orderInProject: 0,
         createdAt: new Date().toISOString()
       };
       await dbService.upsertMedia(newMedia);
@@ -66,9 +73,16 @@ export const ProjectManager: React.FC = () => {
       const url = await dbService.uploadFile(file);
       const newMedia: Media = {
         id: Math.random().toString(36).substr(2, 9),
+        projectId: 'general',
         url,
         kind: file.type.startsWith('video') ? 'video' : 'image',
-        tags: [],
+        room: '',
+        stage: '',
+        pieceTypes: [],
+        stars: 0,
+        caption: null,
+        shotDate: null,
+        orderInProject: 0,
         createdAt: new Date().toISOString()
       };
       await dbService.upsertMedia(newMedia);

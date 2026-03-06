@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../../services/db';
-import { Send, Image as ImageIcon, Check, Layout } from 'lucide-react';
-import { Media, OfferTemplate } from '../../types';
+import { Send, Image as ImageIcon, Check, Layout, Eye, ExternalLink } from 'lucide-react';
+import { Media, OfferTemplate, Offer } from '../../types';
 
 export const OfferManager: React.FC = () => {
   const [media, setMedia] = useState<Media[]>([]);
   const [templates, setTemplates] = useState<OfferTemplate[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -14,15 +15,26 @@ export const OfferManager: React.FC = () => {
   const [status, setStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      dbService.getMedia(),
-      dbService.getOfferTemplates()
-    ]).then(([mediaData, templatesData]) => {
-      setMedia(mediaData);
-      setTemplates(templatesData);
-      setLoading(false);
-    });
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      const [mediaData, templatesData, offersData] = await Promise.all([
+        dbService.getMedia(),
+        dbService.getOfferTemplates(),
+        dbService.getOffers()
+      ]);
+      setMedia(Array.isArray(mediaData) ? mediaData : []);
+      setTemplates(Array.isArray(templatesData) ? templatesData : []);
+      setOffers(Array.isArray(offersData) ? offersData.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : []);
+    } catch (err) {
+      console.error('Failed to load offer data:', err);
+      setStatus({ type: 'error', text: 'Failed to load data. Please try again.' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleTemplateChange = (templateId: string) => {
     setSelectedTemplateId(templateId);
@@ -59,7 +71,7 @@ export const OfferManager: React.FC = () => {
       const offerId = Date.now().toString();
       const offerLink = `${window.location.origin}/oferta/${offerId}`;
       
-      const newOffer = {
+      const newOffer: Offer = {
         id: offerId,
         templateId: selectedTemplateId,
         agentId: session.user || 'unknown',
@@ -85,6 +97,7 @@ export const OfferManager: React.FC = () => {
       setMessage({ to: '', subject: '', body: '' });
       setSelectedImages([]);
       setSelectedTemplateId('');
+      loadData(); // Reload offers
     } catch (err: any) {
       setStatus({ type: 'error', text: err.message || 'Failed to send offer' });
     } finally {
@@ -226,6 +239,66 @@ export const OfferManager: React.FC = () => {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Sent Offers List */}
+      <div className="bg-surface p-6 rounded-lg border border-border mt-8">
+        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <Send className="w-5 h-5 text-accent" />
+          Sent Offers
+        </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs uppercase tracking-widest text-muted-foreground border-b border-border">
+              <tr>
+                <th className="pb-3 font-medium">Date</th>
+                <th className="pb-3 font-medium">Client</th>
+                <th className="pb-3 font-medium">Subject</th>
+                <th className="pb-3 font-medium">Status</th>
+                <th className="pb-3 font-medium">Views</th>
+                <th className="pb-3 font-medium text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {offers.map(offer => (
+                <tr key={offer.id} className="hover:bg-background/50 transition-colors">
+                  <td className="py-4">{new Date(offer.createdAt).toLocaleDateString()}</td>
+                  <td className="py-4">{offer.clientEmail}</td>
+                  <td className="py-4">{offer.subject}</td>
+                  <td className="py-4">
+                    <span className={`px-2 py-1 rounded text-xs ${
+                      offer.status === 'viewed' ? 'bg-green-500/10 text-green-500' :
+                      offer.status === 'archived' ? 'bg-gray-500/10 text-gray-500' :
+                      'bg-blue-500/10 text-blue-500'
+                    }`}>
+                      {offer.status}
+                    </span>
+                  </td>
+                  <td className="py-4 flex items-center gap-1">
+                    <Eye className="w-3 h-3" /> {offer.viewCount || 0}
+                  </td>
+                  <td className="py-4 text-right">
+                    <a 
+                      href={`/oferta/${offer.id}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-accent hover:underline"
+                    >
+                      View <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </td>
+                </tr>
+              ))}
+              {offers.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="py-8 text-center text-muted-foreground">
+                    No offers sent yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

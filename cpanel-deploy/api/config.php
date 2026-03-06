@@ -14,7 +14,7 @@ define('UPLOAD_DIR', BASE_DIR . 'uploads/');
 define('SESSION_DIR', BASE_DIR . 'sessions/');
 
 // Email Configuration
-define('CONTACT_EMAIL', 'office@carvello.ro'); // Change this to your email
+define('CONTACT_EMAIL', 'intimarts2019@gmail.com'); // Change this to your email
 define('SENDER_EMAIL', 'noreply@carvello.ro'); // Change this to a valid sender email
 
 if (!file_exists(DATA_DIR)) mkdir(DATA_DIR, 0755, true);

@@ -18,7 +18,7 @@ export const ProjectMediaReorder: React.FC = () => {
     const m = await dbService.getMedia(id);
     const s = await dbService.getSettings();
     setProject(p || null);
-    setMedia(m.sort((a, b) => a.orderInProject - b.orderInProject));
+    setMedia(m.sort((a, b) => (a.orderInProject || 0) - (b.orderInProject || 0)));
     setSettings(s);
   };
 

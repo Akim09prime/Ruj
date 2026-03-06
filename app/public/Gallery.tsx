@@ -18,7 +18,7 @@ export const Gallery: React.FC = () => {
       const s = await dbService.getSettings();
       const allMedia = await dbService.getMedia();
       setSettings(s);
-      setMedia(allMedia.filter(m => m.stars >= s.featuredStarsThreshold));
+      setMedia(allMedia.filter(m => (m.stars || 0) >= s.featuredStarsThreshold));
       setLoading(false);
     };
     load();
@@ -28,6 +28,7 @@ export const Gallery: React.FC = () => {
 
   return (
     <div className="pt-32 pb-24 px-6 max-w-7xl mx-auto min-h-screen animate-fade-in">
+      
       <div className="mb-20 text-center">
         <span className="text-accent uppercase tracking-[0.4em] text-[10px] font-bold block mb-4">Masterpieces Gallery</span>
         <h1 className="font-serif text-5xl md:text-8xl mb-12">Arhiva de Detalii</h1>
@@ -63,11 +64,11 @@ export const Gallery: React.FC = () => {
                 className="grayscale-[0.3] group-hover:grayscale-0"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-10 pointer-events-none">
-                <span className="text-accent text-[9px] font-bold uppercase tracking-[0.3em] mb-3">{item.room} — {item.pieceTypes[0] || 'Custom'}</span>
+                <span className="text-accent text-[9px] font-bold uppercase tracking-[0.3em] mb-3">{item.room} — {(item.pieceTypes && item.pieceTypes[0]) || 'Custom'}</span>
                 <h3 className="text-white font-serif text-2xl mb-4 leading-tight">{item.caption ? t(item.caption) : 'Execuție CARVELLO'}</h3>
                 <div className="flex space-x-1 mb-6">
                   {[...Array(5)].map((_, i) => (
-                    <span key={i} className={`text-[10px] ${i < item.stars ? 'text-accent' : 'text-white/20'}`}>★</span>
+                    <span key={i} className={`text-[10px] ${i < (item.stars || 0) ? 'text-accent' : 'text-white/20'}`}>★</span>
                   ))}
                 </div>
                 <div className="w-0 group-hover:w-full h-[1px] bg-accent transition-all duration-700"></div>

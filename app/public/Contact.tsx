@@ -17,7 +17,6 @@ export const Contact: React.FC = () => {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    document.title = lang === 'ro' ? 'CARVELLO | Contact & Consultanță' : 'CARVELLO | Contact & Consulting';
   }, [lang]);
 
   const handleSubmit = async (e: React.FormEvent) => {

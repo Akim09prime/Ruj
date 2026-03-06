@@ -3,76 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../lib/i18n';
 import { Link } from 'react-router-dom';
 import { OptimizedImage } from '../../components/ui/OptimizedImage';
-import { ArrowRight, CheckCircle2, ChevronDown, Cpu, Gem, PencilRuler } from 'lucide-react';
-
-const SERVICES_DATA = [
-  {
-    id: 'mobilier-premium',
-    icon: Gem,
-    title: { ro: "Mobilier Premium la Comandă", en: "Premium Custom Furniture" },
-    subtitle: { ro: "Rezidențial & Comercial", en: "Residential & Commercial" },
-    description: { 
-      ro: "Nu livrăm doar piese de mobilier, ci soluții arhitecturale perfect integrate. De la bucătării statement la dressing-uri complexe și panotări de pereți, controlăm fiecare milimetru al producției.",
-      en: "We deliver not just furniture pieces, but perfectly integrated architectural solutions. From statement kitchens to complex walk-in closets and wall paneling, we control every millimeter of production."
-    },
-    target: { ro: "Pentru: Arhitecți, Designeri, Proprietari de locuințe luxury.", en: "For: Architects, Designers, Luxury Homeowners." },
-    problem: { 
-      ro: "Rezolvăm: Eliminăm nepotrivirile din șantier, finisajele mediocre și compromisurile de execuție.", 
-      en: "Solved: We eliminate site mismatches, mediocre finishes, and execution compromises." 
-    },
-    deliverables: [
-      { ro: "Releu digital & Proiectare tehnică", en: "Digital Survey & Technical Design" },
-      { ro: "Materiale: MDF vopsit, Furnir, Lemn Masiv, Metal", en: "Materials: Painted MDF, Veneer, Solid Wood, Metal" },
-      { ro: "Montaj cu echipă proprie", en: "Installation with in-house team" }
-    ],
-    image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&q=80&w=1200",
-    cta: { link: "/contact", text: { ro: "Cere Ofertă Mobilier", en: "Request Furniture Quote" } }
-  },
-  {
-    id: 'servicii-cnc',
-    icon: Cpu,
-    title: { ro: "Servicii de Frezare CNC", en: "CNC Milling Services" },
-    subtitle: { ro: "Precizie & Volum", en: "Precision & Volume" },
-    description: { 
-      ro: "Partenerul tehnic ideal pentru proiecte complexe. Dispunem de tehnologie CNC de ultimă generație pentru debitare, frezare și gravare pe o gamă largă de materiale.",
-      en: "The ideal technical partner for complex projects. We utilize state-of-the-art CNC technology for cutting, milling, and engraving on a wide range of materials."
-    },
-    target: { ro: "Pentru: Producători de mobilă, Arhitecți, Dezvoltatori Imobiliari.", en: "For: Furniture Manufacturers, Architects, Real Estate Developers." },
-    problem: { 
-      ro: "Rezolvăm: Execuție rapidă și precisă pentru forme curbe, traforaje sau piese unicat imposibil de realizat manual.", 
-      en: "Solved: Fast and precise execution for curved shapes, fretwork, or unique pieces impossible to make by hand." 
-    },
-    deliverables: [
-      { ro: "Frezare 2D & 3D complexă", en: "Complex 2D & 3D Milling" },
-      { ro: "Debitare MDF, PAL, Placaj, Compozit", en: "Cutting MDF, Chipboard, Plywood, Composite" },
-      { ro: "Prototipare rapidă", en: "Rapid Prototyping" }
-    ],
-    image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=1200",
-    cta: { link: "/contact", text: { ro: "Trimite Fișiere CNC", en: "Send CNC Files" } }
-  },
-  {
-    id: 'proiectare-design',
-    icon: PencilRuler,
-    title: { ro: "Proiectare & Randare 3D", en: "3D Design & Rendering" },
-    subtitle: { ro: "Vizualizare & Concept", en: "Visualization & Concept" },
-    description: { 
-      ro: "Vezi viitorul spațiu înainte de a investi. Transformăm schițele sau ideile tale în imagini fotorealiste și planuri tehnice gata de execuție.",
-      en: "See your future space before investing. We transform your sketches or ideas into photorealistic images and technical plans ready for execution."
-    },
-    target: { ro: "Pentru: Clienți care vor claritate, Dezvoltatori care vând off-plan.", en: "For: Clients seeking clarity, Developers selling off-plan." },
-    problem: { 
-      ro: "Rezolvăm: Elimină riscul de a primi ceva ce nu îți place. Validezi estetica și funcționalitatea înainte de producție.", 
-      en: "Solved: Eliminate the risk of getting something you don't like. Validate aesthetics and functionality before production." 
-    },
-    deliverables: [
-      { ro: "Randări fotorealiste 4K", en: "4K Photorealistic Renderings" },
-      { ro: "Planuri tehnice de execuție", en: "Technical Execution Plans" },
-      { ro: "Moodboard & Selecție materiale", en: "Moodboard & Material Selection" }
-    ],
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&q=80&w=1200",
-    cta: { link: "/contact", text: { ro: "Începe Proiectarea", en: "Start Designing" } }
-  }
-];
+import { SEO } from '../../components/SEO';
+import { ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react';
+import * as Icons from 'lucide-react';
+import { dbService } from '../../services/db';
 
 const useReveal = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -97,14 +31,53 @@ const useReveal = () => {
 
 export const Services: React.FC = () => {
   const { t, lang } = useI18n();
+  const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
-    document.title = lang === 'ro' ? 'CARVELLO | Servicii Premium' : 'CARVELLO | Premium Services';
     window.scrollTo(0, 0);
+
+    const load = async () => {
+      const dbServices = await dbService.getServices();
+      const media = await dbService.getMedia();
+      
+      const mapped = dbServices.map(s => {
+        // Resolve image: check if it's a URL (from seed) or an ID (from db)
+        let imageUrl = s.heroMediaId || '';
+        if (s.heroMediaId && !s.heroMediaId.startsWith('http')) {
+             const m = media.find(m => m.id === s.heroMediaId);
+             if (m) imageUrl = m.url;
+        }
+
+        // Resolve icon
+        // @ts-ignore
+        const IconComp = Icons[s.icon] || Icons.HelpCircle;
+
+        return {
+          id: s.id,
+          icon: IconComp,
+          title: s.title,
+          subtitle: s.shortDescription,
+          description: s.fullDescription,
+          target: s.features[0] ? { ro: (s.features[0] as any).description?.ro || (s.features[0] as any).desc?.ro || '', en: (s.features[0] as any).description?.en || (s.features[0] as any).desc?.en || '' } : { ro: '', en: '' },
+          problem: s.features[1] ? { ro: (s.features[1] as any).description?.ro || (s.features[1] as any).desc?.ro || '', en: (s.features[1] as any).description?.en || (s.features[1] as any).desc?.en || '' } : { ro: '', en: '' },
+          deliverables: s.bullets,
+          image: imageUrl,
+          cta: { link: "/contact", text: { ro: "Cere Ofertă", en: "Request Quote" } }
+        };
+      });
+      setServices(mapped);
+    };
+    load();
   }, [lang]);
 
   return (
     <div className="bg-[#050505] text-[#e5e5e5] font-sans selection:bg-[#d4af37] selection:text-black">
+      <SEO 
+        title={lang === 'ro' ? 'Servicii Premium' : 'Premium Services'}
+        description={lang === 'ro' 
+          ? 'De la concept la realitate. Oferim servicii complete pentru proiecte care nu acceptă compromisuri.'
+          : 'From concept to reality. We offer complete services for projects that refuse to compromise.'}
+      />
       
       {/* 1) HERO SECTION */}
       <section className="relative h-[60vh] min-h-[500px] w-full flex items-center justify-center overflow-hidden bg-black">
@@ -139,7 +112,7 @@ export const Services: React.FC = () => {
 
       {/* 2) SERVICES LIST */}
       <div className="py-24 space-y-32">
-        {SERVICES_DATA.map((service, idx) => (
+        {services.map((service, idx) => (
           <ServiceSection key={service.id} service={service} index={idx} lang={lang} />
         ))}
       </div>
@@ -239,12 +212,16 @@ const ServiceSection = ({ service, index, lang }: { service: any, index: number,
               {lang === 'ro' ? 'Ce Primești' : 'Deliverables'}
             </h4>
             <ul className="space-y-3">
-              {service.deliverables.map((item: any, i: number) => (
+              {service.deliverables && Array.isArray(service.deliverables) ? service.deliverables.map((item: any, i: number) => (
                 <li key={i} className="flex items-center gap-3 text-sm text-white/70">
                   <CheckCircle2 className="w-4 h-4 text-[#d4af37]" />
                   <span>{lang === 'ro' ? item.ro : item.en}</span>
                 </li>
-              ))}
+              )) : (
+                <li className="text-sm text-white/50 italic">
+                  {lang === 'ro' ? 'Niciun element definit' : 'No items defined'}
+                </li>
+              )}
             </ul>
           </div>
 

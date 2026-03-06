@@ -30,7 +30,8 @@ export const OfferPresentation: React.FC = () => {
       dbService.updateOfferStatus(offerId, 'viewed');
 
       const templates = await dbService.getOfferTemplates();
-      const templateData = templates.find(t => t.id === offerData.templateId);
+      const templatesArray = Array.isArray(templates) ? templates : [];
+      const templateData = templatesArray.find(t => t.id === offerData.templateId);
       if (templateData) {
         setTemplate(templateData);
       }
@@ -55,6 +56,7 @@ export const OfferPresentation: React.FC = () => {
 
   return (
     <div className={`min-h-screen ${containerClasses}`}>
+      
       {/* Header */}
       <header className="container mx-auto px-4 py-8 flex justify-between items-center border-b border-current/10">
         {template.logoUrl ? (

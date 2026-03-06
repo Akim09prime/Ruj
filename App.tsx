@@ -1,6 +1,6 @@
-
 import React, { useEffect, useState, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { ThemeProvider } from './lib/theme';
 import { I18nProvider } from './lib/i18n';
 import { Navbar } from './components/layout/Navbar';
@@ -192,49 +192,51 @@ const App: React.FC = () => {
   if (!settings) return <LoadingFallback />;
 
   return (
-    <ThemeProvider>
-      <I18nProvider>
-        {isPreviewMode && (
-          <div className="fixed top-0 left-0 w-full bg-yellow-500 text-black text-[10px] font-bold uppercase tracking-widest text-center py-1 z-50">
-            Preview Mode — PHP Backend Simulated (Deploy to cPanel for full functionality)
-          </div>
-        )}
-        <Router>
-          <Routes>
-            <Route path="/" element={<PublicLayout settings={settings} />}>
-              <Route index element={<Home />} />
-              <Route path="portofoliu" element={<Portfolio />} />
-              <Route path="proiect/:id" element={<ProjectDetail />} />
-              <Route path="galerie-mobilier" element={<Gallery />} />
-              <Route path="servicii" element={<Services />} />
-              <Route path="servicii/:slug" element={<ServiceDetail />} />
-              <Route path="proces-garantii" element={<Process />} />
-              <Route path="recenzii" element={<Reviews />} />
-              <Route path="cerere-oferta" element={<LeadForm />} />
-              <Route path="despre" element={<About />} />
-              <Route path="contact" element={<Contact />} />
-              <Route path="maintenance" element={<Maintenance />} />
-              <Route path="oferta/:id" element={<OfferPresentation />} />
-            </Route>
-            <Route path="/admin/login" element={<Suspense fallback={<LoadingFallback />}><Login /></Suspense>} />
-            <Route path="/admin" element={<AdminGuard />}>
-              <Route index element={<Dashboard />} />
-              <Route path="projects" element={<ProjectManager />} />
-              <Route path="services" element={<ServiceManager />} />
-              <Route path="process" element={<ProcessManager />} />
-              <Route path="media" element={<MediaManager />} />
-              <Route path="leads" element={<LeadsManager />} />
-              <Route path="settings" element={<SettingsManager />} />
-              <Route path="hero" element={<HeroManager />} />
-              <Route path="users" element={<UserManager />} />
-              <Route path="offers" element={<OfferManager />} />
-              <Route path="templates" element={<TemplateManager />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </I18nProvider>
-    </ThemeProvider>
+    <HelmetProvider>
+      <ThemeProvider>
+        <I18nProvider>
+          {isPreviewMode && (
+            <div className="fixed top-0 left-0 w-full bg-yellow-500 text-black text-[10px] font-bold uppercase tracking-widest text-center py-1 z-50">
+              Preview Mode — PHP Backend Simulated (Deploy to cPanel for full functionality)
+            </div>
+          )}
+          <Router>
+            <Routes>
+              <Route path="/" element={<PublicLayout settings={settings} />}>
+                <Route index element={<Home />} />
+                <Route path="portofoliu" element={<Portfolio />} />
+                <Route path="proiect/:id" element={<ProjectDetail />} />
+                <Route path="galerie-mobilier" element={<Gallery />} />
+                <Route path="servicii" element={<Services />} />
+                <Route path="servicii/:slug" element={<ServiceDetail />} />
+                <Route path="proces-garantii" element={<Process />} />
+                <Route path="recenzii" element={<Reviews />} />
+                <Route path="cerere-oferta" element={<LeadForm />} />
+                <Route path="despre" element={<About />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path="maintenance" element={<Maintenance />} />
+                <Route path="oferta/:id" element={<OfferPresentation />} />
+              </Route>
+              <Route path="/admin/login" element={<Suspense fallback={<LoadingFallback />}><Login /></Suspense>} />
+              <Route path="/admin" element={<AdminGuard />}>
+                <Route index element={<Dashboard />} />
+                <Route path="projects" element={<ProjectManager />} />
+                <Route path="services" element={<ServiceManager />} />
+                <Route path="process" element={<ProcessManager />} />
+                <Route path="media" element={<MediaManager />} />
+                <Route path="leads" element={<LeadsManager />} />
+                <Route path="settings" element={<SettingsManager />} />
+                <Route path="hero" element={<HeroManager />} />
+                <Route path="users" element={<UserManager />} />
+                <Route path="offers" element={<OfferManager />} />
+                <Route path="templates" element={<TemplateManager />} />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </I18nProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 };
 

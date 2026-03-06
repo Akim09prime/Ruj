@@ -175,6 +175,7 @@ export const LeadForm: React.FC = () => {
   // --- RENDER: FORM ---
   return (
     <div className="pt-32 pb-24 px-6 max-w-4xl mx-auto">
+      
       <div className="mb-16 text-center">
         <h1 className="font-serif text-5xl md:text-6xl mb-6">Cere Ofertă</h1>
         <p className="text-muted">Partenerul tău pentru proiecte precise și execuție premium.</p>

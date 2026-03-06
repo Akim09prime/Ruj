@@ -169,7 +169,7 @@ export const MediaManager: React.FC = () => {
             <div className="absolute inset-0 bg-black/90 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center space-y-4 p-6 text-center">
               <span className="text-[8px] text-accent uppercase font-bold tracking-[0.2em]">{projects.find(p => p.id === m.projectId)?.title.ro}</span>
               <div className="flex text-accent text-[9px]">
-                {'★'.repeat(m.stars)}{'☆'.repeat(5 - m.stars)}
+                {'★'.repeat(m.stars || 0)}{'☆'.repeat(5 - (m.stars || 0))}
               </div>
               <div className="flex flex-col space-y-2 w-full">
                 <button onClick={() => setEditing(m)} className="w-full text-[9px] bg-white text-black py-2 uppercase font-bold hover:bg-accent hover:text-white transition-all">Editează</button>
